@@ -1,8 +1,15 @@
-// 유저 프로필 페이지
+'use client';
 
-import { getUserById, users } from '@/data/teams';
-import { notFound } from 'next/navigation';
+// 유저 프로필 페이지 — 조회 + 편집 (localStorage 저장)
+
+import { useState, useEffect } from 'react';
+import { useParams, notFound } from 'next/navigation';
+import { getUserById } from '@/data/teams';
 import { TagBadge } from '@/components/ui/Badge';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
+import type { User, UserRole } from '@/types';
+
+const PROFILE_STORAGE_KEY = 'whymatch_profiles';
 
 const roleLabel: Record<string, string> = {
   frontend: '프론트엔드',
@@ -13,26 +20,260 @@ const roleLabel: Record<string, string> = {
   devops: 'DevOps',
 };
 
-interface Props {
-  params: Promise<{ id: string }>;
+const ALL_ROLES: UserRole[] = ['frontend', 'backend', 'designer', 'pm', 'data', 'devops'];
+
+function loadOverride(id: string): Partial<User> {
+  try {
+    const raw = localStorage.getItem(PROFILE_STORAGE_KEY);
+    if (!raw) return {};
+    return JSON.parse(raw)[id] ?? {};
+  } catch {
+    return {};
+  }
 }
 
-export default async function ProfilePage({ params }: Props) {
-  const { id } = await params;
+function saveOverride(id: string, data: Partial<User>) {
+  try {
+    const raw = localStorage.getItem(PROFILE_STORAGE_KEY);
+    const all = raw ? JSON.parse(raw) : {};
+    all[id] = data;
+    localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(all));
+  } catch {}
+}
 
-  // 'me'는 첫 번째 유저로 처리 (로그인 기능 없음)
-  const user = id === 'me' ? users[0] : getUserById(id);
-  if (!user) notFound();
+export default function ProfilePage() {
+  const params = useParams();
+  const id = params.id as string;
+  const { currentUser } = useCurrentUser();
+
+  const baseUser = getUserById(id);
+  const isMe = currentUser?.id === id;
+
+  const [user, setUser] = useState<User | null>(null);
+  const [editing, setEditing] = useState(false);
+
+  // 편집 폼 상태
+  const [form, setForm] = useState({
+    name: '',
+    bio: '',
+    roles: [] as UserRole[],
+    tagInput: '',   // 쉼표 구분 입력
+    activeHours: 0,
+    githubUrl: '',
+    portfolioUrl: '',
+  });
+
+  useEffect(() => {
+    if (!baseUser) return;
+    const override = loadOverride(id);
+    const merged: User = { ...baseUser, ...override };
+    setUser(merged);
+  }, [id, baseUser]);
+
+  if (!baseUser) {
+    notFound();
+    return null;
+  }
+
+  if (!user) return null;
+
+  function startEdit() {
+    if (!user) return;
+    setForm({
+      name: user.name,
+      bio: user.bio ?? '',
+      roles: [...user.roles],
+      tagInput: user.tags.join(', '),
+      activeHours: user.activeHours,
+      githubUrl: user.githubUrl ?? '',
+      portfolioUrl: user.portfolioUrl ?? '',
+    });
+    setEditing(true);
+  }
+
+  function cancelEdit() {
+    setEditing(false);
+  }
+
+  function saveEdit() {
+    if (!user) return;
+    const newTags = form.tagInput
+      .split(',')
+      .map((t) => t.trim())
+      .filter(Boolean);
+
+    const updated: User = {
+      ...user,
+      name: form.name.trim() || user.name,
+      bio: form.bio.trim() || undefined,
+      roles: form.roles.length > 0 ? form.roles : user.roles,
+      tags: newTags.length > 0 ? newTags : user.tags,
+      activeHours: Number(form.activeHours) || user.activeHours,
+      githubUrl: form.githubUrl.trim() || undefined,
+      portfolioUrl: form.portfolioUrl.trim() || undefined,
+    };
+
+    const override: Partial<User> = {
+      name: updated.name,
+      bio: updated.bio,
+      roles: updated.roles,
+      tags: updated.tags,
+      activeHours: updated.activeHours,
+      githubUrl: updated.githubUrl,
+      portfolioUrl: updated.portfolioUrl,
+    };
+
+    saveOverride(id, override);
+    setUser(updated);
+    setEditing(false);
+  }
+
+  function toggleRole(role: UserRole) {
+    setForm((prev) => ({
+      ...prev,
+      roles: prev.roles.includes(role)
+        ? prev.roles.filter((r) => r !== role)
+        : [...prev.roles, role],
+    }));
+  }
+
+  if (editing) {
+    return (
+      <div className="max-w-2xl mx-auto px-4 py-10">
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-xl font-extrabold text-gray-800">프로필 수정</h1>
+          <button onClick={cancelEdit} className="text-sm text-gray-400 hover:text-gray-600">
+            취소
+          </button>
+        </div>
+
+        <div className="space-y-5">
+          {/* 이름 */}
+          <div>
+            <label className="text-xs font-semibold text-gray-500 block mb-1">이름</label>
+            <input
+              type="text"
+              value={form.name}
+              onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
+              className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-indigo-400"
+            />
+          </div>
+
+          {/* 소개 */}
+          <div>
+            <label className="text-xs font-semibold text-gray-500 block mb-1">한 줄 소개</label>
+            <textarea
+              value={form.bio}
+              onChange={(e) => setForm((p) => ({ ...p, bio: e.target.value }))}
+              rows={2}
+              placeholder="간단히 자신을 소개해주세요"
+              className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-indigo-400 resize-none"
+            />
+          </div>
+
+          {/* 역할 */}
+          <div>
+            <label className="text-xs font-semibold text-gray-500 block mb-2">역할</label>
+            <div className="flex flex-wrap gap-2">
+              {ALL_ROLES.map((role) => (
+                <button
+                  key={role}
+                  onClick={() => toggleRole(role)}
+                  className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                    form.roles.includes(role)
+                      ? 'bg-purple-600 text-white'
+                      : 'bg-purple-50 text-purple-700 hover:bg-purple-100'
+                  }`}
+                >
+                  {roleLabel[role]}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* 기술 스택 */}
+          <div>
+            <label className="text-xs font-semibold text-gray-500 block mb-1">
+              기술 스택 <span className="font-normal text-gray-400">(쉼표로 구분)</span>
+            </label>
+            <input
+              type="text"
+              value={form.tagInput}
+              onChange={(e) => setForm((p) => ({ ...p, tagInput: e.target.value }))}
+              placeholder="React, TypeScript, Node.js"
+              className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-indigo-400"
+            />
+          </div>
+
+          {/* 활동 시간 */}
+          <div>
+            <label className="text-xs font-semibold text-gray-500 block mb-1">
+              하루 평균 활동 시간 (h)
+            </label>
+            <input
+              type="number"
+              min={0}
+              max={24}
+              value={form.activeHours}
+              onChange={(e) => setForm((p) => ({ ...p, activeHours: Number(e.target.value) }))}
+              className="w-28 px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-indigo-400"
+            />
+          </div>
+
+          {/* GitHub */}
+          <div>
+            <label className="text-xs font-semibold text-gray-500 block mb-1">GitHub URL</label>
+            <input
+              type="url"
+              value={form.githubUrl}
+              onChange={(e) => setForm((p) => ({ ...p, githubUrl: e.target.value }))}
+              placeholder="https://github.com/username"
+              className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-indigo-400"
+            />
+          </div>
+
+          {/* 포트폴리오 */}
+          <div>
+            <label className="text-xs font-semibold text-gray-500 block mb-1">포트폴리오 URL</label>
+            <input
+              type="url"
+              value={form.portfolioUrl}
+              onChange={(e) => setForm((p) => ({ ...p, portfolioUrl: e.target.value }))}
+              placeholder="https://notion.so/..."
+              className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-indigo-400"
+            />
+          </div>
+
+          <button
+            onClick={saveEdit}
+            className="w-full py-3 rounded-xl bg-indigo-600 text-white font-bold text-sm hover:bg-indigo-700 transition-colors"
+          >
+            저장하기
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-10">
       {/* 프로필 헤더 */}
-      <div className="flex items-center gap-5 mb-8">
-        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white text-3xl font-extrabold">
+      <div className="flex items-start gap-5 mb-8">
+        <div className="w-20 h-20 rounded-full bg-linear-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white text-3xl font-extrabold shrink-0">
           {user.name[0]}
         </div>
-        <div>
-          <h1 className="text-2xl font-extrabold text-gray-800">{user.name}</h1>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-extrabold text-gray-800">{user.name}</h1>
+            {isMe && (
+              <button
+                onClick={startEdit}
+                className="text-xs font-semibold text-indigo-500 border border-indigo-200 px-2.5 py-1 rounded-full hover:bg-indigo-50 transition-colors"
+              >
+                수정
+              </button>
+            )}
+          </div>
           <div className="flex flex-wrap gap-1 mt-1">
             {user.roles.map((role) => (
               <span

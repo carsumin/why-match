@@ -4,8 +4,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { users } from '@/data/teams';
-import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { useCurrentUser, CURRENT_USER_KEY } from '@/hooks/useCurrentUser';
 
 const navItems = [
   { label: '해커톤', href: '/hackathons' },
@@ -14,17 +13,31 @@ const navItems = [
   { label: '쇼케이스', href: '/showcase' },
 ];
 
+const roleLabel: Record<string, string> = {
+  frontend: '프론트엔드',
+  backend: '백엔드',
+  designer: '디자이너',
+  pm: 'PM',
+  data: '데이터',
+  devops: 'DevOps',
+};
+
 export default function Header() {
   const pathname = usePathname();
-  const { currentUser, setCurrentUser } = useCurrentUser();
+  const { currentUser } = useCurrentUser();
   const [showMenu, setShowMenu] = useState(false);
+
+  function handleLogout() {
+    localStorage.removeItem(CURRENT_USER_KEY);
+    window.location.reload();
+  }
 
   return (
     <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-sm border-b border-gray-100">
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
         {/* 로고 */}
         <Link href="/" className="flex items-center gap-2">
-          <span className="text-xl font-extrabold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+          <span className="text-xl font-extrabold bg-linear-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
             WhyMatch
           </span>
         </Link>
@@ -54,45 +67,45 @@ export default function Header() {
             </svg>
           </Link>
 
-          {/* 유저 아바타 + 드롭다운 */}
+          {/* 아바타 + 프로필 메뉴 */}
           <div className="relative">
             <button
               onClick={() => setShowMenu((v) => !v)}
               className="w-8 h-8 rounded-full bg-linear-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white text-sm font-bold hover:opacity-90 transition-opacity"
-              title={currentUser ? `${currentUser.name} (클릭하여 변경)` : '사용자 선택'}
             >
               {currentUser ? currentUser.name[0] : '?'}
             </button>
 
-            {showMenu && (
+            {showMenu && currentUser && (
               <>
-                {/* 백드롭 */}
-                <div
-                  className="fixed inset-0 z-40"
-                  onClick={() => setShowMenu(false)}
-                />
-                {/* 드롭다운 */}
-                <div className="absolute right-0 top-10 z-50 w-48 bg-white rounded-2xl shadow-lg border border-gray-100 py-2 overflow-hidden">
-                  <p className="text-xs text-gray-400 font-semibold px-3 py-1.5">나로 로그인</p>
-                  {users.map((u) => (
-                    <button
-                      key={u.id}
-                      onClick={() => { setCurrentUser(u.id); setShowMenu(false); }}
-                      className={`w-full flex items-center gap-2.5 px-3 py-2 text-left hover:bg-indigo-50 transition-colors ${
-                        currentUser?.id === u.id ? 'bg-indigo-50' : ''
-                      }`}
+                <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)} />
+                <div className="absolute right-0 top-10 z-50 w-64 bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+                  {/* 현재 유저 정보 */}
+                  <div className="px-4 py-3 border-b border-gray-100">
+                    <p className="text-sm font-bold text-gray-800">{currentUser.name}</p>
+                    <p className="text-xs text-gray-400">
+                      {currentUser.roles.map((r) => roleLabel[r] ?? r).join(' · ')}
+                    </p>
+                  </div>
+
+                  {/* 메뉴 */}
+                  <div className="py-1">
+                    <Link
+                      href={`/profile/${currentUser.id}`}
+                      onClick={() => setShowMenu(false)}
+                      className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                     >
-                      <div className="w-7 h-7 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-xs shrink-0">
-                        {u.name[0]}
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-sm font-semibold text-gray-800 truncate">{u.name}</p>
-                      </div>
-                      {currentUser?.id === u.id && (
-                        <span className="ml-auto text-indigo-500 text-xs">✓</span>
-                      )}
+                      <span className="text-base">👤</span>
+                      내 정보 보기 / 수정
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors"
+                    >
+                      <span className="text-base">🚪</span>
+                      로그아웃
                     </button>
-                  ))}
+                  </div>
                 </div>
               </>
             )}

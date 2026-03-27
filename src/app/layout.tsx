@@ -4,6 +4,7 @@ import './globals.css';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import Navigation from '@/components/layout/Navigation';
+import LoginGate from '@/components/auth/LoginGate';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -23,10 +24,12 @@ export default function RootLayout({
   return (
     <html lang="ko" className={`${geistSans.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col bg-gray-50">
-        <Header />
-        <main className="flex-1 pb-16 md:pb-0">{children}</main>
-        <Footer />
-        <Navigation />
+        <LoginGate>
+          <Header />
+          <main className="flex-1 pb-16 md:pb-0">{children}</main>
+          <Footer />
+          <Navigation />
+        </LoginGate>
       </body>
     </html>
   );
