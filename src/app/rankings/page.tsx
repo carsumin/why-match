@@ -1,69 +1,147 @@
-// 랭킹 보드 페이지
+'use client';
 
-import { TagBadge } from '@/components/ui/Badge';
+// 랭킹 페이지 — 글로벌 랭킹 테이블, 기간 필터, TOP 3 강조
 
-// 더미 랭킹 데이터
-const rankings = [
-  { rank: 1, teamName: '팀 루나틱', hackathon: 'AI 이노베이션 해커톤 2025', award: '대상', prize: '2,000만원', tags: ['AI', 'LLM', 'React'] },
-  { rank: 2, teamName: '코드버스터즈', hackathon: 'AI 이노베이션 해커톤 2025', award: '최우수상', prize: '1,000만원', tags: ['React', 'Node.js', 'AI'] },
-  { rank: 3, teamName: '데이터 드리머스', hackathon: 'AI 이노베이션 해커톤 2025', award: '우수상', prize: '500만원', tags: ['Python', 'ML', 'SQL'] },
-  { rank: 4, teamName: '디자인 씽커스', hackathon: 'UX 디자인 스프린트 2025', award: '대상', prize: '500만원', tags: ['Figma', 'UX', 'React'] },
-];
+import { useState, useMemo } from 'react';
+import { globalRankings } from '@/data/leaderboards';
 
-const rankEmoji: Record<number, string> = { 1: '🥇', 2: '🥈', 3: '🥉' };
+type PeriodFilter = 'all' | '30d' | '7d';
+
+const PERIOD_LABELS: Record<PeriodFilter, string> = {
+  all: '전체',
+  '30d': '최근 30일',
+  '7d': '최근 7일',
+};
+
+/** TOP 3 배경/텍스트 스타일 */
+const TOP3_ROW: Record<number, string> = {
+  1: 'bg-yellow-50 border-yellow-100',
+  2: 'bg-gray-50 border-gray-100',
+  3: 'bg-orange-50 border-orange-100',
+};
+const TOP3_RANK: Record<number, string> = {
+  1: 'text-yellow-500',
+  2: 'text-gray-400',
+  3: 'text-orange-400',
+};
+const TOP3_EMOJI: Record<number, string> = { 1: '🥇', 2: '🥈', 3: '🥉' };
+
+/** 기간 필터에 따라 점수를 가상으로 조정 (더미 처리) */
+function applyPeriodFilter(period: PeriodFilter) {
+  if (period === 'all') return globalRankings;
+  // 더미: 30일은 상위 7명, 7일은 상위 5명만 표시 (점수 조정)
+  const count = period === '30d' ? 7 : 5;
+  return globalRankings
+    .slice(0, count)
+    .map((entry, i) => ({
+      ...entry,
+      rank: i + 1,
+      points: Math.floor(entry.points * (period === '7d' ? 0.3 : 0.6)),
+    }));
+}
 
 export default function RankingsPage() {
-  return (
-    <div className="max-w-4xl mx-auto px-4 py-10">
-      <h1 className="text-3xl font-extrabold text-gray-800 mb-2">랭킹 보드</h1>
-      <p className="text-gray-500 mb-8">해커톤 수상팀 기록을 확인하세요.</p>
+  const [period, setPeriod] = useState<PeriodFilter>('all');
 
-      {/* 필터 (placeholder) */}
-      <div className="flex gap-2 mb-6 flex-wrap">
-        {['전체', '이번 달', '올해'].map((filter) => (
+  const entries = useMemo(() => applyPeriodFilter(period), [period]);
+
+  return (
+    <div className="max-w-2xl mx-auto px-4 py-8">
+      <h1 className="text-2xl font-extrabold text-gray-800 mb-2">글로벌 랭킹</h1>
+      <p className="text-sm text-gray-500 mb-6">누적 포인트 기준 참가자 순위입니다.</p>
+
+      {/* 기간 필터 */}
+      <div className="flex gap-2 mb-6">
+        {(Object.keys(PERIOD_LABELS) as PeriodFilter[]).map((p) => (
           <button
-            key={filter}
-            className={`px-4 py-1.5 rounded-full text-sm font-medium border transition-colors ${
-              filter === '전체'
-                ? 'bg-indigo-600 text-white border-indigo-600'
-                : 'bg-white text-gray-600 border-gray-200 hover:border-indigo-300'
+            key={p}
+            onClick={() => setPeriod(p)}
+            className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
+              period === p
+                ? 'bg-indigo-600 text-white'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
             }`}
           >
-            {filter}
+            {PERIOD_LABELS[p]}
           </button>
         ))}
       </div>
 
-      <div className="space-y-3">
-        {rankings.map((entry) => (
-          <div
-            key={entry.rank}
-            className="flex items-center gap-4 p-4 bg-white rounded-2xl border border-gray-100"
-          >
-            {/* 순위 */}
-            <div className="w-10 text-center text-xl font-extrabold text-gray-300">
-              {rankEmoji[entry.rank] ?? entry.rank}
-            </div>
+      {/* TOP 3 시각적 강조 */}
+      {entries.length >= 3 && (
+        <div className="grid grid-cols-3 gap-3 mb-6">
+          {[1, 0, 2].map((idx) => {
+            const e = entries[idx];
+            if (!e) return null;
+            const isFirst = e.rank === 1;
+            return (
+              <div
+                key={e.rank}
+                className={`flex flex-col items-center p-4 rounded-2xl border text-center ${TOP3_ROW[e.rank] ?? 'bg-white border-gray-100'} ${isFirst ? 'scale-105 shadow-md' : ''}`}
+              >
+                <span className="text-3xl mb-1">{TOP3_EMOJI[e.rank]}</span>
+                <p className="text-sm font-extrabold text-gray-800 truncate w-full text-center">
+                  {e.nickname}
+                </p>
+                <p className={`text-lg font-extrabold ${TOP3_RANK[e.rank] ?? 'text-gray-600'}`}>
+                  {e.points.toLocaleString()}p
+                </p>
+              </div>
+            );
+          })}
+        </div>
+      )}
 
-            {/* 팀 정보 */}
-            <div className="flex-1 min-w-0">
-              <p className="font-bold text-gray-800">{entry.teamName}</p>
-              <p className="text-xs text-gray-400 truncate">{entry.hackathon}</p>
-              <div className="flex flex-wrap gap-1 mt-1">
-                {entry.tags.map((tag) => (
-                  <TagBadge key={tag} label={tag} />
-                ))}
+      {/* 전체 랭킹 테이블 */}
+      {entries.length > 0 ? (
+        <div className="space-y-2">
+          {entries.map((entry) => (
+            <div
+              key={`${entry.rank}-${entry.nickname}`}
+              className={`flex items-center gap-4 px-4 py-3 rounded-2xl border transition-colors ${
+                TOP3_ROW[entry.rank] ?? 'bg-white border-gray-100 hover:border-indigo-100'
+              }`}
+            >
+              {/* 순위 */}
+              <div className={`w-8 text-center font-extrabold ${TOP3_RANK[entry.rank] ?? 'text-gray-400'}`}>
+                {TOP3_EMOJI[entry.rank] ?? `#${entry.rank}`}
+              </div>
+
+              {/* 닉네임 */}
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-gray-800 text-sm truncate">{entry.nickname}</p>
+              </div>
+
+              {/* 순위 변동 */}
+              {entry.delta !== undefined && entry.delta !== 0 && (
+                <div
+                  className={`text-xs font-bold ${
+                    entry.delta > 0 ? 'text-green-500' : 'text-red-400'
+                  }`}
+                >
+                  {entry.delta > 0 ? `↑${entry.delta}` : `↓${Math.abs(entry.delta)}`}
+                </div>
+              )}
+              {entry.delta === 0 && (
+                <div className="text-xs text-gray-300 font-bold">—</div>
+              )}
+
+              {/* 포인트 */}
+              <div className="text-right">
+                <p className="text-sm font-extrabold text-indigo-700">
+                  {entry.points.toLocaleString()}
+                </p>
+                <p className="text-xs text-gray-400">points</p>
               </div>
             </div>
-
-            {/* 수상 */}
-            <div className="text-right shrink-0">
-              <p className="text-sm font-semibold text-indigo-600">{entry.award}</p>
-              <p className="text-xs text-gray-400">{entry.prize}</p>
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      ) : (
+        <div className="flex flex-col items-center justify-center py-20 text-center text-gray-400">
+          <p className="text-4xl mb-3">📊</p>
+          <p className="text-sm font-semibold text-gray-600">이 기간에 데이터가 없습니다.</p>
+        </div>
+      )}
     </div>
   );
 }

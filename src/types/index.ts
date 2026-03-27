@@ -1,98 +1,58 @@
 // 공통 타입 정의 — WhyMatch 해커톤 팀 매칭 서비스
 
-// 사용자 역할 종류
+// ──────────────────────────────
+// 기존 타입 (simulate / profile 페이지에서 사용 중)
+// ──────────────────────────────
+
 export type UserRole = 'frontend' | 'backend' | 'designer' | 'pm' | 'data' | 'devops';
-
-// 매칭 레벨
 export type MatchLevel = 'high' | 'medium' | 'low';
-
-// 해커톤 상태
-export type HackathonStatus = 'upcoming' | 'ongoing' | 'ended';
-
-// 해커톤 탭 종류
-export type HackathonTab = '개요' | '평가' | '일정' | '상금' | '팀' | '제출' | '리더보드';
-
-// 팀원 지원 상태
 export type ApplicationStatus = 'pending' | 'accepted' | 'rejected';
 
-// ──────────────────────────────
-// 유저
-// ──────────────────────────────
 export interface User {
   id: string;
   name: string;
   avatar?: string;
   bio?: string;
-  roles: UserRole[];           // 보유 역할 (복수 가능)
-  tags: string[];              // 기술 태그 (예: React, Node.js, Figma)
-  activeHours: number;         // 하루 평균 활동 시간 (0~24)
+  roles: UserRole[];
+  tags: string[];
+  activeHours: number;
   portfolioUrl?: string;
   githubUrl?: string;
 }
 
-// ──────────────────────────────
-// 해커톤
-// ──────────────────────────────
-export interface Hackathon {
-  id: string;
-  slug: string;
-  title: string;
-  organizer: string;
-  description: string;
-  tags: string[];              // 해커톤 주제 태그
-  status: HackathonStatus;
-  startDate: string;           // ISO 8601
-  endDate: string;             // ISO 8601
-  deadline: string;            // 팀 모집 마감 ISO 8601
-  prize: string;               // 총 상금 (예: "1,000만원")
-  prizeDetail?: string;
-  maxTeamSize: number;
-  minTeamSize: number;
-  registrationUrl?: string;
-  thumbnailUrl?: string;
-}
-
-// ──────────────────────────────
-// 팀
-// ──────────────────────────────
-export interface Team {
+/** 구형 Team 인터페이스 — simulate/profile/matching 전용 */
+export interface LegacyTeam {
   id: string;
   name: string;
   hackathonId: string;
   leaderId: string;
   members: User[];
-  requiredRoles: UserRole[];   // 아직 필요한 역할
-  tags: string[];              // 팀이 원하는 기술 스택
+  requiredRoles: UserRole[];
+  tags: string[];
   description?: string;
-  activeHoursMin: number;      // 원하는 최소 활동 시간
-  activeHoursMax: number;      // 원하는 최대 활동 시간
+  activeHoursMin: number;
+  activeHoursMax: number;
 }
 
-// ──────────────────────────────
-// 매칭 결과
-// ──────────────────────────────
+/** 하위 호환 alias — matching.ts / simulate 페이지 전용 */
+export type Team = LegacyTeam;
+
 export interface MatchResult {
-  score: number;               // 0~100
+  score: number;
   level: MatchLevel;
-  reason: string;              // 이유 한 줄 (예: "React 기술이 일치합니다")
-  tagScore: number;            // 태그 일치 점수 (0~100)
-  roleScore: number;           // 역할 필요도 점수 (0~100)
-  timeScore: number;           // 활동 시간 점수 (0~100)
+  reason: string;
+  tagScore: number;
+  roleScore: number;
+  timeScore: number;
 }
 
-// ──────────────────────────────
-// 팀 빌딩 시뮬레이터
-// ──────────────────────────────
 export interface SimulationResult {
-  beforeScore: number;         // 합류 전 팀 평균 점수
-  afterScore: number;          // 합류 후 팀 평균 점수
-  delta: number;               // 점수 변화 (afterScore - beforeScore)
+  beforeScore: number;
+  afterScore: number;
+  delta: number;
   newMember: User;
 }
 
-// ──────────────────────────────
-// 메시지 / 지원
-// ──────────────────────────────
 export interface Application {
   id: string;
   fromUserId: string;
@@ -103,12 +63,144 @@ export interface Application {
 }
 
 // ──────────────────────────────
-// 랭킹
+// SPEC.md 기준 신규 타입
 // ──────────────────────────────
-export interface RankingEntry {
+
+export type HackathonStatus = 'ongoing' | 'ended' | 'upcoming';
+export type HackathonTab = '개요' | '평가' | '일정' | '상금' | '팀' | '제출' | '리더보드';
+
+/** 해커톤 목록용 경량 타입 */
+export interface HackathonListItem {
+  slug: string;
+  title: string;
+  status: HackathonStatus;
+  tags: string[];
+  thumbnailUrl: string;
+  period: {
+    timezone: string;
+    submissionDeadlineAt: string;
+    endAt: string;
+  };
+  links: {
+    detail: string;
+    rules: string;
+    faq: string;
+  };
+}
+
+/** 해커톤 상세용 sections 타입 */
+export interface HackathonDetail {
+  slug: string;
+  title: string;
+  sections: {
+    overview: {
+      summary: string;
+      teamPolicy: {
+        allowSolo: boolean;
+        maxTeamSize: number;
+      };
+      /** 안내 탭 내용을 개요에 포함 */
+      notice: string[];
+      infoLinks: {
+        rules: string;
+        faq: string;
+      };
+    };
+    eval: {
+      metricName: string;
+      description: string;
+      scoreSource?: 'metric' | 'vote';
+      scoreDisplay?: {
+        label: string;
+        breakdown: {
+          key: string;
+          label: string;
+          weightPercent: number;
+        }[];
+      };
+      limits?: {
+        maxRuntimeSec?: number;
+        maxSubmissionsPerDay?: number;
+      };
+    };
+    schedule: {
+      timezone: string;
+      milestones: {
+        name: string;
+        at: string;
+      }[];
+    };
+    prize: {
+      items: {
+        place: string;
+        amountKRW: number;
+      }[];
+    };
+    teams: {
+      campEnabled: boolean;
+      listUrl: string;
+    };
+    submit: {
+      allowedArtifactTypes: string[];
+      submissionUrl: string;
+      guide: string[];
+      submissionItems?: {
+        key: string;
+        title: string;
+        format: string;
+      }[];
+    };
+    leaderboard: {
+      publicLeaderboardUrl: string;
+      note: string;
+    };
+  };
+}
+
+/** SPEC.md 기준 팀 타입 (camp 페이지용) */
+export interface CampTeam {
+  teamCode: string;
+  hackathonSlug: string | null;
+  name: string;
+  isOpen: boolean;
+  memberCount: number;
+  lookingFor: string[];
+  intro: string;
+  contact: {
+    type: 'link' | 'form';
+    url: string;
+  };
+  createdAt: string;
+}
+
+/** 리더보드 엔트리 */
+export interface LeaderboardEntry {
   rank: number;
-  team: Team;
-  hackathon: Hackathon;
-  prize: string;
-  award: string;               // 수상 종류 (예: "대상", "최우수상")
+  teamName: string;
+  score: number;
+  submittedAt: string;
+  scoreBreakdown?: {
+    participant: number;
+    judge: number;
+  };
+  artifacts?: {
+    webUrl?: string;
+    pdfUrl?: string;
+    planTitle?: string;
+  };
+}
+
+/** 해커톤별 리더보드 */
+export interface Leaderboard {
+  hackathonSlug: string;
+  updatedAt: string;
+  entries: LeaderboardEntry[];
+}
+
+/** 글로벌 랭킹 엔트리 */
+export interface GlobalRankingEntry {
+  rank: number;
+  nickname: string;
+  points: number;
+  delta?: number; // 순위 변동 (양수=상승, 음수=하락, 0=유지)
 }

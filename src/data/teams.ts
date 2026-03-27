@@ -1,6 +1,6 @@
 // 팀 및 유저 더미 데이터
 
-import type { User, Team } from '@/types';
+import type { User, LegacyTeam, CampTeam } from '@/types';
 
 // ──────────────────────────────
 // 유저 더미 데이터 (10명)
@@ -96,9 +96,9 @@ export const users: User[] = [
 ];
 
 // ──────────────────────────────
-// 팀 더미 데이터 (5팀)
+// 구형 팀 데이터 — simulate / profile 페이지 전용 (export 명 유지)
 // ──────────────────────────────
-export const teams: Team[] = [
+export const teams: LegacyTeam[] = [
   {
     id: 't-001',
     name: '팀 루나틱',
@@ -166,7 +166,57 @@ export function getUserById(id: string): User | undefined {
   return users.find((u) => u.id === id);
 }
 
-/** 해커톤 ID로 팀 목록 조회 */
-export function getTeamsByHackathon(hackathonId: string): Team[] {
+/** 해커톤 ID로 구형 팀 목록 조회 */
+export function getTeamsByHackathon(hackathonId: string): LegacyTeam[] {
   return teams.filter((t) => t.hackathonId === hackathonId);
 }
+
+// ──────────────────────────────
+// SPEC.md 기준 팀 데이터 (camp 페이지용)
+// ──────────────────────────────
+export const campTeams: CampTeam[] = [
+  {
+    teamCode: 'T-ALPHA',
+    hackathonSlug: 'aimers-8-model-lite',
+    name: 'Team Alpha',
+    isOpen: true,
+    memberCount: 3,
+    lookingFor: ['Backend', 'ML Engineer'],
+    intro: '추론 최적화/경량화 실험을 함께 진행할 팀원을 찾습니다.',
+    contact: { type: 'link', url: 'https://open.kakao.com/o/example1' },
+    createdAt: '2026-02-20T11:00:00+09:00',
+  },
+  {
+    teamCode: 'T-BETA',
+    hackathonSlug: 'monthly-vibe-coding-2026-02',
+    name: 'PromptRunners',
+    isOpen: true,
+    memberCount: 1,
+    lookingFor: ['Frontend', 'Designer'],
+    intro: '프롬프트 품질 점수화 + 개선 가이드 UX를 기획합니다.',
+    contact: { type: 'link', url: 'https://forms.gle/example2' },
+    createdAt: '2026-02-18T18:30:00+09:00',
+  },
+  {
+    teamCode: 'T-HANDOVER-01',
+    hackathonSlug: 'daker-handover-2026-03',
+    name: '404found',
+    isOpen: true,
+    memberCount: 3,
+    lookingFor: ['Frontend', 'Designer'],
+    intro: '명세서 기반으로 기본 기능을 빠르게 완성하고 UX 확장을 노립니다.',
+    contact: { type: 'link', url: 'https://open.kakao.com/o/example3' },
+    createdAt: '2026-03-04T11:00:00+09:00',
+  },
+  {
+    teamCode: 'T-HANDOVER-02',
+    hackathonSlug: 'daker-handover-2026-03',
+    name: 'LGTM',
+    isOpen: false,
+    memberCount: 5,
+    lookingFor: [],
+    intro: '기획서-구현-문서화를 깔끔하게 맞추는 방향으로 진행합니다.',
+    contact: { type: 'link', url: 'https://forms.gle/example4' },
+    createdAt: '2026-03-05T09:20:00+09:00',
+  },
+];
