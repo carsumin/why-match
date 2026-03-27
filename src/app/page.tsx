@@ -60,7 +60,7 @@ export default function HomePage() {
           </Link>
           <Link
             href="/camp/simulate"
-            className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-purple-50 text-purple-700 font-bold text-lg hover:bg-purple-100 transition-colors"
+            className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-purple-600 text-white font-bold text-lg hover:bg-purple-700 transition-colors shadow-lg shadow-purple-200"
           >
             팀 시뮬레이터
           </Link>
