@@ -1,8 +1,11 @@
 // 상단 헤더 — 로고 + 네비게이션 링크
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { users } from '@/data/teams';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 
 const navItems = [
   { label: '해커톤', href: '/hackathons' },
@@ -13,6 +16,8 @@ const navItems = [
 
 export default function Header() {
   const pathname = usePathname();
+  const { currentUser, setCurrentUser } = useCurrentUser();
+  const [showMenu, setShowMenu] = useState(false);
 
   return (
     <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-sm border-b border-gray-100">
@@ -41,19 +46,57 @@ export default function Header() {
           ))}
         </nav>
 
-        {/* 메시지 / 프로필 */}
+        {/* 우측 아이콘 */}
         <div className="flex items-center gap-3">
           <Link href="/messages" className="text-gray-500 hover:text-indigo-600 transition-colors">
             <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
             </svg>
           </Link>
-          <Link
-            href="/profile/me"
-            className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white text-sm font-bold"
-          >
-            나
-          </Link>
+
+          {/* 유저 아바타 + 드롭다운 */}
+          <div className="relative">
+            <button
+              onClick={() => setShowMenu((v) => !v)}
+              className="w-8 h-8 rounded-full bg-linear-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white text-sm font-bold hover:opacity-90 transition-opacity"
+              title={currentUser ? `${currentUser.name} (클릭하여 변경)` : '사용자 선택'}
+            >
+              {currentUser ? currentUser.name[0] : '?'}
+            </button>
+
+            {showMenu && (
+              <>
+                {/* 백드롭 */}
+                <div
+                  className="fixed inset-0 z-40"
+                  onClick={() => setShowMenu(false)}
+                />
+                {/* 드롭다운 */}
+                <div className="absolute right-0 top-10 z-50 w-48 bg-white rounded-2xl shadow-lg border border-gray-100 py-2 overflow-hidden">
+                  <p className="text-xs text-gray-400 font-semibold px-3 py-1.5">나로 로그인</p>
+                  {users.map((u) => (
+                    <button
+                      key={u.id}
+                      onClick={() => { setCurrentUser(u.id); setShowMenu(false); }}
+                      className={`w-full flex items-center gap-2.5 px-3 py-2 text-left hover:bg-indigo-50 transition-colors ${
+                        currentUser?.id === u.id ? 'bg-indigo-50' : ''
+                      }`}
+                    >
+                      <div className="w-7 h-7 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-xs shrink-0">
+                        {u.name[0]}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold text-gray-800 truncate">{u.name}</p>
+                      </div>
+                      {currentUser?.id === u.id && (
+                        <span className="ml-auto text-indigo-500 text-xs">✓</span>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </header>
