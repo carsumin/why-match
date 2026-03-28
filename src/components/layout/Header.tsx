@@ -33,12 +33,12 @@ export default function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-sm border-b border-gray-100">
+    <header className="sticky top-0 z-50 glass-md border-b border-sky-100">
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
         {/* 로고 */}
         <Link href="/" className="flex items-center gap-2">
-          <span className="text-xl font-extrabold bg-linear-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-            WhyMatch
+          <span className="text-xl font-extrabold tracking-tight">
+            <span className="text-sky-300">Why</span><span className="text-pink-300">Match</span>
           </span>
         </Link>
 
@@ -50,8 +50,8 @@ export default function Header() {
               href={item.href}
               className={`text-sm font-medium transition-colors ${
                 pathname.startsWith(item.href)
-                  ? 'text-indigo-600'
-                  : 'text-gray-600 hover:text-indigo-600'
+                  ? 'text-gray-900 font-semibold'
+                  : 'text-gray-500 hover:text-gray-900'
               }`}
             >
               {item.label}
@@ -61,7 +61,7 @@ export default function Header() {
 
         {/* 우측 아이콘 */}
         <div className="flex items-center gap-3">
-          <Link href="/messages" className="text-gray-500 hover:text-indigo-600 transition-colors">
+          <Link href="/messages" className="text-gray-500 hover:text-gray-700 transition-colors">
             <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
             </svg>
@@ -71,7 +71,7 @@ export default function Header() {
           <div className="relative">
             <button
               onClick={() => setShowMenu((v) => !v)}
-              className="w-8 h-8 rounded-full bg-linear-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white text-sm font-bold hover:opacity-90 transition-opacity"
+              className="w-8 h-8 rounded-full bg-sky-300 flex items-center justify-center text-sky-900 text-sm font-bold hover:bg-sky-400 transition-colors"
             >
               {currentUser ? currentUser.name[0] : '?'}
             </button>
@@ -79,10 +79,10 @@ export default function Header() {
             {showMenu && currentUser && (
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)} />
-                <div className="absolute right-0 top-10 z-50 w-64 bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+                <div className="absolute right-0 top-10 z-50 w-64 glass-strong rounded-2xl shadow-lg overflow-hidden">
                   {/* 현재 유저 정보 */}
-                  <div className="px-4 py-3 border-b border-gray-100">
-                    <p className="text-sm font-bold text-gray-800">{currentUser.name}</p>
+                  <div className="px-4 py-3 border-b border-sky-100">
+                    <p className="text-sm font-bold text-gray-900">{currentUser.name}</p>
                     <p className="text-xs text-gray-400">
                       {currentUser.roles.map((r) => roleLabel[r] ?? r).join(' · ')}
                     </p>
@@ -93,7 +93,7 @@ export default function Header() {
                     <Link
                       href={`/profile/${currentUser.id}`}
                       onClick={() => setShowMenu(false)}
-                      className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                      className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-900 hover:bg-sky-50 transition-colors"
                     >
                       <span className="text-base">👤</span>
                       내 정보 보기 / 수정

@@ -1,27 +1,80 @@
 @import "tailwindcss";
 
 :root {
-  /* WhyMatch 브랜드 컬러 */
-  --color-primary: #4f46e5;       /* indigo-600 */
-  --color-primary-dark: #4338ca;  /* indigo-700 */
-  --color-accent: #9333ea;        /* purple-600 */
-  --color-success: #22c55e;       /* green-500 */
-  --color-warning: #ef4444;       /* red-500 */
+  /* Muted Pastel — Sky + Rose */
+  --color-primary:      #bae6fd;  /* sky-200 — 차분한 하늘 */
+  --color-primary-dark: #7dd3fc;  /* sky-300 */
+  --color-accent:       #fbcfe8;  /* pink-200 — 차분한 핑크 */
+  --color-success:      #6ee7b7;  /* emerald-300 */
+  --color-warning:      #fca5a5;  /* red-300 */
 
-  --background: #f9fafb;          /* gray-50 */
-  --foreground: #111827;          /* gray-900 */
+  --background: #f8fafc;          /* slate-50 — 눈에 편한 배경 */
+  --foreground: #334155;          /* slate-700 */
+  --card:       #ffffff;
+  --border:     #e2e8f0;          /* slate-200 */
+  --muted-fg:   #94a3b8;          /* slate-400 */
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: 'GmarketSans', var(--font-geist-sans);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans), 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+  background-color: #f8fafc;
+  color: #334155;
+  font-family: 'GmarketSans', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── 카드 유틸리티 ─────── */
+.glass {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 4px rgba(148, 163, 184, 0.10);
+}
+
+.glass-md {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 12px rgba(148, 163, 184, 0.12);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.glass-strong {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  box-shadow: 0 4px 20px rgba(148, 163, 184, 0.14);
+}
+
+/* ── 애니메이션 키프레임 ─────────────────────── */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.45s ease-out both;
+}
+
+/* prefers-reduced-motion 대응 */
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in-up,
+  .animate-fade-in {
+    animation: none;
+    opacity: 1;
+  }
 }
 
 /* 스크롤바 숨김 (스와이프 UI 등에서 활용) */

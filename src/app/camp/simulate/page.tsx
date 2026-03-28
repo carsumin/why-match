@@ -72,15 +72,15 @@ export default function SimulatePage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-10">
-      <h1 className="text-2xl font-extrabold text-gray-800 mb-1">팀 빌딩 시뮬레이터</h1>
+      <h1 className="text-2xl font-extrabold text-gray-900 mb-1">팀 빌딩 시뮬레이터</h1>
       <p className="text-sm text-gray-500 mb-6">합류하거나 팀을 꾸리기 전에 점수를 먼저 확인하세요.</p>
 
       {/* 모드 토글 */}
-      <div className="flex gap-1 p-1 rounded-xl bg-gray-100 mb-8 w-fit">
+      <div className="flex gap-1 p-1 rounded-xl glass mb-8 w-fit">
         <button
           onClick={() => setMode('joiner')}
           className={`px-5 py-2 rounded-lg text-sm font-bold transition-colors ${
-            mode === 'joiner' ? 'bg-white text-indigo-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+            mode === 'joiner' ? 'bg-white text-gray-700 shadow-sm' : 'text-gray-500 hover:text-gray-900'
           }`}
         >
           👤 합류자 모드
@@ -88,7 +88,7 @@ export default function SimulatePage() {
         <button
           onClick={() => setMode('leader')}
           className={`px-5 py-2 rounded-lg text-sm font-bold transition-colors ${
-            mode === 'leader' ? 'bg-white text-purple-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+            mode === 'leader' ? 'bg-white text-gray-600 shadow-sm' : 'text-gray-500 hover:text-gray-900'
           }`}
         >
           👑 팀장 모드
@@ -101,11 +101,11 @@ export default function SimulatePage() {
           <p className="text-xs font-semibold text-gray-400">내 프로필</p>
         </div>
         <div className="flex items-center gap-3 mb-2">
-          <div className="w-9 h-9 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-sm shrink-0">
+          <div className="w-9 h-9 rounded-full bg-sky-50 flex items-center justify-center text-gray-700 font-bold text-sm shrink-0">
             {me.name[0]}
           </div>
           <div>
-            <p className="font-bold text-gray-800 text-sm">{me.name}</p>
+            <p className="font-bold text-gray-900 text-sm">{me.name}</p>
             <p className="text-xs text-gray-400">{me.roles.map((r) => roleLabel[r] ?? r).join(' · ')}</p>
           </div>
         </div>
@@ -124,7 +124,7 @@ export default function SimulatePage() {
               어떤 팀에 합류할까요?
             </label>
             <select
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-200"
+              className="w-full border border-sky-100 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300"
               value={joinerTeamId}
               onChange={(e) => setJoinerTeamId(e.target.value)}
             >
@@ -150,19 +150,19 @@ export default function SimulatePage() {
           ) : joinerResult ? (
             <>
               {/* 결과 카드 */}
-              <Card className="bg-linear-to-br from-indigo-50 to-purple-50 border-indigo-100">
+              <Card className="bg-sky-50 border-sky-100">
                 <h2 className="text-xs font-semibold text-gray-500 mb-4">
-                  내가 <strong className="text-indigo-700">{joinerTeam.name}</strong>에 합류하면?
+                  내가 <strong className="text-gray-700">{joinerTeam.name}</strong>에 합류하면?
                 </h2>
                 <div className="flex items-center justify-around gap-4 mb-4">
                   <ScoreBlock label="합류 전" score={joinerResult.beforeScore} color="text-gray-500" />
                   <div className="text-2xl text-gray-300">→</div>
-                  <ScoreBlock label="합류 후" score={joinerResult.afterScore} color="text-indigo-600" />
+                  <ScoreBlock label="합류 후" score={joinerResult.afterScore} color="text-gray-700" />
                   <DeltaBlock delta={joinerResult.delta} />
                 </div>
                 {/* 합류 전 점수 근거 — 현재 팀원 조합 */}
                 <TeamCompositionBreakdown team={joinerTeam} />
-                <div className="border-t border-indigo-100 my-3" />
+                <div className="border-t border-sky-100 my-3" />
                 <ReasonBadge user={me} team={joinerTeam} />
               </Card>
 
@@ -170,7 +170,7 @@ export default function SimulatePage() {
               <a
                 href="#"
                 onClick={(e) => { e.preventDefault(); }}
-                className="block w-full text-center py-3 rounded-xl bg-indigo-600 text-white font-bold text-sm hover:bg-indigo-700 transition-colors"
+                className="block w-full text-center py-3 rounded-xl bg-sky-200 text-sky-800 font-bold text-sm hover:bg-sky-300 transition-colors"
               >
                 이 팀에 합류 신청하기 →
               </a>
@@ -189,13 +189,13 @@ export default function SimulatePage() {
             <Card>
               <div className="flex flex-col items-center text-center py-6 gap-3">
                 <p className="text-3xl">🏗️</p>
-                <p className="text-sm font-semibold text-gray-700">아직 만든 팀이 없습니다</p>
+                <p className="text-sm font-semibold text-gray-900">아직 만든 팀이 없습니다</p>
                 <p className="text-xs text-gray-400">
                   팀원 모집 페이지에서 팀을 먼저 등록하면<br />팀장 모드로 후보자를 탐색할 수 있습니다.
                 </p>
                 <a
                   href="/camp"
-                  className="mt-1 px-4 py-2 rounded-xl bg-purple-600 text-white text-sm font-bold hover:bg-purple-700 transition-colors"
+                  className="mt-1 px-4 py-2 rounded-xl bg-sky-100 text-gray-900 text-sm font-bold hover:bg-sky-100 transition-colors"
                 >
                   팀 만들러 가기 →
                 </a>
@@ -208,7 +208,7 @@ export default function SimulatePage() {
               내 팀 선택
             </label>
             <select
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-200"
+              className="w-full border border-sky-100 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-200"
               value={leaderTeamId || myTeams[0]?.id}
               onChange={(e) => setLeaderTeamId(e.target.value)}
             >
@@ -224,7 +224,7 @@ export default function SimulatePage() {
             </p>
           </Card>
 
-          <p className="text-sm font-semibold text-gray-700 px-1">
+          <p className="text-sm font-semibold text-gray-900 px-1">
             후보자 목록 — 합류 시 팀 점수 변화
           </p>
 
@@ -242,7 +242,7 @@ export default function SimulatePage() {
                   <Card key={candidate.id}>
                     <div className="flex items-start justify-between gap-3 mb-2">
                       <div className="flex-1">
-                        <p className="font-bold text-gray-800 text-sm">{candidate.name}</p>
+                        <p className="font-bold text-gray-900 text-sm">{candidate.name}</p>
                         <p className="text-xs text-gray-400">
                           {candidate.roles.map((r) => roleLabel[r] ?? r).join(' · ')}
                           {' · '}{candidate.activeHours}h/day
@@ -262,13 +262,13 @@ export default function SimulatePage() {
                       <span>팀 점수</span>
                       <span className="font-bold text-gray-600">{sim.beforeScore}</span>
                       <span>→</span>
-                      <span className="font-bold text-indigo-600">{sim.afterScore}</span>
+                      <span className="font-bold text-gray-700">{sim.afterScore}</span>
                       <span className="ml-1 text-gray-400">· {match.reason}</span>
                     </div>
 
                     {/* 연락하기 */}
                     {alreadySent ? (
-                      <p className="text-xs text-green-600 font-semibold text-center py-1">
+                      <p className="text-xs text-green-700 font-semibold text-center py-1">
                         ✓ 연락 완료
                       </p>
                     ) : (
@@ -277,7 +277,7 @@ export default function SimulatePage() {
                           setContactCandidate(candidate);
                           setContactMessage('');
                         }}
-                        className="w-full py-2 rounded-xl bg-purple-600 text-white text-sm font-bold hover:bg-purple-700 transition-colors"
+                        className="w-full py-2 rounded-xl bg-sky-100 text-gray-900 text-sm font-bold hover:bg-sky-100 transition-colors"
                       >
                         연락하기
                       </button>
@@ -295,9 +295,9 @@ export default function SimulatePage() {
       {/* 연락하기 모달 (팀장 모드) */}
       {contactCandidate && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-6 space-y-4">
+          <div className="w-full max-w-md glass rounded-2xl shadow-xl p-6 space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-base font-bold text-gray-800">
+              <h2 className="text-base font-bold text-gray-900">
                 {contactCandidate.name}님께 연락하기
               </h2>
               <button
@@ -307,8 +307,8 @@ export default function SimulatePage() {
                 ✕
               </button>
             </div>
-            <div className="p-3 rounded-xl bg-gray-50 text-xs text-gray-500">
-              <p className="font-semibold text-gray-700 mb-1">{contactCandidate.name}</p>
+            <div className="p-3 rounded-xl bg-sky-50 text-xs text-gray-500">
+              <p className="font-semibold text-gray-900 mb-1">{contactCandidate.name}</p>
               <p>{contactCandidate.roles.map((r) => roleLabel[r] ?? r).join(', ')}</p>
               <div className="flex flex-wrap gap-1 mt-1">
                 {contactCandidate.tags.map((t) => <TagBadge key={t} label={t} />)}
@@ -321,12 +321,12 @@ export default function SimulatePage() {
                 onChange={(e) => setContactMessage(e.target.value)}
                 placeholder={`안녕하세요! 저희 팀 ${leaderTeam.name}에 합류해주실 수 있으실까요?`}
                 rows={4}
-                className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-purple-400 resize-none"
+                className="w-full px-3 py-2 rounded-xl border border-sky-100 text-sm focus:outline-none focus:border-gray-400 resize-none"
               />
             </div>
             <button
               onClick={sendContact}
-              className="w-full py-3 rounded-xl bg-purple-600 text-white font-bold text-sm hover:bg-purple-700 transition-colors"
+              className="w-full py-3 rounded-xl bg-sky-100 text-gray-900 font-bold text-sm hover:bg-sky-100 transition-colors"
             >
               전송하기
             </button>
@@ -351,7 +351,7 @@ function ScoreBlock({ label, score, color }: { label: string; score: number; col
 }
 
 function DeltaBlock({ delta, compact = false }: { delta: number; compact?: boolean }) {
-  const color = delta > 0 ? 'text-green-600' : delta < 0 ? 'text-red-500' : 'text-gray-400';
+  const color = delta > 0 ? 'text-green-700' : delta < 0 ? 'text-red-500' : 'text-gray-400';
   const sign = delta > 0 ? '+' : '';
   if (compact) {
     return (
@@ -371,7 +371,7 @@ function DeltaBlock({ delta, compact = false }: { delta: number; compact?: boole
 function ReasonBadge({ user, team }: { user: User; team: (typeof teams)[number] }) {
   const match = calculateMatchScore(user, team);
   return (
-    <div className="text-xs text-indigo-600 bg-white px-3 py-1.5 rounded-full inline-block">
+    <div className="text-xs text-gray-700 glass px-3 py-1.5 rounded-full inline-block">
       💡 {match.reason}
     </div>
   );
@@ -396,17 +396,17 @@ function TeamCompositionBreakdown({ team }: { team: (typeof teams)[number] }) {
       <div className="space-y-1.5">
         {memberScores.map(({ member, match }) => (
           <div key={member.id} className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-600 font-bold text-xs shrink-0">
+            <div className="w-6 h-6 rounded-full glass border border-sky-100 flex items-center justify-center text-gray-600 font-bold text-xs shrink-0">
               {member.name[0]}
             </div>
             <div className="flex-1 min-w-0">
-              <span className="text-xs font-semibold text-gray-700">{member.name}</span>
+              <span className="text-xs font-semibold text-gray-900">{member.name}</span>
               <span className="text-xs text-gray-400 ml-1">
                 {member.roles.map((r) => roleLabel[r] ?? r).join('/')}
               </span>
             </div>
             <span className={`text-xs font-bold shrink-0 ${
-              match.score >= 80 ? 'text-green-600' : match.score >= 60 ? 'text-yellow-600' : 'text-red-400'
+              match.score >= 80 ? 'text-green-700' : match.score >= 60 ? 'text-yellow-600' : 'text-red-400'
             }`}>
               {match.score}점
             </span>

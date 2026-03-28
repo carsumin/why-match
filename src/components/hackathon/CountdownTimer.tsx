@@ -32,15 +32,15 @@ export default function CountdownTimer({ deadlineIso }: CountdownTimerProps) {
 
   if (!parts) {
     return (
-      <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-100 text-gray-500 text-sm font-semibold">
+      <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl glass text-gray-500 text-sm font-semibold">
         마감되었습니다
       </div>
     );
   }
 
   const pad = (n: number) => String(n).padStart(2, '0');
-  const urgentClass = parts.isUrgent ? 'bg-red-50 border-red-200 animate-pulse' : 'bg-indigo-50 border-indigo-100';
-  const textClass = parts.isUrgent ? 'text-red-600' : 'text-indigo-700';
+  const urgentClass = parts.isUrgent ? 'bg-red-50 border-red-200 animate-pulse' : 'bg-sky-50 border-sky-100';
+  const textClass = parts.isUrgent ? 'text-red-600' : 'text-gray-700';
 
   return (
     <div className={`inline-flex items-center gap-1 px-4 py-2 rounded-xl border ${urgentClass}`}>

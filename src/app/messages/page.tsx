@@ -9,14 +9,14 @@ export default function MessagesPage() {
   ];
 
   const statusConfig: Record<string, { label: string; colorClass: string }> = {
-    pending: { label: '대기 중', colorClass: 'bg-yellow-100 text-yellow-700' },
-    accepted: { label: '수락됨', colorClass: 'bg-green-100 text-green-700' },
-    rejected: { label: '거절됨', colorClass: 'bg-red-100 text-red-500' },
+    pending: { label: '대기 중', colorClass: 'bg-yellow-50 text-yellow-600' },
+    accepted: { label: '수락됨', colorClass: 'bg-green-50 text-green-700' },
+    rejected: { label: '거절됨', colorClass: 'bg-red-50 text-red-500' },
   };
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-10">
-      <h1 className="text-3xl font-extrabold text-gray-800 mb-2">메시지함</h1>
+      <h1 className="text-3xl font-extrabold text-gray-900 mb-2">메시지함</h1>
       <p className="text-gray-500 mb-8">팀 지원 현황과 메시지를 확인하세요.</p>
 
       <div className="space-y-3">
@@ -25,16 +25,16 @@ export default function MessagesPage() {
           return (
             <div
               key={msg.id}
-              className="flex items-start gap-3 p-4 bg-white rounded-2xl border border-gray-100 hover:border-indigo-200 transition-colors cursor-pointer"
+              className="flex items-start gap-3 p-4 glass rounded-2xl border border-sky-100 hover:border-sky-300 transition-colors cursor-pointer"
             >
               {/* 아바타 */}
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white text-sm font-bold shrink-0">
+              <div className="w-10 h-10 rounded-full bg-sky-300 flex items-center justify-center text-sky-900 text-sm font-bold shrink-0">
                 {msg.from[0]}
               </div>
               {/* 내용 */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-0.5">
-                  <span className="font-semibold text-gray-800 text-sm">{msg.from}</span>
+                  <span className="font-semibold text-gray-900 text-sm">{msg.from}</span>
                   <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${colorClass}`}>
                     {label}
                   </span>

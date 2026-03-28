@@ -16,6 +16,10 @@ export const metadata: Metadata = {
   description: '태그 기반 매칭 점수로 딱 맞는 해커톤 팀을 찾아보세요.',
 };
 
+export function generateViewport() {
+  return { width: 'device-width', initialScale: 1 };
+}
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -23,7 +27,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko" className={`${geistSans.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-gray-50">
+      <head>
+        <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/webfontworld/GmarketSans/GmarketSans.css" />
+      </head>
+      <body className="min-h-full flex flex-col">
         <LoginGate>
           <Header />
           <main className="flex-1 pb-16 md:pb-0">{children}</main>

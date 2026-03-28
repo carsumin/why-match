@@ -13,7 +13,7 @@ interface TagBadgeProps {
 export function TagBadge({ label, className = '' }: TagBadgeProps) {
   return (
     <span
-      className={`inline-block px-2.5 py-0.5 text-xs font-medium rounded-full bg-indigo-100 text-indigo-700 ${className}`}
+      className={`inline-block px-2.5 py-0.5 text-xs font-medium rounded-full bg-sky-100 text-sky-700 ${className}`}
     >
       {label}
     </span>
@@ -38,16 +38,16 @@ export function DdayBadge({ deadline }: DdayBadgeProps) {
 
   if (diffMs <= 0) {
     label = '마감';
-    colorClass = 'bg-gray-200 text-gray-500';
+    colorClass = 'bg-gray-100 text-gray-400';
   } else if (diffDays <= 3) {
     label = `D-${diffDays}`;
-    colorClass = 'bg-red-100 text-red-600';
+    colorClass = 'bg-red-50 text-red-500 border border-red-200';
   } else if (diffDays <= 7) {
     label = `D-${diffDays}`;
-    colorClass = 'bg-orange-100 text-orange-600';
+    colorClass = 'bg-orange-50 text-orange-500 border border-orange-200';
   } else {
     label = `D-${diffDays}`;
-    colorClass = 'bg-green-100 text-green-600';
+    colorClass = 'bg-emerald-50 text-emerald-600 border border-emerald-200';
   }
 
   return (
@@ -66,9 +66,9 @@ interface MatchLevelBadgeProps {
 }
 
 const levelConfig: Record<MatchLevel, { label: string; colorClass: string }> = {
-  high: { label: 'High Match', colorClass: 'bg-green-100 text-green-700' },
-  medium: { label: 'Medium Match', colorClass: 'bg-yellow-100 text-yellow-700' },
-  low: { label: 'Low Match', colorClass: 'bg-gray-100 text-gray-500' },
+  high: { label: 'High Match', colorClass: 'bg-emerald-50 text-emerald-600 border border-emerald-200' },
+  medium: { label: 'Medium Match', colorClass: 'bg-yellow-50 text-yellow-600 border border-yellow-200' },
+  low: { label: 'Low Match', colorClass: 'bg-gray-100 text-gray-400 border border-gray-200' },
 };
 
 export function MatchLevelBadge({ level, score }: MatchLevelBadgeProps) {

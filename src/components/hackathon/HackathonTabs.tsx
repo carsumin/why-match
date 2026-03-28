@@ -44,15 +44,15 @@ export default function HackathonTabs({
   return (
     <div>
       {/* 탭 네비게이션 */}
-      <div className="flex gap-1 overflow-x-auto border-b border-gray-100 mb-6 pb-0">
+      <div className="flex gap-1 overflow-x-auto border-b border-sky-100 mb-6 pb-0">
         {TABS.map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
             className={`px-4 py-2.5 text-sm font-semibold whitespace-nowrap border-b-2 transition-colors ${
               activeTab === tab
-                ? 'border-indigo-600 text-indigo-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700'
+                ? 'border-gray-900 text-gray-700'
+                : 'border-transparent text-gray-500 hover:text-gray-900'
             }`}
           >
             {tab}
@@ -63,22 +63,22 @@ export default function HackathonTabs({
       {/* ── 탭 1: 개요 ── */}
       {activeTab === '개요' && (
         <div className="space-y-6">
-          <div className="p-5 rounded-2xl bg-indigo-50">
-            <h3 className="text-sm font-bold text-indigo-700 mb-2">해커톤 소개</h3>
-            <p className="text-sm text-gray-700 leading-relaxed">{sections.overview.summary}</p>
+          <div className="p-5 rounded-2xl bg-sky-50">
+            <h3 className="text-sm font-bold text-gray-700 mb-2">해커톤 소개</h3>
+            <p className="text-sm text-gray-900 leading-relaxed">{sections.overview.summary}</p>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <div className="p-4 rounded-2xl bg-white border border-gray-100">
+            <div className="p-4 rounded-2xl glass border border-sky-100">
               <p className="text-xs text-gray-400 mb-1">팀 구성</p>
-              <p className="text-sm font-semibold text-gray-800">
+              <p className="text-sm font-semibold text-gray-900">
                 {sections.overview.teamPolicy.allowSolo ? '개인 참가 가능' : '팀 필수'}
                 &nbsp;·&nbsp;최대 {sections.overview.teamPolicy.maxTeamSize}인
               </p>
             </div>
-            <div className="p-4 rounded-2xl bg-white border border-gray-100">
+            <div className="p-4 rounded-2xl glass border border-sky-100">
               <p className="text-xs text-gray-400 mb-1">제출 마감</p>
-              <p className="text-sm font-semibold text-gray-800">
+              <p className="text-sm font-semibold text-gray-900">
                 {formatDateTime(submissionDeadlineAt)}
               </p>
             </div>
@@ -87,11 +87,11 @@ export default function HackathonTabs({
           {/* 공지사항 */}
           {sections.overview.notice.length > 0 && (
             <div>
-              <h3 className="text-sm font-bold text-gray-700 mb-3">📢 공지사항</h3>
+              <h3 className="text-sm font-bold text-gray-900 mb-3">📢 공지사항</h3>
               <ul className="space-y-2">
                 {sections.overview.notice.map((n, i) => (
                   <li key={i} className="flex gap-2 text-sm text-gray-600">
-                    <span className="text-indigo-400 mt-0.5">•</span>
+                    <span className="text-gray-400 mt-0.5">•</span>
                     <span>{n}</span>
                   </li>
                 ))}
@@ -105,7 +105,7 @@ export default function HackathonTabs({
               href={sections.overview.infoLinks.rules}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-1 text-center py-2.5 rounded-xl border border-indigo-200 text-indigo-600 text-sm font-semibold hover:bg-indigo-50 transition-colors"
+              className="flex-1 text-center py-2.5 rounded-xl border border-sky-100 text-gray-700 text-sm font-semibold hover:bg-sky-50 transition-colors"
             >
               📋 규정 보기
             </a>
@@ -113,7 +113,7 @@ export default function HackathonTabs({
               href={sections.overview.infoLinks.faq}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-1 text-center py-2.5 rounded-xl border border-indigo-200 text-indigo-600 text-sm font-semibold hover:bg-indigo-50 transition-colors"
+              className="flex-1 text-center py-2.5 rounded-xl border border-sky-100 text-gray-700 text-sm font-semibold hover:bg-sky-50 transition-colors"
             >
               ❓ FAQ
             </a>
@@ -124,33 +124,33 @@ export default function HackathonTabs({
       {/* ── 탭 2: 평가 ── */}
       {activeTab === '평가' && (
         <div className="space-y-5">
-          <div className="p-5 rounded-2xl bg-white border border-gray-100">
+          <div className="p-5 rounded-2xl glass border border-sky-100">
             <p className="text-xs text-gray-400 mb-1">평가 지표</p>
-            <p className="text-lg font-extrabold text-indigo-700">{sections.eval.metricName}</p>
+            <p className="text-lg font-extrabold text-gray-700">{sections.eval.metricName}</p>
           </div>
 
-          <div className="p-5 rounded-2xl bg-gray-50">
-            <h3 className="text-sm font-bold text-gray-700 mb-2">평가 방식</h3>
+          <div className="p-5 rounded-2xl bg-sky-50">
+            <h3 className="text-sm font-bold text-gray-900 mb-2">평가 방식</h3>
             <p className="text-sm text-gray-600 leading-relaxed">{sections.eval.description}</p>
           </div>
 
           {/* vote 방식 가중치 breakdown */}
           {sections.eval.scoreSource === 'vote' && sections.eval.scoreDisplay && (
-            <div className="p-5 rounded-2xl bg-purple-50">
-              <h3 className="text-sm font-bold text-purple-700 mb-3">
+            <div className="p-5 rounded-2xl bg-sky-50">
+              <h3 className="text-sm font-bold text-gray-600 mb-3">
                 점수 구성 — {sections.eval.scoreDisplay.label}
               </h3>
               <div className="space-y-2">
                 {sections.eval.scoreDisplay.breakdown.map((b) => (
                   <div key={b.key} className="flex items-center gap-3">
-                    <span className="text-sm text-gray-700 w-28">{b.label}</span>
-                    <div className="flex-1 h-2 rounded-full bg-purple-100 overflow-hidden">
+                    <span className="text-sm text-gray-900 w-28">{b.label}</span>
+                    <div className="flex-1 h-2 rounded-full bg-sky-50 overflow-hidden">
                       <div
-                        className="h-full bg-purple-500 rounded-full"
+                        className="h-full bg-sky-300 rounded-full"
                         style={{ width: `${b.weightPercent}%` }}
                       />
                     </div>
-                    <span className="text-sm font-bold text-purple-700 w-10 text-right">
+                    <span className="text-sm font-bold text-gray-600 w-10 text-right">
                       {b.weightPercent}%
                     </span>
                   </div>
@@ -163,7 +163,7 @@ export default function HackathonTabs({
           {sections.eval.limits && (
             <div className="p-5 rounded-2xl bg-orange-50">
               <h3 className="text-sm font-bold text-orange-700 mb-3">⚠️ 제한 사항</h3>
-              <ul className="space-y-1 text-sm text-gray-700">
+              <ul className="space-y-1 text-sm text-gray-900">
                 {sections.eval.limits.maxRuntimeSec !== undefined && (
                   <li>최대 실행 시간: {sections.eval.limits.maxRuntimeSec}초</li>
                 )}
@@ -180,7 +180,7 @@ export default function HackathonTabs({
       {activeTab === '일정' && (
         <div className="space-y-6">
           {/* 실시간 카운트다운 */}
-          <div className="p-5 rounded-2xl bg-indigo-50">
+          <div className="p-5 rounded-2xl bg-sky-50">
             <p className="text-xs text-gray-500 mb-2">제출 마감까지</p>
             <CountdownTimer deadlineIso={submissionDeadlineAt} />
             {/* 미제출 경고 (더미 — 항상 표시) */}
@@ -191,8 +191,8 @@ export default function HackathonTabs({
 
           {/* 마일스톤 타임라인 */}
           <div>
-            <h3 className="text-sm font-bold text-gray-700 mb-4">일정 타임라인</h3>
-            <ol className="relative border-l-2 border-indigo-100 ml-3 space-y-6">
+            <h3 className="text-sm font-bold text-gray-900 mb-4">일정 타임라인</h3>
+            <ol className="relative border-l-2 border-sky-100 ml-3 space-y-6">
               {sections.schedule.milestones.map((m, i) => {
                 const milestoneTime = new Date(m.at).getTime();
                 const isPast = milestoneTime < now;
@@ -206,20 +206,20 @@ export default function HackathonTabs({
                     <span
                       className={`absolute -left-2 flex h-4 w-4 items-center justify-center rounded-full ring-4 ring-white ${
                         isCurrent
-                          ? 'bg-indigo-600'
+                          ? 'bg-gray-900'
                           : isPast
-                            ? 'bg-gray-300'
-                            : 'bg-white border-2 border-indigo-200'
+                            ? 'bg-white/30'
+                            : 'bg-white border-2 border-sky-100'
                       }`}
                     />
                     <p
                       className={`text-sm font-semibold ${
-                        isCurrent ? 'text-indigo-700' : isPast ? 'text-gray-400' : 'text-gray-700'
+                        isCurrent ? 'text-gray-700' : isPast ? 'text-gray-400' : 'text-gray-900'
                       }`}
                     >
                       {m.name}
                       {isCurrent && (
-                        <span className="ml-2 text-xs font-bold text-white bg-indigo-600 px-2 py-0.5 rounded-full">
+                        <span className="ml-2 text-xs font-bold text-gray-900 bg-sky-100 px-2 py-0.5 rounded-full">
                           현재 단계
                         </span>
                       )}
@@ -236,7 +236,7 @@ export default function HackathonTabs({
       {/* ── 탭 4: 상금 ── */}
       {activeTab === '상금' && (
         <div className="space-y-3">
-          <h3 className="text-sm font-bold text-gray-700 mb-4">시상 내역</h3>
+          <h3 className="text-sm font-bold text-gray-900 mb-4">시상 내역</h3>
           {sections.prize.items.map((item, i) => (
             <div
               key={i}
@@ -244,15 +244,15 @@ export default function HackathonTabs({
                 i === 0
                   ? 'bg-yellow-50 border border-yellow-100'
                   : i === 1
-                    ? 'bg-gray-50 border border-gray-100'
-                    : 'bg-white border border-gray-100'
+                    ? 'bg-sky-50 border border-sky-100'
+                    : 'bg-white border border-sky-100'
               }`}
             >
               <div className="flex items-center gap-3">
                 <span className="text-xl">
                   {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '🏅'}
                 </span>
-                <span className="text-sm font-semibold text-gray-800">{item.place}</span>
+                <span className="text-sm font-semibold text-gray-900">{item.place}</span>
               </div>
               <span
                 className={`text-base font-extrabold ${
@@ -260,14 +260,14 @@ export default function HackathonTabs({
                     ? 'text-yellow-600'
                     : i === 1
                       ? 'text-gray-500'
-                      : 'text-indigo-600'
+                      : 'text-gray-700'
                 }`}
               >
                 {formatKRW(item.amountKRW)}
               </span>
             </div>
           ))}
-          <div className="mt-4 p-3 rounded-xl bg-indigo-50 text-xs text-indigo-600">
+          <div className="mt-4 p-3 rounded-xl bg-sky-50 text-xs text-gray-700">
             총 상금:{' '}
             <strong>
               {formatKRW(sections.prize.items.reduce((sum, item) => sum + item.amountKRW, 0))}
@@ -281,25 +281,25 @@ export default function HackathonTabs({
         <div className="space-y-5">
           {sections.teams.campEnabled ? (
             <>
-              <div className="p-5 rounded-2xl bg-indigo-50">
-                <p className="text-sm text-gray-700 mb-4">
+              <div className="p-5 rounded-2xl bg-sky-50">
+                <p className="text-sm text-gray-900 mb-4">
                   이 해커톤에 참가할 팀원을 찾거나, 팀 합류 신청을 해보세요.
                 </p>
                 <Link
                   href={sections.teams.listUrl}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-bold hover:bg-indigo-700 transition-colors"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-sky-200 text-sky-800 text-sm font-bold hover:bg-sky-300 transition-colors"
                 >
                   👥 팀 목록 보기 →
                 </Link>
               </div>
 
-              <div className="p-5 rounded-2xl border border-purple-100 bg-purple-50">
-                <p className="text-sm text-purple-700 font-semibold mb-1">
+              <div className="p-5 rounded-2xl border border-sky-100 bg-sky-50">
+                <p className="text-sm text-gray-600 font-semibold mb-1">
                   어떤 팀이 나에게 맞을지 먼저 확인해보고 싶다면?
                 </p>
                 <Link
                   href="/camp/simulate"
-                  className="inline-flex items-center gap-2 mt-2 text-sm font-semibold text-purple-600 hover:underline"
+                  className="inline-flex items-center gap-2 mt-2 text-sm font-semibold text-gray-600 hover:underline"
                 >
                   🧪 이 해커톤으로 시뮬레이션 해보기 →
                 </Link>
@@ -319,11 +319,11 @@ export default function HackathonTabs({
         <div className="space-y-5">
           {/* 제출 가이드 */}
           <div>
-            <h3 className="text-sm font-bold text-gray-700 mb-3">제출 가이드</h3>
+            <h3 className="text-sm font-bold text-gray-900 mb-3">제출 가이드</h3>
             <ul className="space-y-2">
               {sections.submit.guide.map((g, i) => (
                 <li key={i} className="flex gap-2 text-sm text-gray-600">
-                  <span className="text-indigo-500 font-bold">{i + 1}.</span>
+                  <span className="text-gray-700 font-bold">{i + 1}.</span>
                   <span>{g}</span>
                 </li>
               ))}
@@ -333,18 +333,18 @@ export default function HackathonTabs({
           {/* 단계별 제출 폼 */}
           {sections.submit.submissionItems ? (
             <div className="space-y-3">
-              <h3 className="text-sm font-bold text-gray-700 mb-1">제출 항목</h3>
+              <h3 className="text-sm font-bold text-gray-900 mb-1">제출 항목</h3>
               {sections.submit.submissionItems.map((item, i) => (
-                <div key={item.key} className="p-4 rounded-2xl border border-gray-100 bg-white">
+                <div key={item.key} className="p-4 rounded-2xl border border-sky-100 glass">
                   <p className="text-xs text-gray-400 mb-1">
                     단계 {i + 1} · {item.format.toUpperCase()}
                   </p>
-                  <p className="text-sm font-semibold text-gray-800 mb-2">{item.title}</p>
+                  <p className="text-sm font-semibold text-gray-900 mb-2">{item.title}</p>
                   {item.format === 'zip' && (
                     <input
                       type="file"
                       accept=".zip"
-                      className="text-xs text-gray-500 file:mr-3 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                      className="text-xs text-gray-500 file:mr-3 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-sky-50 file:text-gray-700 hover:file:bg-sky-50"
                     />
                   )}
                   {(item.format === 'url' || item.format === 'pdf_url') && (
@@ -355,14 +355,14 @@ export default function HackathonTabs({
                           ? 'PDF URL 또는 구글 드라이브 링크'
                           : 'https://'
                       }
-                      className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-indigo-400"
+                      className="w-full px-3 py-2 rounded-lg border border-sky-100 text-sm focus:outline-none focus:border-gray-400"
                     />
                   )}
                   {item.format === 'pdf' && (
                     <input
                       type="file"
                       accept=".pdf"
-                      className="text-xs text-gray-500 file:mr-3 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                      className="text-xs text-gray-500 file:mr-3 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-sky-50 file:text-gray-700 hover:file:bg-sky-50"
                     />
                   )}
                 </div>
@@ -372,34 +372,34 @@ export default function HackathonTabs({
             /* 단순 제출 폼 */
             <div className="space-y-3">
               {sections.submit.allowedArtifactTypes.map((type) => (
-                <div key={type} className="p-4 rounded-2xl border border-gray-100 bg-white">
+                <div key={type} className="p-4 rounded-2xl border border-sky-100 glass">
                   <p className="text-xs text-gray-400 mb-2">{type.toUpperCase()} 제출</p>
                   {type === 'zip' && (
                     <input
                       type="file"
                       accept=".zip"
-                      className="text-xs text-gray-500 file:mr-3 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                      className="text-xs text-gray-500 file:mr-3 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-sky-50 file:text-gray-700 hover:file:bg-sky-50"
                     />
                   )}
                   {type === 'url' && (
                     <input
                       type="url"
                       placeholder="https://"
-                      className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-indigo-400"
+                      className="w-full px-3 py-2 rounded-lg border border-sky-100 text-sm focus:outline-none focus:border-gray-400"
                     />
                   )}
                   {(type === 'pdf' || type === 'pdf_url') && (
                     <input
                       type="file"
                       accept=".pdf"
-                      className="text-xs text-gray-500 file:mr-3 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                      className="text-xs text-gray-500 file:mr-3 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-sky-50 file:text-gray-700 hover:file:bg-sky-50"
                     />
                   )}
                   {type === 'text_or_url' && (
                     <textarea
                       placeholder="텍스트 또는 URL 입력"
                       rows={3}
-                      className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-indigo-400 resize-none"
+                      className="w-full px-3 py-2 rounded-lg border border-sky-100 text-sm focus:outline-none focus:border-gray-400 resize-none"
                     />
                   )}
                 </div>
@@ -411,7 +411,7 @@ export default function HackathonTabs({
             href={sections.submit.submissionUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="block w-full text-center py-3 rounded-xl bg-indigo-600 text-white font-bold text-sm hover:bg-indigo-700 transition-colors"
+            className="block w-full text-center py-3 rounded-xl bg-sky-200 text-sky-800 font-bold text-sm hover:bg-sky-300 transition-colors"
           >
             제출하기 →
           </a>
@@ -426,7 +426,7 @@ export default function HackathonTabs({
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-gray-100 text-xs text-gray-400">
+                    <tr className="border-b border-sky-100 text-xs text-gray-400">
                       <th className="pb-3 text-left w-12">순위</th>
                       <th className="pb-3 text-left">팀명</th>
                       <th className="pb-3 text-right">점수</th>
@@ -435,12 +435,12 @@ export default function HackathonTabs({
                   </thead>
                   <tbody className="divide-y divide-gray-50">
                     {leaderboard.entries.map((entry) => (
-                      <tr key={entry.rank} className="hover:bg-gray-50 transition-colors">
+                      <tr key={entry.rank} className="hover:bg-sky-50 transition-colors">
                         <td className="py-3 text-left">
                           <span
                             className={`font-bold ${
                               entry.rank === 1
-                                ? 'text-yellow-500'
+                                ? 'text-yellow-600'
                                 : entry.rank === 2
                                   ? 'text-gray-400'
                                   : entry.rank === 3
@@ -458,7 +458,7 @@ export default function HackathonTabs({
                           </span>
                         </td>
                         <td className="py-3">
-                          <p className="font-semibold text-gray-800">{entry.teamName}</p>
+                          <p className="font-semibold text-gray-900">{entry.teamName}</p>
                           {/* scoreBreakdown */}
                           {entry.scoreBreakdown && (
                             <p className="text-xs text-gray-400 mt-0.5">
@@ -474,7 +474,7 @@ export default function HackathonTabs({
                                   href={entry.artifacts.webUrl}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="text-xs text-indigo-500 hover:underline"
+                                  className="text-xs text-gray-700 hover:underline"
                                 >
                                   🔗 웹링크
                                 </a>
@@ -484,7 +484,7 @@ export default function HackathonTabs({
                                   href={entry.artifacts.pdfUrl}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="text-xs text-indigo-500 hover:underline"
+                                  className="text-xs text-gray-700 hover:underline"
                                 >
                                   📄 {entry.artifacts.planTitle ?? 'PDF'}
                                 </a>
@@ -492,7 +492,7 @@ export default function HackathonTabs({
                             </div>
                           )}
                         </td>
-                        <td className="py-3 text-right font-bold text-indigo-700">
+                        <td className="py-3 text-right font-bold text-gray-700">
                           {typeof entry.score === 'number' && entry.score < 2
                             ? entry.score.toFixed(4)
                             : entry.score.toFixed(1)}
@@ -505,7 +505,7 @@ export default function HackathonTabs({
                   </tbody>
                 </table>
               </div>
-              <p className="text-xs text-gray-400 border-t border-gray-100 pt-3">
+              <p className="text-xs text-gray-400 border-t border-sky-100 pt-3">
                 {sections.leaderboard.note}
               </p>
             </>
@@ -517,7 +517,7 @@ export default function HackathonTabs({
                 href={sections.leaderboard.publicLeaderboardUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-3 text-sm text-indigo-500 hover:underline"
+                className="mt-3 text-sm text-gray-700 hover:underline"
               >
                 공개 리더보드 보기 →
               </a>

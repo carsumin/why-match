@@ -27,8 +27,8 @@ export default async function HackathonDetailPage({ params }: Props) {
     upcoming: '예정',
   };
   const statusColor: Record<string, string> = {
-    ongoing: 'bg-green-100 text-green-700',
-    ended: 'bg-gray-100 text-gray-500',
+    ongoing: 'bg-green-50 text-green-700',
+    ended: 'bg-white text-gray-500',
     upcoming: 'bg-blue-100 text-blue-700',
   };
 
@@ -47,7 +47,7 @@ export default async function HackathonDetailPage({ params }: Props) {
           )}
         </div>
 
-        <h1 className="text-2xl font-extrabold text-gray-800 leading-snug mb-3">
+        <h1 className="text-2xl font-extrabold text-gray-900 leading-snug mb-3">
           {listItem.title}
         </h1>
 

@@ -69,17 +69,17 @@ export default function CampPageContent() {
     <div className="max-w-2xl mx-auto px-4 py-8">
       {/* 헤더 */}
       <div className="flex items-center justify-between mb-2">
-        <h1 className="text-2xl font-extrabold text-gray-800">팀원 모집</h1>
+        <h1 className="text-2xl font-extrabold text-gray-900">팀원 모집</h1>
         <div className="flex gap-2">
           <Link
             href="/camp/simulate"
-            className="text-sm text-purple-600 font-medium hover:underline"
+            className="text-sm text-gray-600 font-medium hover:underline"
           >
             시뮬레이터 →
           </Link>
           <button
             onClick={() => setIsModalOpen(true)}
-            className="px-4 py-1.5 rounded-xl bg-indigo-600 text-white text-sm font-bold hover:bg-indigo-700 transition-colors"
+            className="px-4 py-1.5 rounded-xl bg-sky-200 text-sky-800 text-sm font-bold hover:bg-sky-300 transition-colors"
           >
             + 팀 등록
           </button>
@@ -90,7 +90,7 @@ export default function CampPageContent() {
       {currentHackathon ? (
         <div className="flex items-center gap-2 mb-6">
           <span className="text-sm text-gray-500">
-            <strong className="text-indigo-700">{currentHackathon.title}</strong> 참가 팀만 보기
+            <strong className="text-gray-700">{currentHackathon.title}</strong> 참가 팀만 보기
           </span>
           <Link href="/camp" className="text-xs text-gray-400 hover:text-gray-600 underline">
             전체 보기
@@ -116,7 +116,7 @@ export default function CampPageContent() {
           </p>
           <button
             onClick={() => setIsModalOpen(true)}
-            className="px-4 py-2 rounded-xl bg-indigo-600 text-white text-sm font-bold hover:bg-indigo-700 transition-colors"
+            className="px-4 py-2 rounded-xl bg-sky-200 text-sky-800 text-sm font-bold hover:bg-sky-300 transition-colors"
           >
             첫 번째 팀 등록하기
           </button>
@@ -126,9 +126,9 @@ export default function CampPageContent() {
       {/* 팀 등록 모달 */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-6 space-y-4">
+          <div className="w-full max-w-md glass rounded-2xl shadow-xl p-6 space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold text-gray-800">팀 모집글 등록</h2>
+              <h2 className="text-lg font-bold text-gray-900">팀 모집글 등록</h2>
               <button
                 onClick={() => setIsModalOpen(false)}
                 className="text-gray-400 hover:text-gray-600 text-xl"
@@ -147,7 +147,7 @@ export default function CampPageContent() {
                 value={form.name}
                 onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
                 placeholder="예: 404found"
-                className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-indigo-400"
+                className="w-full px-3 py-2 rounded-xl border border-sky-100 text-sm focus:outline-none focus:border-gray-400"
               />
             </div>
 
@@ -161,7 +161,7 @@ export default function CampPageContent() {
                 onChange={(e) => setForm((p) => ({ ...p, intro: e.target.value }))}
                 placeholder="팀 소개와 목표를 간략히 적어주세요"
                 rows={3}
-                className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-indigo-400 resize-none"
+                className="w-full px-3 py-2 rounded-xl border border-sky-100 text-sm focus:outline-none focus:border-gray-400 resize-none"
               />
             </div>
 
@@ -172,8 +172,8 @@ export default function CampPageContent() {
                 onClick={() => setForm((p) => ({ ...p, isOpen: !p.isOpen }))}
                 className={`px-3 py-1 rounded-full text-xs font-bold transition-colors ${
                   form.isOpen
-                    ? 'bg-green-100 text-green-700'
-                    : 'bg-gray-100 text-gray-500'
+                    ? 'bg-green-50 text-green-700'
+                    : 'bg-white text-gray-500'
                 }`}
               >
                 {form.isOpen ? '모집중' : '마감'}
@@ -190,8 +190,8 @@ export default function CampPageContent() {
                     onClick={() => togglePosition(pos)}
                     className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                       form.lookingFor.includes(pos)
-                        ? 'bg-purple-600 text-white'
-                        : 'bg-purple-50 text-purple-700 hover:bg-purple-100'
+                        ? 'bg-sky-100 text-gray-900'
+                        : 'bg-sky-50 text-gray-600 hover:bg-sky-50'
                     }`}
                   >
                     {pos}
@@ -208,7 +208,7 @@ export default function CampPageContent() {
                 value={form.contactUrl}
                 onChange={(e) => setForm((p) => ({ ...p, contactUrl: e.target.value }))}
                 placeholder="카카오톡 오픈채팅 또는 구글폼 URL"
-                className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-indigo-400"
+                className="w-full px-3 py-2 rounded-xl border border-sky-100 text-sm focus:outline-none focus:border-gray-400"
               />
             </div>
 
@@ -216,7 +216,7 @@ export default function CampPageContent() {
             <button
               onClick={submitForm}
               disabled={!form.name.trim() || !form.intro.trim()}
-              className="w-full py-3 rounded-xl bg-indigo-600 text-white font-bold text-sm hover:bg-indigo-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="w-full py-3 rounded-xl bg-sky-200 text-sky-800 font-bold text-sm hover:bg-sky-300 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               등록하기
             </button>
@@ -230,14 +230,14 @@ export default function CampPageContent() {
 // 팀 카드 컴포넌트
 function TeamCard({ team }: { team: CampTeam }) {
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 space-y-3">
+    <div className="glass rounded-2xl border border-sky-100 shadow-sm p-5 space-y-3">
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-1">
-            <h2 className="font-bold text-gray-800">{team.name}</h2>
+            <h2 className="font-bold text-gray-900">{team.name}</h2>
             <span
               className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
-                team.isOpen ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
+                team.isOpen ? 'bg-green-50 text-green-700' : 'bg-white text-gray-500'
               }`}
             >
               {team.isOpen ? '모집중' : '마감'}
@@ -257,7 +257,7 @@ function TeamCard({ team }: { team: CampTeam }) {
           {team.lookingFor.map((pos) => (
             <span
               key={pos}
-              className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-700"
+              className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-sky-50 text-gray-600"
             >
               {pos}
             </span>
@@ -269,7 +269,7 @@ function TeamCard({ team }: { team: CampTeam }) {
       <div className="flex gap-2 pt-1">
         <Link
           href="/camp/simulate"
-          className="flex-1 text-center py-2 rounded-xl border border-purple-200 text-purple-600 text-sm font-semibold hover:bg-purple-50 transition-colors"
+          className="flex-1 text-center py-2 rounded-xl border border-sky-100 text-gray-600 text-sm font-semibold hover:bg-sky-50 transition-colors"
         >
           시뮬레이션 해보기
         </Link>
@@ -278,14 +278,14 @@ function TeamCard({ team }: { team: CampTeam }) {
             href={team.contact.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-1 text-center py-2 rounded-xl bg-indigo-600 text-white text-sm font-bold hover:bg-indigo-700 transition-colors"
+            className="flex-1 text-center py-2 rounded-xl bg-sky-200 text-sky-800 text-sm font-bold hover:bg-sky-300 transition-colors"
           >
             연락하기 →
           </a>
         ) : (
           <button
             disabled
-            className="flex-1 py-2 rounded-xl bg-gray-100 text-gray-400 text-sm font-semibold cursor-not-allowed"
+            className="flex-1 py-2 rounded-xl glass text-gray-400 text-sm font-semibold cursor-not-allowed"
           >
             모집 마감
           </button>

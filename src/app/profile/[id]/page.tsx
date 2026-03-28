@@ -141,7 +141,7 @@ export default function ProfilePage() {
     return (
       <div className="max-w-2xl mx-auto px-4 py-10">
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-xl font-extrabold text-gray-800">프로필 수정</h1>
+          <h1 className="text-xl font-extrabold text-gray-900">프로필 수정</h1>
           <button onClick={cancelEdit} className="text-sm text-gray-400 hover:text-gray-600">
             취소
           </button>
@@ -155,7 +155,7 @@ export default function ProfilePage() {
               type="text"
               value={form.name}
               onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
-              className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-indigo-400"
+              className="w-full px-3 py-2 rounded-xl border border-sky-100 text-sm focus:outline-none focus:border-gray-400"
             />
           </div>
 
@@ -167,7 +167,7 @@ export default function ProfilePage() {
               onChange={(e) => setForm((p) => ({ ...p, bio: e.target.value }))}
               rows={2}
               placeholder="간단히 자신을 소개해주세요"
-              className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-indigo-400 resize-none"
+              className="w-full px-3 py-2 rounded-xl border border-sky-100 text-sm focus:outline-none focus:border-gray-400 resize-none"
             />
           </div>
 
@@ -181,8 +181,8 @@ export default function ProfilePage() {
                   onClick={() => toggleRole(role)}
                   className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                     form.roles.includes(role)
-                      ? 'bg-purple-600 text-white'
-                      : 'bg-purple-50 text-purple-700 hover:bg-purple-100'
+                      ? 'bg-sky-100 text-gray-900'
+                      : 'bg-sky-50 text-gray-600 hover:bg-sky-50'
                   }`}
                 >
                   {roleLabel[role]}
@@ -201,7 +201,7 @@ export default function ProfilePage() {
               value={form.tagInput}
               onChange={(e) => setForm((p) => ({ ...p, tagInput: e.target.value }))}
               placeholder="React, TypeScript, Node.js"
-              className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-indigo-400"
+              className="w-full px-3 py-2 rounded-xl border border-sky-100 text-sm focus:outline-none focus:border-gray-400"
             />
           </div>
 
@@ -216,7 +216,7 @@ export default function ProfilePage() {
               max={24}
               value={form.activeHours}
               onChange={(e) => setForm((p) => ({ ...p, activeHours: Number(e.target.value) }))}
-              className="w-28 px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-indigo-400"
+              className="w-28 px-3 py-2 rounded-xl border border-sky-100 text-sm focus:outline-none focus:border-gray-400"
             />
           </div>
 
@@ -228,7 +228,7 @@ export default function ProfilePage() {
               value={form.githubUrl}
               onChange={(e) => setForm((p) => ({ ...p, githubUrl: e.target.value }))}
               placeholder="https://github.com/username"
-              className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-indigo-400"
+              className="w-full px-3 py-2 rounded-xl border border-sky-100 text-sm focus:outline-none focus:border-gray-400"
             />
           </div>
 
@@ -240,13 +240,13 @@ export default function ProfilePage() {
               value={form.portfolioUrl}
               onChange={(e) => setForm((p) => ({ ...p, portfolioUrl: e.target.value }))}
               placeholder="https://notion.so/..."
-              className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-indigo-400"
+              className="w-full px-3 py-2 rounded-xl border border-sky-100 text-sm focus:outline-none focus:border-gray-400"
             />
           </div>
 
           <button
             onClick={saveEdit}
-            className="w-full py-3 rounded-xl bg-indigo-600 text-white font-bold text-sm hover:bg-indigo-700 transition-colors"
+            className="w-full py-3 rounded-xl bg-sky-200 text-sky-800 font-bold text-sm hover:bg-sky-300 transition-colors"
           >
             저장하기
           </button>
@@ -259,16 +259,16 @@ export default function ProfilePage() {
     <div className="max-w-2xl mx-auto px-4 py-10">
       {/* 프로필 헤더 */}
       <div className="flex items-start gap-5 mb-8">
-        <div className="w-20 h-20 rounded-full bg-linear-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white text-3xl font-extrabold shrink-0">
+        <div className="w-20 h-20 rounded-full bg-sky-300 flex items-center justify-center text-sky-900 text-3xl font-extrabold shrink-0">
           {user.name[0]}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-extrabold text-gray-800">{user.name}</h1>
+            <h1 className="text-2xl font-extrabold text-gray-900">{user.name}</h1>
             {isMe && (
               <button
                 onClick={startEdit}
-                className="text-xs font-semibold text-indigo-500 border border-indigo-200 px-2.5 py-1 rounded-full hover:bg-indigo-50 transition-colors"
+                className="text-xs font-semibold text-gray-700 border border-sky-100 px-2.5 py-1 rounded-full hover:bg-sky-50 transition-colors"
               >
                 수정
               </button>
@@ -278,7 +278,7 @@ export default function ProfilePage() {
             {user.roles.map((role) => (
               <span
                 key={role}
-                className="text-xs font-medium px-2 py-0.5 rounded-full bg-purple-100 text-purple-700"
+                className="text-xs font-medium px-2 py-0.5 rounded-full bg-sky-50 text-gray-600"
               >
                 {roleLabel[role] ?? role}
               </span>
@@ -301,10 +301,10 @@ export default function ProfilePage() {
       {/* 활동 시간 */}
       <section className="mb-6">
         <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">활동 정보</h2>
-        <div className="p-4 bg-white rounded-2xl border border-gray-100">
+        <div className="p-4 glass rounded-2xl border border-sky-100">
           <div className="flex items-center justify-between">
             <span className="text-sm text-gray-600">하루 평균 활동 시간</span>
-            <span className="font-bold text-indigo-600">{user.activeHours}h/day</span>
+            <span className="font-bold text-gray-700">{user.activeHours}h/day</span>
           </div>
         </div>
       </section>
@@ -319,7 +319,7 @@ export default function ProfilePage() {
                 href={user.githubUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-4 py-2 rounded-xl border border-gray-200 text-sm font-medium text-gray-700 hover:border-indigo-300 transition-colors"
+                className="px-4 py-2 rounded-xl border border-sky-100 text-sm font-medium text-gray-900 hover:border-gray-400 transition-colors"
               >
                 GitHub
               </a>
@@ -329,7 +329,7 @@ export default function ProfilePage() {
                 href={user.portfolioUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-4 py-2 rounded-xl border border-gray-200 text-sm font-medium text-gray-700 hover:border-indigo-300 transition-colors"
+                className="px-4 py-2 rounded-xl border border-sky-100 text-sm font-medium text-gray-900 hover:border-gray-400 transition-colors"
               >
                 포트폴리오
               </a>

@@ -16,11 +16,11 @@ const PERIOD_LABELS: Record<PeriodFilter, string> = {
 /** TOP 3 배경/텍스트 스타일 */
 const TOP3_ROW: Record<number, string> = {
   1: 'bg-yellow-50 border-yellow-100',
-  2: 'bg-gray-50 border-gray-100',
+  2: 'bg-sky-50 border-sky-100',
   3: 'bg-orange-50 border-orange-100',
 };
 const TOP3_RANK: Record<number, string> = {
-  1: 'text-yellow-500',
+  1: 'text-yellow-600',
   2: 'text-gray-400',
   3: 'text-orange-400',
 };
@@ -47,7 +47,7 @@ export default function RankingsPage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-extrabold text-gray-800 mb-2">글로벌 랭킹</h1>
+      <h1 className="text-2xl font-extrabold text-gray-900 mb-2">글로벌 랭킹</h1>
       <p className="text-sm text-gray-500 mb-6">누적 포인트 기준 참가자 순위입니다.</p>
 
       {/* 기간 필터 */}
@@ -58,8 +58,8 @@ export default function RankingsPage() {
             onClick={() => setPeriod(p)}
             className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
               period === p
-                ? 'bg-indigo-600 text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                ? 'bg-sky-100 text-gray-900'
+                : 'bg-white text-gray-600 hover:bg-sky-50'
             }`}
           >
             {PERIOD_LABELS[p]}
@@ -77,10 +77,10 @@ export default function RankingsPage() {
             return (
               <div
                 key={e.rank}
-                className={`flex flex-col items-center p-4 rounded-2xl border text-center ${TOP3_ROW[e.rank] ?? 'bg-white border-gray-100'} ${isFirst ? 'scale-105 shadow-md' : ''}`}
+                className={`flex flex-col items-center p-4 rounded-2xl border text-center ${TOP3_ROW[e.rank] ?? 'bg-white border-sky-100'} ${isFirst ? 'scale-105 shadow-md' : ''}`}
               >
                 <span className="text-3xl mb-1">{TOP3_EMOJI[e.rank]}</span>
-                <p className="text-sm font-extrabold text-gray-800 truncate w-full text-center">
+                <p className="text-sm font-extrabold text-gray-900 truncate w-full text-center">
                   {e.nickname}
                 </p>
                 <p className={`text-lg font-extrabold ${TOP3_RANK[e.rank] ?? 'text-gray-600'}`}>
@@ -99,7 +99,7 @@ export default function RankingsPage() {
             <div
               key={`${entry.rank}-${entry.nickname}`}
               className={`flex items-center gap-4 px-4 py-3 rounded-2xl border transition-colors ${
-                TOP3_ROW[entry.rank] ?? 'bg-white border-gray-100 hover:border-indigo-100'
+                TOP3_ROW[entry.rank] ?? 'bg-white border-sky-100 hover:border-sky-300'
               }`}
             >
               {/* 순위 */}
@@ -109,7 +109,7 @@ export default function RankingsPage() {
 
               {/* 닉네임 */}
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-gray-800 text-sm truncate">{entry.nickname}</p>
+                <p className="font-semibold text-gray-900 text-sm truncate">{entry.nickname}</p>
               </div>
 
               {/* 순위 변동 */}
@@ -128,7 +128,7 @@ export default function RankingsPage() {
 
               {/* 포인트 */}
               <div className="text-right">
-                <p className="text-sm font-extrabold text-indigo-700">
+                <p className="text-sm font-extrabold text-gray-700">
                   {entry.points.toLocaleString()}
                 </p>
                 <p className="text-xs text-gray-400">points</p>

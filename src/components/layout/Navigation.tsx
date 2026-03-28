@@ -56,7 +56,7 @@ export default function Navigation() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white border-t border-gray-100">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden glass border-t border-sky-100">
       <div className="flex items-center justify-around h-16">
         {tabs.map((tab) => {
           const isActive = tab.href === '/' ? pathname === '/' : pathname.startsWith(tab.href);
@@ -64,8 +64,8 @@ export default function Navigation() {
             <Link
               key={tab.href}
               href={tab.href}
-              className={`flex flex-col items-center gap-0.5 flex-1 py-2 transition-colors ${
-                isActive ? 'text-indigo-600' : 'text-gray-400 hover:text-gray-600'
+              className={`flex flex-col items-center gap-0.5 flex-1 py-2 transition-colors duration-200 ${
+                isActive ? 'text-gray-900' : 'text-gray-400 hover:text-gray-700'
               }`}
             >
               {tab.icon}

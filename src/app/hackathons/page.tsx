@@ -16,8 +16,8 @@ const STATUS_LABELS: Record<HackathonStatus | 'all', string> = {
 };
 
 const STATUS_BADGE: Record<HackathonStatus, string> = {
-  ongoing: 'bg-green-100 text-green-700',
-  ended: 'bg-gray-100 text-gray-500',
+  ongoing: 'bg-green-50 text-green-700',
+  ended: 'bg-white text-gray-500',
   upcoming: 'bg-blue-100 text-blue-700',
 };
 
@@ -51,7 +51,7 @@ export default function HackathonsPage() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-extrabold text-gray-800 mb-6">해커톤 목록</h1>
+      <h1 className="text-2xl font-extrabold text-gray-900 mb-6">해커톤 목록</h1>
 
       {/* 상태 필터 */}
       <div className="flex gap-2 flex-wrap mb-4">
@@ -61,8 +61,8 @@ export default function HackathonsPage() {
             onClick={() => setStatusFilter(s)}
             className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
               statusFilter === s
-                ? 'bg-indigo-600 text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                ? 'bg-sky-100 text-gray-900'
+                : 'bg-white text-gray-600 hover:bg-sky-50'
             }`}
           >
             {STATUS_LABELS[s]}
@@ -78,8 +78,8 @@ export default function HackathonsPage() {
             onClick={() => toggleTag(tag)}
             className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
               selectedTags.includes(tag)
-                ? 'bg-indigo-600 text-white'
-                : 'bg-indigo-50 text-indigo-600 hover:bg-indigo-100'
+                ? 'bg-sky-100 text-gray-900'
+                : 'bg-sky-50 text-gray-700 hover:bg-sky-50'
             }`}
           >
             {tag}
@@ -102,10 +102,10 @@ export default function HackathonsPage() {
             <Link
               key={hackathon.slug}
               href={hackathon.links.detail}
-              className="group flex flex-col bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:border-indigo-200 transition-all overflow-hidden"
+              className="group flex flex-col glass rounded-2xl border border-sky-100 shadow-sm hover:shadow-md hover:border-sky-300 transition-all overflow-hidden"
             >
               {/* 썸네일 플레이스홀더 */}
-              <div className="h-32 bg-linear-to-br from-indigo-50 to-purple-50 flex items-center justify-center text-4xl select-none">
+              <div className="h-32 bg-sky-50 flex items-center justify-center text-4xl select-none">
                 {hackathon.status === 'ongoing'
                   ? '🔥'
                   : hackathon.status === 'upcoming'
@@ -127,7 +127,7 @@ export default function HackathonsPage() {
                 </div>
 
                 {/* 제목 */}
-                <h2 className="text-sm font-bold text-gray-800 line-clamp-2 mb-3 flex-1 leading-snug">
+                <h2 className="text-sm font-bold text-gray-900 line-clamp-2 mb-3 flex-1 leading-snug">
                   {hackathon.title}
                 </h2>
 
@@ -164,7 +164,7 @@ export default function HackathonsPage() {
               setStatusFilter('all');
               setSelectedTags([]);
             }}
-            className="mt-4 px-4 py-2 rounded-full bg-indigo-50 text-indigo-600 text-sm font-medium hover:bg-indigo-100 transition-colors"
+            className="mt-4 px-4 py-2 rounded-full bg-sky-50 text-gray-700 text-sm font-medium hover:bg-sky-50 transition-colors"
           >
             필터 초기화
           </button>
