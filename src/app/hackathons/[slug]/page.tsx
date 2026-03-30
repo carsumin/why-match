@@ -61,6 +61,8 @@ export default async function HackathonDetailPage({ params }: Props) {
       {/* 탭 + 콘텐츠 */}
       <HackathonTabs
         detail={detail}
+        status={listItem.status}
+        startAt={listItem.period.startAt}
         submissionDeadlineAt={listItem.period.submissionDeadlineAt}
         leaderboard={leaderboard}
       />

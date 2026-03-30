@@ -69,15 +69,16 @@ export interface Application {
 export type HackathonStatus = 'ongoing' | 'ended' | 'upcoming';
 export type HackathonTab = '개요' | '평가' | '일정' | '상금' | '팀' | '제출' | '리더보드';
 
-/** 해커톤 목록용 경량 타입 */
+/** 해커톤 목록용 경량 타입 — status는 period 날짜에서 동적 계산 */
 export interface HackathonListItem {
   slug: string;
   title: string;
-  status: HackathonStatus;
+  status: HackathonStatus; // computeHackathonStatus()로 채워짐 (데이터에 직접 쓰지 않음)
   tags: string[];
   thumbnailUrl: string;
   period: {
     timezone: string;
+    startAt: string;
     submissionDeadlineAt: string;
     endAt: string;
   };

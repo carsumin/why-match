@@ -1,19 +1,34 @@
 // 해커톤 더미 데이터 — SPEC.md 기준
 
-import type { HackathonListItem, HackathonDetail } from '@/types';
+import type { HackathonListItem, HackathonDetail, HackathonStatus } from '@/types';
 
 // ──────────────────────────────
-// 해커톤 목록 데이터
+// 상태 동적 계산
 // ──────────────────────────────
-export const hackathonList: HackathonListItem[] = [
+export function computeHackathonStatus(period: {
+  startAt: string;
+  endAt: string;
+}): HackathonStatus {
+  const now = Date.now();
+  if (now < new Date(period.startAt).getTime()) return 'upcoming';
+  if (now > new Date(period.endAt).getTime()) return 'ended';
+  return 'ongoing';
+}
+
+// ──────────────────────────────
+// 해커톤 원본 데이터 (status 제외)
+// ──────────────────────────────
+type RawHackathon = Omit<HackathonListItem, 'status'>;
+
+const rawHackathonList: RawHackathon[] = [
   {
     slug: 'aimers-8-model-lite',
     title: 'Aimers 8기 : 모델 경량화 온라인 해커톤',
-    status: 'ended',
     tags: ['LLM', 'Compression', 'vLLM'],
     thumbnailUrl: 'https://example.com/public/img/aimers8.png',
     period: {
       timezone: 'Asia/Seoul',
+      startAt: '2026-01-20T10:00:00+09:00',
       submissionDeadlineAt: '2026-02-25T10:00:00+09:00',
       endAt: '2026-02-26T10:00:00+09:00',
     },
@@ -26,13 +41,13 @@ export const hackathonList: HackathonListItem[] = [
   {
     slug: 'monthly-vibe-coding-2026-02',
     title: '월간 해커톤 : 바이브 코딩 개선 AI 아이디어 공모전 (2026.02)',
-    status: 'ongoing',
     tags: ['Idea', 'GenAI', 'Workflow'],
     thumbnailUrl: 'https://example.com/public/img/vibe202602.png',
     period: {
       timezone: 'Asia/Seoul',
-      submissionDeadlineAt: '2026-03-03T10:00:00+09:00',
-      endAt: '2026-03-09T10:00:00+09:00',
+      startAt: '2026-02-10T10:00:00+09:00',
+      submissionDeadlineAt: '2026-04-14T10:00:00+09:00',
+      endAt: '2026-04-28T10:00:00+09:00',
     },
     links: {
       detail: '/hackathons/monthly-vibe-coding-2026-02',
@@ -43,13 +58,13 @@ export const hackathonList: HackathonListItem[] = [
   {
     slug: 'daker-handover-2026-03',
     title: '긴급 인수인계 해커톤: 명세서만 보고 구현하라',
-    status: 'upcoming',
     tags: ['VibeCoding', 'Web', 'Vercel', 'Handover'],
     thumbnailUrl: 'https://example.com/public/img/daker-handover-202603.png',
     period: {
       timezone: 'Asia/Seoul',
-      submissionDeadlineAt: '2026-03-30T10:00:00+09:00',
-      endAt: '2026-04-27T10:00:00+09:00',
+      startAt: '2026-05-01T10:00:00+09:00',
+      submissionDeadlineAt: '2026-06-16T10:00:00+09:00',
+      endAt: '2026-06-30T10:00:00+09:00',
     },
     links: {
       detail: '/hackathons/daker-handover-2026-03',
@@ -58,6 +73,12 @@ export const hackathonList: HackathonListItem[] = [
     },
   },
 ];
+
+// status를 날짜에서 자동 계산해 주입
+export const hackathonList: HackathonListItem[] = rawHackathonList.map((h) => ({
+  ...h,
+  status: computeHackathonStatus(h.period),
+}));
 
 // ──────────────────────────────
 // 해커톤 상세 데이터 (sections 포함)

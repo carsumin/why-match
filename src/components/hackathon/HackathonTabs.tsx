@@ -10,6 +10,8 @@ import type { HackathonDetail, HackathonTab, Leaderboard } from '@/types';
 
 interface HackathonTabsProps {
   detail: HackathonDetail;
+  status: 'ongoing' | 'ended' | 'upcoming';
+  startAt: string;
   submissionDeadlineAt: string;
   leaderboard: Leaderboard | undefined;
 }
@@ -34,6 +36,8 @@ function formatDateTime(iso: string): string {
 
 export default function HackathonTabs({
   detail,
+  status,
+  startAt,
   submissionDeadlineAt,
   leaderboard,
 }: HackathonTabsProps) {
@@ -63,6 +67,16 @@ export default function HackathonTabs({
       {/* ── 탭 1: 개요 ── */}
       {activeTab === '개요' && (
         <div className="space-y-6">
+          {/* 카운트다운 — 진행중/예정만 표시 */}
+          {status !== 'ended' && (
+            <div className="p-5 rounded-2xl bg-sky-50 border border-sky-100">
+              <p className="text-xs text-gray-400 mb-2">
+                {status === 'upcoming' ? '시작까지' : '제출 마감까지'}
+              </p>
+              <CountdownTimer deadlineIso={status === 'upcoming' ? startAt : submissionDeadlineAt} />
+            </div>
+          )}
+
           <div className="p-5 rounded-2xl bg-sky-50">
             <h3 className="text-sm font-bold text-gray-700 mb-2">해커톤 소개</h3>
             <p className="text-sm text-gray-900 leading-relaxed">{sections.overview.summary}</p>
