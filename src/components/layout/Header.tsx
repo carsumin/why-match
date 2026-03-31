@@ -5,6 +5,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useCurrentUser, CURRENT_USER_KEY } from '@/hooks/useCurrentUser';
+import { useMessageContext } from '@/context/MessageContext';
 
 const navItems = [
   { label: '해커톤', href: '/hackathons' },
@@ -26,6 +27,7 @@ export default function Header() {
   const pathname = usePathname();
   const { currentUser } = useCurrentUser();
   const [showMenu, setShowMenu] = useState(false);
+  const { pendingCount } = useMessageContext();
 
   function handleLogout() {
     localStorage.removeItem(CURRENT_USER_KEY);
@@ -61,10 +63,15 @@ export default function Header() {
 
         {/* 우측 아이콘 */}
         <div className="flex items-center gap-3">
-          <Link href="/messages" className="text-gray-500 hover:text-gray-700 transition-colors">
+          <Link href="/messages" className="relative text-gray-500 hover:text-gray-700 transition-colors">
             <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
             </svg>
+            {pendingCount > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-1 rounded-full bg-red-400 text-white text-[10px] font-bold flex items-center justify-center leading-none">
+                {pendingCount}
+              </span>
+            )}
           </Link>
 
           {/* 아바타 + 프로필 메뉴 */}

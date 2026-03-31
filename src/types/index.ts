@@ -205,3 +205,14 @@ export interface GlobalRankingEntry {
   points: number;
   delta?: number; // 순위 변동 (양수=상승, 음수=하락, 0=유지)
 }
+
+/** SPEC.md §8 메시지함 */
+export interface Message {
+  id: string;
+  fromUserId: string;
+  teamCode: string;
+  hackathonSlug: string | null;
+  message: string;
+  status: 'pending' | 'accepted' | 'rejected';
+  createdAt: string;
+}

@@ -5,6 +5,7 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import Navigation from '@/components/layout/Navigation';
 import LoginGate from '@/components/auth/LoginGate';
+import { MessageProvider } from '@/context/MessageContext';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -32,12 +33,14 @@ export default function RootLayout({
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/webfontworld/GmarketSans/GmarketSans.css" />
       </head>
       <body className="min-h-full flex flex-col">
-        <LoginGate>
-          <Header />
-          <main className="flex-1 pb-16 md:pb-0">{children}</main>
-          <Footer />
-          <Navigation />
-        </LoginGate>
+        <MessageProvider>
+          <LoginGate>
+            <Header />
+            <main className="flex-1 pb-16 md:pb-0">{children}</main>
+            <Footer />
+            <Navigation />
+          </LoginGate>
+        </MessageProvider>
       </body>
     </html>
   );
