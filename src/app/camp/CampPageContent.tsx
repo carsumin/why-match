@@ -7,6 +7,7 @@ import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { campTeams as initialTeams } from '@/data/teams';
 import { hackathonList } from '@/data/hackathons';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 import type { CampTeam } from '@/types';
 
 const POSITIONS = ['Frontend', 'Backend', 'Designer', 'PM', 'Data', 'ML Engineer', 'DevOps'];
@@ -14,6 +15,7 @@ const POSITIONS = ['Frontend', 'Backend', 'Designer', 'PM', 'Data', 'ML Engineer
 export default function CampPageContent() {
   const searchParams = useSearchParams();
   const hackathonSlug = searchParams.get('hackathon');
+  const { currentUser } = useCurrentUser();
 
   const [teams, setTeams] = useState<CampTeam[]>(initialTeams);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -27,11 +29,17 @@ export default function CampPageContent() {
     contactUrl: '',
   });
 
-  // hackathon 쿼리 파라미터로 필터링
+  // hackathon 쿼리 파라미터로 필터링 + 내 팀 상단 정렬
   const filtered = useMemo(() => {
-    if (!hackathonSlug) return teams;
-    return teams.filter((t) => t.hackathonSlug === hackathonSlug);
-  }, [teams, hackathonSlug]);
+    const base = hackathonSlug
+      ? teams.filter((t) => t.hackathonSlug === hackathonSlug)
+      : teams;
+    return [...base].sort((a, b) => {
+      const aIsMe = a.leaderId === currentUser?.id ? -1 : 0;
+      const bIsMe = b.leaderId === currentUser?.id ? 1 : 0;
+      return aIsMe + bIsMe;
+    });
+  }, [teams, hackathonSlug, currentUser]);
 
   // 현재 필터링 중인 해커톤 정보
   const currentHackathon = hackathonSlug
@@ -52,6 +60,7 @@ export default function CampPageContent() {
     const newTeam: CampTeam = {
       teamCode: `T-NEW-${Date.now()}`,
       hackathonSlug: hackathonSlug,
+      leaderId: currentUser?.id ?? '',
       name: form.name.trim(),
       isOpen: form.isOpen,
       memberCount: 1,
@@ -104,7 +113,11 @@ export default function CampPageContent() {
       {filtered.length > 0 ? (
         <div className="space-y-4">
           {filtered.map((team) => (
-            <TeamCard key={team.teamCode} team={team} />
+            <TeamCard
+              key={team.teamCode}
+              team={team}
+              isMyTeam={team.leaderId === currentUser?.id}
+            />
           ))}
         </div>
       ) : (
@@ -228,12 +241,21 @@ export default function CampPageContent() {
 }
 
 // 팀 카드 컴포넌트
-function TeamCard({ team }: { team: CampTeam }) {
+function TeamCard({ team, isMyTeam }: { team: CampTeam; isMyTeam: boolean }) {
   return (
-    <div className="glass rounded-2xl border border-sky-100 shadow-sm p-5 space-y-3">
+    <div className={`rounded-2xl shadow-sm p-5 space-y-3 ${
+      isMyTeam
+        ? 'bg-sky-50 border-2 border-sky-300'
+        : 'glass border border-sky-100'
+    }`}>
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1">
-          <div className="flex items-center gap-2 mb-1">
+          <div className="flex items-center gap-2 mb-1 flex-wrap">
+            {isMyTeam && (
+              <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-sky-300 text-sky-900">
+                내 팀
+              </span>
+            )}
             <h2 className="font-bold text-gray-900">{team.name}</h2>
             <span
               className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
@@ -267,28 +289,49 @@ function TeamCard({ team }: { team: CampTeam }) {
 
       {/* 액션 버튼 */}
       <div className="flex gap-2 pt-1">
-        <Link
-          href="/camp/simulate"
-          className="flex-1 text-center py-2 rounded-xl border border-sky-100 text-gray-600 text-sm font-semibold hover:bg-sky-50 transition-colors"
-        >
-          시뮬레이션 해보기
-        </Link>
-        {team.isOpen ? (
-          <a
-            href={team.contact.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex-1 text-center py-2 rounded-xl bg-sky-200 text-sky-800 text-sm font-bold hover:bg-sky-300 transition-colors"
-          >
-            연락하기 →
-          </a>
+        {isMyTeam ? (
+          /* 내 팀: 시뮬레이션 없음 → 팀장 모드 바로가기 + 지원자 확인 */
+          <>
+            <Link
+              href="/camp/simulate?mode=leader"
+              className="flex-1 text-center py-2 rounded-xl border border-sky-300 text-sky-700 text-sm font-semibold hover:bg-sky-100 transition-colors"
+            >
+              팀장 모드 →
+            </Link>
+            <Link
+              href="/messages"
+              className="flex-1 text-center py-2 rounded-xl bg-sky-300 text-sky-900 text-sm font-bold hover:bg-sky-400 transition-colors"
+            >
+              지원자 확인
+            </Link>
+          </>
         ) : (
-          <button
-            disabled
-            className="flex-1 py-2 rounded-xl glass text-gray-400 text-sm font-semibold cursor-not-allowed"
-          >
-            모집 마감
-          </button>
+          /* 남의 팀: 시뮬레이션 + 연락하기 */
+          <>
+            <Link
+              href="/camp/simulate"
+              className="flex-1 text-center py-2 rounded-xl border border-sky-100 text-gray-600 text-sm font-semibold hover:bg-sky-50 transition-colors"
+            >
+              시뮬레이션 해보기
+            </Link>
+            {team.isOpen ? (
+              <a
+                href={team.contact.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 text-center py-2 rounded-xl bg-sky-200 text-sky-800 text-sm font-bold hover:bg-sky-300 transition-colors"
+              >
+                연락하기 →
+              </a>
+            ) : (
+              <button
+                disabled
+                className="flex-1 py-2 rounded-xl glass text-gray-400 text-sm font-semibold cursor-not-allowed"
+              >
+                모집 마감
+              </button>
+            )}
+          </>
         )}
       </div>
     </div>

@@ -162,6 +162,7 @@ export interface HackathonDetail {
 export interface CampTeam {
   teamCode: string;
   hackathonSlug: string | null;
+  leaderId: string;
   name: string;
   isOpen: boolean;
   memberCount: number;

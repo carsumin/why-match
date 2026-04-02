@@ -113,13 +113,13 @@ export const teams: LegacyTeam[] = [
   },
   {
     id: 't-002',
-    name: '코드버스터즈',
+    name: '404found',
     hackathonId: 'hk-001',
     leaderId: 'u-001',
     members: [users[0], users[2]], // 김지훈, 박민준
     requiredRoles: ['backend', 'pm'],
     tags: ['React', 'Next.js', 'TypeScript', 'Node.js', 'AI'],
-    description: '교육 플랫폼 AI 튜터를 개발합니다. 백엔드와 PM을 찾고 있어요.',
+    description: '명세서 기반으로 기본 기능을 빠르게 완성하고 UX 확장을 노립니다.',
     activeHoursMin: 5,
     activeHoursMax: 8,
   },
@@ -178,6 +178,7 @@ export const campTeams: CampTeam[] = [
   {
     teamCode: 'T-ALPHA',
     hackathonSlug: 'aimers-8-model-lite',
+    leaderId: 'u-002',
     name: 'Team Alpha',
     isOpen: true,
     memberCount: 3,
@@ -189,6 +190,7 @@ export const campTeams: CampTeam[] = [
   {
     teamCode: 'T-BETA',
     hackathonSlug: 'monthly-vibe-coding-2026-02',
+    leaderId: 'u-003',
     name: 'PromptRunners',
     isOpen: true,
     memberCount: 1,
@@ -200,6 +202,7 @@ export const campTeams: CampTeam[] = [
   {
     teamCode: 'T-HANDOVER-01',
     hackathonSlug: 'daker-handover-2026-03',
+    leaderId: 'u-001',
     name: '404found',
     isOpen: true,
     memberCount: 3,
@@ -211,6 +214,7 @@ export const campTeams: CampTeam[] = [
   {
     teamCode: 'T-HANDOVER-02',
     hackathonSlug: 'daker-handover-2026-03',
+    leaderId: 'u-004',
     name: 'LGTM',
     isOpen: false,
     memberCount: 5,

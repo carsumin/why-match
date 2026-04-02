@@ -3,12 +3,14 @@
 // - 팀장 모드: 내 팀에 후보자를 넣어보고 → 연락하기
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { teams, users } from '@/data/teams';
 import { simulateTeamScore, calculateMatchScore } from '@/utils/matching';
 import { TagBadge } from '@/components/ui/Badge';
 import Card from '@/components/ui/Card';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { useMessageContext } from '@/context/MessageContext';
 import type { User } from '@/types';
 
 type Mode = 'joiner' | 'leader';
@@ -23,12 +25,29 @@ const roleLabel: Record<string, string> = {
 };
 
 export default function SimulatePage() {
-  const [mode, setMode] = useState<Mode>('joiner');
+  return (
+    <Suspense>
+      <SimulateContent />
+    </Suspense>
+  );
+}
+
+function SimulateContent() {
+  const searchParams = useSearchParams();
+  const initialMode = searchParams.get('mode') === 'leader' ? 'leader' : 'joiner';
+  const [mode, setMode] = useState<Mode>(initialMode);
 
   // 헤더에서 선택한 현재 로그인 유저
   const { currentUser: me } = useCurrentUser();
+  // 메시지함에서 수락된 멤버 반영
+  const { inbox } = useMessageContext();
+  const acceptedMemberIds = inbox
+    .filter((m) => m.status === 'accepted')
+    .map((m) => m.fromUserId);
 
-  // 합류자 모드: 내가 어느 팀에 들어갈지
+  // 합류자 모드: 내가 리더가 아닌 팀만
+  const joinerTeams = me ? teams.filter((t) => t.leaderId !== me.id) : teams;
+
   const [joinerTeamId, setJoinerTeamId] = useState<string>(teams[0].id);
 
   // 팀장 모드: 내가 속한 팀 선택
@@ -39,7 +58,7 @@ export default function SimulatePage() {
   const [sentTo, setSentTo] = useState<string[]>([]);
 
   // me가 아직 결정되지 않은 경우 계산 스킵
-  const joinerTeam = teams.find((t) => t.id === joinerTeamId)!;
+  const joinerTeam = (joinerTeams.find((t) => t.id === joinerTeamId) ?? joinerTeams[0])!;
   const isMemberAlready = me ? joinerTeam.members.some((m) => m.id === me.id) : false;
   const joinerResult = me && !isMemberAlready ? simulateTeamScore(joinerTeam, me) : null;
 
@@ -47,7 +66,19 @@ export default function SimulatePage() {
   // 팀장 모드 계산 — 내가 리더인 팀만
   // ──────────────────────────────
   const myTeams = me ? teams.filter((t) => t.leaderId === me.id) : [];
-  const leaderTeam = myTeams.find((t) => t.id === leaderTeamId) ?? myTeams[0];
+  const baseLeaderTeam = myTeams.find((t) => t.id === leaderTeamId) ?? myTeams[0];
+
+  // 수락된 멤버를 팀에 합산
+  const leaderTeam = baseLeaderTeam ? (() => {
+    const newMembers = acceptedMemberIds
+      .filter((id) => !baseLeaderTeam.members.some((m) => m.id === id))
+      .map((id) => users.find((u) => u.id === id))
+      .filter((u): u is NonNullable<typeof u> => u != null);
+    return newMembers.length > 0
+      ? { ...baseLeaderTeam, members: [...baseLeaderTeam.members, ...newMembers] }
+      : baseLeaderTeam;
+  })() : baseLeaderTeam;
+
   const memberIds = leaderTeam?.members.map((m) => m.id) ?? [];
   const candidates = leaderTeam && me
     ? users.filter((u) => u.id !== me.id && !memberIds.includes(u.id))
@@ -128,7 +159,7 @@ export default function SimulatePage() {
               value={joinerTeamId}
               onChange={(e) => setJoinerTeamId(e.target.value)}
             >
-              {teams.map((team) => (
+              {joinerTeams.map((team) => (
                 <option key={team.id} value={team.id}>
                   {team.name}
                 </option>
@@ -222,6 +253,40 @@ export default function SimulatePage() {
               현재 {leaderTeam.members.length}명 · 모집:{' '}
               {leaderTeam.requiredRoles.map((r) => roleLabel[r] ?? r).join(', ') || '없음'}
             </p>
+          </Card>
+
+          {/* 현재 팀 구성원 */}
+          <Card>
+            <p className="text-xs font-semibold text-gray-400 mb-3">
+              현재 구성원 ({leaderTeam.members.length}명)
+            </p>
+            {leaderTeam.members.length === 0 ? (
+              <p className="text-xs text-gray-400">아직 팀원이 없습니다.</p>
+            ) : (
+              <div className="space-y-2">
+                {leaderTeam.members.map((member) => {
+                  const match = calculateMatchScore(member, leaderTeam);
+                  return (
+                    <div key={member.id} className="flex items-center gap-2">
+                      <div className="w-7 h-7 rounded-full bg-sky-100 flex items-center justify-center text-sky-800 font-bold text-xs shrink-0">
+                        {member.name[0]}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <span className="text-sm font-semibold text-gray-800">{member.name}</span>
+                        <span className="text-xs text-gray-400 ml-1.5">
+                          {member.roles.map((r) => roleLabel[r] ?? r).join(' · ')}
+                        </span>
+                      </div>
+                      <span className={`text-xs font-bold shrink-0 ${
+                        match.score >= 80 ? 'text-green-600' : match.score >= 60 ? 'text-yellow-600' : 'text-red-400'
+                      }`}>
+                        {match.score}점
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </Card>
 
           <p className="text-sm font-semibold text-gray-900 px-1">

@@ -7,11 +7,6 @@ import type { MessageDisplay } from '@/data/messages';
 import ChatModal from './ChatModal';
 import { useMessageContext } from '@/context/MessageContext';
 
-interface Props {
-  inbox: MessageDisplay[];
-  sent: MessageDisplay[];
-}
-
 const STATUS_CONFIG = {
   pending: { label: '대기 중', className: 'bg-yellow-50 text-yellow-600 border border-yellow-200' },
   accepted: { label: '수락됨', className: 'bg-green-50 text-green-700 border border-green-200' },
@@ -85,23 +80,16 @@ function MessageCard({ msg, isInbox, onClick }: MessageCardProps) {
   );
 }
 
-export default function MessageTabs({ inbox, sent }: Props) {
+export default function MessageTabs() {
   const [activeTab, setActiveTab] = useState<'inbox' | 'sent'>('inbox');
   const [selectedMsg, setSelectedMsg] = useState<MessageDisplay | null>(null);
-  const { resolveMessage } = useMessageContext();
-  // 수락/거절 반영을 위해 로컬 상태로 관리
-  const [inboxState, setInboxState] = useState(inbox);
-  const messages = activeTab === 'inbox' ? inboxState : sent;
+  const { inbox, sent, pendingCount, updateStatus } = useMessageContext();
+  const messages = activeTab === 'inbox' ? inbox : sent;
 
   function handleStatusChange(id: string, status: 'accepted' | 'rejected') {
-    setInboxState((prev) =>
-      prev.map((m) => (m.id === id ? { ...m, status } : m))
-    );
+    updateStatus(id, status);
     setSelectedMsg((prev) => (prev?.id === id ? { ...prev, status } : prev));
-    resolveMessage(id); // 수락/거절 시 뱃지 카운트 감소
   }
-
-  const pendingCount = inboxState.filter((m) => m.status === 'pending').length;
 
   return (
     <div>

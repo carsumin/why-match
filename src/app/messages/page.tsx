@@ -1,6 +1,5 @@
-// 메시지함 페이지 — 지원·수락·거절, 카카오톡 연결
+// 메시지함 페이지
 
-import { inboxMessages, sentMessages } from '@/data/messages';
 import MessageTabs from '@/components/messages/MessageTabs';
 
 export default function MessagesPage() {
@@ -10,8 +9,7 @@ export default function MessagesPage() {
       <p className="text-gray-400 text-sm mb-8">
         팀 지원 현황을 확인하고 수락·거절 처리하세요.
       </p>
-
-      <MessageTabs inbox={inboxMessages} sent={sentMessages} />
+      <MessageTabs />
     </div>
   );
 }
