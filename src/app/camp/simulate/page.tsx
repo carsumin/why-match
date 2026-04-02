@@ -5,7 +5,7 @@
 
 import { useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { teams, users, getUserById } from '@/data/teams';
+import { users, getUserById } from '@/data/teams';
 import { simulateTeamScore, calculateMatchScore } from '@/utils/matching';
 import { TagBadge } from '@/components/ui/Badge';
 import Card from '@/components/ui/Card';
@@ -75,10 +75,12 @@ function SimulateContent() {
   // 팀 DB — 수락된 멤버 포함한 실시간 상태
   const { teams: dbTeams } = useTeamDb();
 
-  // 합류자 모드: 내가 리더가 아닌 팀만 (LegacyTeam 사용)
-  const joinerTeams = me ? teams.filter((t) => t.leaderId !== me.id) : teams;
+  // 합류자 모드: DB 팀 중 내가 리더가 아닌 팀만 → 시뮬레이션 형태로 변환
+  const joinerSimTeams = dbTeams
+    .filter((t) => !me || t.leaderId !== me.id)
+    .map(toSimTeam);
 
-  const [joinerTeamId, setJoinerTeamId] = useState<string>(teams[0].id);
+  const [joinerTeamId, setJoinerTeamId] = useState<string>('');
 
   // 팀장 모드: DB에서 내 팀 목록 + 시뮬레이션 형태로 변환
   const myDbTeams = me ? dbTeams.filter((t) => t.leaderId === me.id) : [];
@@ -90,9 +92,9 @@ function SimulateContent() {
   const [sentTo, setSentTo] = useState<string[]>([]);
 
   // me가 아직 결정되지 않은 경우 계산 스킵
-  const joinerTeam = (joinerTeams.find((t) => t.id === joinerTeamId) ?? joinerTeams[0])!;
-  const isMemberAlready = me ? joinerTeam.members.some((m) => m.id === me.id) : false;
-  const joinerResult = me && !isMemberAlready ? simulateTeamScore(joinerTeam, me) : null;
+  const joinerTeam = (joinerSimTeams.find((t) => t.id === joinerTeamId) ?? joinerSimTeams[0]) ?? null;
+  const isMemberAlready = me && joinerTeam ? joinerTeam.members.some((m) => m.id === me.id) : false;
+  const joinerResult = me && joinerTeam && !isMemberAlready ? simulateTeamScore(joinerTeam, me) : null;
 
   // ──────────────────────────────
   // 팀장 모드 계산 — DB 기반 (수락된 멤버 자동 반영)
@@ -196,31 +198,41 @@ function SimulateContent() {
       {/* ────────────────────────── */}
       {mode === 'joiner' && (
         <div className="space-y-4">
+          {joinerSimTeams.length === 0 ? (
+            <Card>
+              <p className="text-sm text-gray-400 text-center py-4">합류할 수 있는 팀이 없습니다.</p>
+            </Card>
+          ) : (
           <Card>
             <label className="block text-xs font-semibold text-gray-400 mb-2">
               어떤 팀에 합류할까요?
             </label>
             <select
               className="w-full border border-sky-100 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300"
-              value={joinerTeamId}
+              value={joinerTeamId || joinerSimTeams[0]?.id}
               onChange={(e) => setJoinerTeamId(e.target.value)}
             >
-              {joinerTeams.map((team) => (
+              {joinerSimTeams.map((team) => (
                 <option key={team.id} value={team.id}>
                   {team.name}
                 </option>
               ))}
             </select>
-            <div className="mt-2 flex flex-wrap gap-1">
-              {joinerTeam.tags.map((tag) => <TagBadge key={tag} label={tag} />)}
-            </div>
-            <p className="text-xs text-gray-400 mt-1">
-              현재 {joinerTeam.members.length}명 · 모집:{' '}
-              {joinerTeam.requiredRoles.map((r) => roleLabel[r] ?? r).join(', ') || '없음'}
-            </p>
+            {joinerTeam && (
+              <>
+                <div className="mt-2 flex flex-wrap gap-1">
+                  {joinerTeam.tags.map((tag) => <TagBadge key={tag} label={tag} />)}
+                </div>
+                <p className="text-xs text-gray-400 mt-1">
+                  현재 {joinerTeam.members.length}명 · 모집:{' '}
+                  {joinerTeam.requiredRoles.map((r) => roleLabel[r] ?? r).join(', ') || '없음'}
+                </p>
+              </>
+            )}
           </Card>
+          )}
 
-          {isMemberAlready ? (
+          {joinerTeam && isMemberAlready ? (
             <Card>
               <p className="text-sm text-gray-500 text-center py-2">이미 이 팀의 멤버입니다.</p>
             </Card>
@@ -526,7 +538,7 @@ function DeltaBlock({ delta, compact = false }: { delta: number; compact?: boole
   );
 }
 
-function ReasonBadge({ user, team }: { user: User; team: (typeof teams)[number] }) {
+function ReasonBadge({ user, team }: { user: User; team: LegacyTeam }) {
   const match = calculateMatchScore(user, team);
   return (
     <div className="text-xs text-gray-700 glass px-3 py-1.5 rounded-full inline-block">
@@ -536,7 +548,7 @@ function ReasonBadge({ user, team }: { user: User; team: (typeof teams)[number] 
 }
 
 /** 합류 전 점수 근거 — 현재 팀원별 매칭 점수 표시 */
-function TeamCompositionBreakdown({ team }: { team: (typeof teams)[number] }) {
+function TeamCompositionBreakdown({ team }: { team: LegacyTeam }) {
   if (team.members.length === 0) {
     return <p className="text-xs text-gray-400">현재 팀원이 없습니다.</p>;
   }
