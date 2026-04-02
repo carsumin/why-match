@@ -80,9 +80,35 @@ function SimulateContent() {
   })() : baseLeaderTeam;
 
   const memberIds = leaderTeam?.members.map((m) => m.id) ?? [];
-  const candidates = leaderTeam && me
+  const [candidateFilter, setCandidateFilter] = useState<'all' | 'match'>('match');
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+
+  // 후보 풀 전체에서 존재하는 태그 목록
+  const allCandidatePool = leaderTeam && me
     ? users.filter((u) => u.id !== me.id && !memberIds.includes(u.id))
     : [];
+  const availableTags = [...new Set(allCandidatePool.flatMap((u) => u.tags))].sort();
+
+  function toggleTag(tag: string) {
+    setSelectedTags((prev) =>
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
+    );
+  }
+
+  const candidates = (() => {
+    if (!leaderTeam || !me) return [];
+    let filtered = allCandidatePool;
+    if (candidateFilter === 'match') {
+      filtered = filtered.filter((u) => u.roles.some((r) => leaderTeam.requiredRoles.includes(r)));
+    }
+    if (selectedTags.length > 0) {
+      filtered = filtered.filter((u) => selectedTags.every((t) => u.tags.includes(t)));
+    }
+    // 적합도 점수 높은 순 정렬
+    return [...filtered].sort((a, b) =>
+      calculateMatchScore(b, leaderTeam).score - calculateMatchScore(a, leaderTeam).score
+    );
+  })();
 
   function sendContact() {
     if (!contactCandidate) return;
@@ -289,9 +315,56 @@ function SimulateContent() {
             )}
           </Card>
 
-          <p className="text-sm font-semibold text-gray-900 px-1">
-            후보자 목록 — 합류 시 팀 점수 변화
-          </p>
+          <div className="flex items-center justify-between px-1">
+            <p className="text-sm font-semibold text-gray-900">
+              후보자 목록 — 합류 시 팀 점수 변화
+            </p>
+            <div className="flex gap-1 p-0.5 rounded-lg bg-sky-50 text-xs">
+              <button
+                onClick={() => setCandidateFilter('match')}
+                className={`px-2.5 py-1 rounded-md font-semibold transition-colors ${
+                  candidateFilter === 'match' ? 'bg-white text-sky-700 shadow-sm' : 'text-gray-400 hover:text-gray-600'
+                }`}
+              >
+                역할 매칭
+              </button>
+              <button
+                onClick={() => setCandidateFilter('all')}
+                className={`px-2.5 py-1 rounded-md font-semibold transition-colors ${
+                  candidateFilter === 'all' ? 'bg-white text-sky-700 shadow-sm' : 'text-gray-400 hover:text-gray-600'
+                }`}
+              >
+                전체
+              </button>
+            </div>
+          </div>
+
+          {/* 기술 태그 필터 */}
+          {availableTags.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 px-1">
+              {availableTags.map((tag) => (
+                <button
+                  key={tag}
+                  onClick={() => toggleTag(tag)}
+                  className={`px-2.5 py-0.5 rounded-full text-xs font-medium transition-colors ${
+                    selectedTags.includes(tag)
+                      ? 'bg-sky-400 text-white'
+                      : 'bg-sky-50 text-gray-500 hover:bg-sky-100'
+                  }`}
+                >
+                  {tag}
+                </button>
+              ))}
+              {selectedTags.length > 0 && (
+                <button
+                  onClick={() => setSelectedTags([])}
+                  className="px-2.5 py-0.5 rounded-full text-xs font-medium text-gray-400 hover:text-gray-600 underline"
+                >
+                  초기화
+                </button>
+              )}
+            </div>
+          )}
 
           {candidates.length === 0 ? (
             <Card>
