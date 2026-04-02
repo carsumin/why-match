@@ -5,15 +5,48 @@
 
 import { useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { teams, users } from '@/data/teams';
+import { teams, users, getUserById } from '@/data/teams';
 import { simulateTeamScore, calculateMatchScore } from '@/utils/matching';
 import { TagBadge } from '@/components/ui/Badge';
 import Card from '@/components/ui/Card';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { useMessageContext } from '@/context/MessageContext';
-import type { User } from '@/types';
+import { useTeamDb } from '@/hooks/useTeamDb';
+import type { User, LegacyTeam, UserRole } from '@/types';
+import type { TeamRecord } from '@/hooks/useTeamDb';
 
 type Mode = 'joiner' | 'leader';
+
+const positionToRole: Record<string, string> = {
+  Frontend: 'frontend',
+  Backend: 'backend',
+  Designer: 'designer',
+  PM: 'pm',
+  Data: 'data',
+  'ML Engineer': 'data',
+  DevOps: 'devops',
+};
+
+/** TeamRecord → LegacyTeam (시뮬레이션용 변환) */
+function toSimTeam(record: TeamRecord): LegacyTeam {
+  const members = record.memberIds
+    .map((id) => getUserById(id))
+    .filter((u): u is User => u != null);
+  const memberTags = [...new Set(members.flatMap((m) => m.tags))];
+  const requiredRoles = record.lookingFor
+    .map((pos) => positionToRole[pos])
+    .filter((r): r is UserRole => r != null) as UserRole[];
+  return {
+    id: record.teamCode,
+    name: record.name,
+    hackathonId: record.hackathonSlug ?? '',
+    leaderId: record.leaderId,
+    members,
+    requiredRoles,
+    tags: memberTags,
+    activeHoursMin: 4,
+    activeHoursMax: 10,
+  };
+}
 
 const roleLabel: Record<string, string> = {
   frontend: '프론트엔드',
@@ -39,19 +72,18 @@ function SimulateContent() {
 
   // 헤더에서 선택한 현재 로그인 유저
   const { currentUser: me } = useCurrentUser();
-  // 메시지함에서 수락된 멤버 반영
-  const { inbox } = useMessageContext();
-  const acceptedMemberIds = inbox
-    .filter((m) => m.status === 'accepted')
-    .map((m) => m.fromUserId);
+  // 팀 DB — 수락된 멤버 포함한 실시간 상태
+  const { teams: dbTeams } = useTeamDb();
 
-  // 합류자 모드: 내가 리더가 아닌 팀만
+  // 합류자 모드: 내가 리더가 아닌 팀만 (LegacyTeam 사용)
   const joinerTeams = me ? teams.filter((t) => t.leaderId !== me.id) : teams;
 
   const [joinerTeamId, setJoinerTeamId] = useState<string>(teams[0].id);
 
-  // 팀장 모드: 내가 속한 팀 선택
-  const [leaderTeamId, setLeaderTeamId] = useState<string>(teams[0].id);
+  // 팀장 모드: DB에서 내 팀 목록 + 시뮬레이션 형태로 변환
+  const myDbTeams = me ? dbTeams.filter((t) => t.leaderId === me.id) : [];
+  const mySimTeams = myDbTeams.map(toSimTeam);
+  const [leaderTeamId, setLeaderTeamId] = useState<string>('');
   // 팀장 모드: 연락하기 모달
   const [contactCandidate, setContactCandidate] = useState<User | null>(null);
   const [contactMessage, setContactMessage] = useState('');
@@ -63,21 +95,9 @@ function SimulateContent() {
   const joinerResult = me && !isMemberAlready ? simulateTeamScore(joinerTeam, me) : null;
 
   // ──────────────────────────────
-  // 팀장 모드 계산 — 내가 리더인 팀만
+  // 팀장 모드 계산 — DB 기반 (수락된 멤버 자동 반영)
   // ──────────────────────────────
-  const myTeams = me ? teams.filter((t) => t.leaderId === me.id) : [];
-  const baseLeaderTeam = myTeams.find((t) => t.id === leaderTeamId) ?? myTeams[0];
-
-  // 수락된 멤버를 팀에 합산
-  const leaderTeam = baseLeaderTeam ? (() => {
-    const newMembers = acceptedMemberIds
-      .filter((id) => !baseLeaderTeam.members.some((m) => m.id === id))
-      .map((id) => users.find((u) => u.id === id))
-      .filter((u): u is NonNullable<typeof u> => u != null);
-    return newMembers.length > 0
-      ? { ...baseLeaderTeam, members: [...baseLeaderTeam.members, ...newMembers] }
-      : baseLeaderTeam;
-  })() : baseLeaderTeam;
+  const leaderTeam = mySimTeams.find((t) => t.id === leaderTeamId) ?? mySimTeams[0];
 
   const memberIds = leaderTeam?.members.map((m) => m.id) ?? [];
   const [candidateFilter, setCandidateFilter] = useState<'all' | 'match'>('match');
@@ -241,7 +261,7 @@ function SimulateContent() {
       {/* ────────────────────────── */}
       {mode === 'leader' && (
         <div className="space-y-4">
-          {myTeams.length === 0 ? (
+          {mySimTeams.length === 0 ? (
             /* 내 팀이 없는 경우 */
             <Card>
               <div className="flex flex-col items-center text-center py-6 gap-3">
@@ -266,10 +286,10 @@ function SimulateContent() {
             </label>
             <select
               className="w-full border border-sky-100 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-200"
-              value={leaderTeamId || myTeams[0]?.id}
+              value={leaderTeamId || mySimTeams[0]?.id}
               onChange={(e) => setLeaderTeamId(e.target.value)}
             >
-              {myTeams.map((team) => (
+              {mySimTeams.map((team) => (
                 <option key={team.id} value={team.id}>
                   {team.name}
                 </option>

@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useCurrentUser, CURRENT_USER_KEY } from '@/hooks/useCurrentUser';
 import { useMessageContext } from '@/context/MessageContext';
+import { useTeamDb } from '@/hooks/useTeamDb';
 
 const navItems = [
   { label: '해커톤', href: '/hackathons' },
@@ -28,6 +29,12 @@ export default function Header() {
   const { currentUser } = useCurrentUser();
   const [showMenu, setShowMenu] = useState(false);
   const { pendingCount } = useMessageContext();
+  const { teams } = useTeamDb();
+
+  const myLeadTeams = currentUser ? teams.filter((t) => t.leaderId === currentUser.id) : [];
+  const myJoinedTeams = currentUser
+    ? teams.filter((t) => t.memberIds.includes(currentUser.id) && t.leaderId !== currentUser.id)
+    : [];
 
   function handleLogout() {
     localStorage.removeItem(CURRENT_USER_KEY);
@@ -94,6 +101,46 @@ export default function Header() {
                       {currentUser.roles.map((r) => roleLabel[r] ?? r).join(' · ')}
                     </p>
                   </div>
+
+                  {/* 내가 만든 팀 */}
+                  {myLeadTeams.length > 0 && (
+                    <div className="px-4 py-2 border-b border-sky-100">
+                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide mb-1.5">내가 만든 팀</p>
+                      <div className="space-y-1">
+                        {myLeadTeams.map((t) => (
+                          <Link
+                            key={t.teamCode}
+                            href={`/camp?hackathon=${t.hackathonSlug ?? ''}`}
+                            onClick={() => setShowMenu(false)}
+                            className="flex items-center justify-between text-xs text-gray-700 hover:text-sky-700 py-0.5"
+                          >
+                            <span className="font-medium truncate">{t.name}</span>
+                            <span className="ml-2 text-gray-400 shrink-0">{t.memberIds.length}명</span>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 내가 합류한 팀 */}
+                  {myJoinedTeams.length > 0 && (
+                    <div className="px-4 py-2 border-b border-sky-100">
+                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide mb-1.5">내가 합류한 팀</p>
+                      <div className="space-y-1">
+                        {myJoinedTeams.map((t) => (
+                          <Link
+                            key={t.teamCode}
+                            href={`/camp?hackathon=${t.hackathonSlug ?? ''}`}
+                            onClick={() => setShowMenu(false)}
+                            className="flex items-center justify-between text-xs text-gray-700 hover:text-sky-700 py-0.5"
+                          >
+                            <span className="font-medium truncate">{t.name}</span>
+                            <span className="ml-2 text-gray-400 shrink-0">{t.memberIds.length}명</span>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
                   {/* 메뉴 */}
                   <div className="py-1">

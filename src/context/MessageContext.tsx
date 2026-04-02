@@ -4,7 +4,7 @@
 
 import { createContext, useContext, useState, useEffect } from 'react';
 import { inboxMessages as baseInbox, sentMessages as baseSent } from '@/data/messages';
-import { campTeams } from '@/data/teams';
+import * as teamDb from '@/lib/teamDb';
 import { CURRENT_USER_KEY } from '@/hooks/useCurrentUser';
 import type { MessageDisplay } from '@/data/messages';
 
@@ -44,9 +44,8 @@ export function MessageProvider({ children }: { children: React.ReactNode }) {
     const userId = localStorage.getItem(CURRENT_USER_KEY);
     const overrides = loadOverrides();
 
-    // 내 팀 코드 목록 (내가 리더인 팀)
-    const myTeamCodes = campTeams
-      .filter((t) => t.leaderId === userId)
+    // 내 팀 코드 목록 (내가 리더인 팀) — teamDb 기반
+    const myTeamCodes = teamDb.getTeamsByLeader(userId ?? '')
       .map((t) => t.teamCode);
 
     // 받은 메시지: 내 팀에 지원한 메시지
@@ -61,17 +60,28 @@ export function MessageProvider({ children }: { children: React.ReactNode }) {
       overrides
     );
 
+    // 수락된 sent 메시지 → 팀 DB 자동 동기화 (하드코딩 초기값 포함)
+    filteredSent.forEach((m) => {
+      if (m.status === 'accepted') {
+        teamDb.addMember(m.teamCode, m.fromUserId);
+      }
+    });
+
     setInbox(filteredInbox);
     setSent(filteredSent);
   }, []);
 
   function updateStatus(id: string, status: 'accepted' | 'rejected') {
-    // localStorage에 저장
     const overrides = loadOverrides();
     overrides[id] = status;
     localStorage.setItem(STATUS_KEY, JSON.stringify(overrides));
 
-    // 상태 업데이트
+    // 수락 시 팀 DB에 멤버 추가
+    if (status === 'accepted') {
+      const msg = inbox.find((m) => m.id === id);
+      if (msg) teamDb.addMember(msg.teamCode, msg.fromUserId);
+    }
+
     setInbox((prev) => prev.map((m) => m.id === id ? { ...m, status } : m));
     setSent((prev) => prev.map((m) => m.id === id ? { ...m, status } : m));
   }

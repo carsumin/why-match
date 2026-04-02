@@ -5,10 +5,10 @@
 import { useState, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { campTeams as initialTeams } from '@/data/teams';
 import { hackathonList } from '@/data/hackathons';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
-import type { CampTeam } from '@/types';
+import { useTeamDb } from '@/hooks/useTeamDb';
+import type { TeamRecord } from '@/hooks/useTeamDb';
 
 const POSITIONS = ['Frontend', 'Backend', 'Designer', 'PM', 'Data', 'ML Engineer', 'DevOps'];
 
@@ -16,8 +16,8 @@ export default function CampPageContent() {
   const searchParams = useSearchParams();
   const hackathonSlug = searchParams.get('hackathon');
   const { currentUser } = useCurrentUser();
+  const { teams: dbTeams, createTeam } = useTeamDb();
 
-  const [teams, setTeams] = useState<CampTeam[]>(initialTeams);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // 새 팀 폼 상태
@@ -32,14 +32,14 @@ export default function CampPageContent() {
   // hackathon 쿼리 파라미터로 필터링 + 내 팀 상단 정렬
   const filtered = useMemo(() => {
     const base = hackathonSlug
-      ? teams.filter((t) => t.hackathonSlug === hackathonSlug)
-      : teams;
+      ? dbTeams.filter((t) => t.hackathonSlug === hackathonSlug)
+      : dbTeams;
     return [...base].sort((a, b) => {
       const aIsMe = a.leaderId === currentUser?.id ? -1 : 0;
       const bIsMe = b.leaderId === currentUser?.id ? 1 : 0;
       return aIsMe + bIsMe;
     });
-  }, [teams, hackathonSlug, currentUser]);
+  }, [dbTeams, hackathonSlug, currentUser]);
 
   // 현재 필터링 중인 해커톤 정보
   const currentHackathon = hackathonSlug
@@ -57,19 +57,17 @@ export default function CampPageContent() {
 
   function submitForm() {
     if (!form.name.trim() || !form.intro.trim()) return;
-    const newTeam: CampTeam = {
+    createTeam({
       teamCode: `T-NEW-${Date.now()}`,
       hackathonSlug: hackathonSlug,
       leaderId: currentUser?.id ?? '',
       name: form.name.trim(),
       isOpen: form.isOpen,
-      memberCount: 1,
       lookingFor: form.lookingFor,
       intro: form.intro.trim(),
       contact: { type: 'link', url: form.contactUrl.trim() || '#' },
       createdAt: new Date().toISOString(),
-    };
-    setTeams((prev) => [newTeam, ...prev]);
+    });
     setIsModalOpen(false);
     setForm({ name: '', intro: '', isOpen: true, lookingFor: [], contactUrl: '' });
   }
@@ -241,7 +239,7 @@ export default function CampPageContent() {
 }
 
 // 팀 카드 컴포넌트
-function TeamCard({ team, isMyTeam }: { team: CampTeam; isMyTeam: boolean }) {
+function TeamCard({ team, isMyTeam }: { team: TeamRecord; isMyTeam: boolean }) {
   return (
     <div className={`rounded-2xl shadow-sm p-5 space-y-3 ${
       isMyTeam
@@ -265,7 +263,7 @@ function TeamCard({ team, isMyTeam }: { team: CampTeam; isMyTeam: boolean }) {
               {team.isOpen ? '모집중' : '마감'}
             </span>
           </div>
-          <p className="text-xs text-gray-400">현재 {team.memberCount}명</p>
+          <p className="text-xs text-gray-400">현재 {team.memberIds.length}명</p>
         </div>
       </div>
 
