@@ -78,12 +78,6 @@ export default function CampPageContent() {
       <div className="flex items-center justify-between mb-2">
         <h1 className="text-2xl font-extrabold text-gray-900">팀원 모집</h1>
         <div className="flex gap-2">
-          <Link
-            href="/camp/simulate"
-            className="text-sm text-gray-600 font-medium hover:underline"
-          >
-            시뮬레이터 →
-          </Link>
           <button
             onClick={() => setIsModalOpen(true)}
             className="px-4 py-1.5 rounded-xl bg-sky-200 text-sky-800 text-sm font-bold hover:bg-sky-300 transition-colors"
@@ -308,9 +302,9 @@ function TeamCard({ team, isMyTeam }: { team: TeamRecord; isMyTeam: boolean }) {
           <>
             <Link
               href="/camp/simulate"
-              className="flex-1 text-center py-2 rounded-xl border border-sky-100 text-gray-600 text-sm font-semibold hover:bg-sky-50 transition-colors"
+              className="flex-1 text-center py-2 rounded-xl bg-pink-100 text-pink-700 text-sm font-bold hover:bg-pink-200 transition-colors"
             >
-              시뮬레이션 해보기
+              내 궁합 보기 ✦
             </Link>
             {team.isOpen ? (
               <a
