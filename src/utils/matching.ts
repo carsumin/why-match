@@ -115,6 +115,31 @@ export function getMatchReason(
 }
 
 // ──────────────────────────────
+// 유저 프로필 점수
+// ──────────────────────────────
+
+export interface UserScoreResult {
+  score: number;
+  tagScore: number;
+  roleScore: number;
+  timeScore: number;
+}
+
+/**
+ * 유저 프로필 점수를 계산한다.
+ * - 기술 다양성(40%): 보유 기술 수 / 5개 기준
+ * - 역할 다양성(40%): 보유 역할 수 / 2개 기준
+ * - 활동성(20%): 하루 활동 시간 / 10h 기준
+ */
+export function calcUserScore(user: User): UserScoreResult {
+  const tagScore = Math.min(100, Math.round((user.tags.length / 5) * 100));
+  const roleScore = Math.min(100, Math.round((user.roles.length / 2) * 100));
+  const timeScore = Math.min(100, Math.round((user.activeHours / 10) * 100));
+  const score = Math.round(tagScore * 0.4 + roleScore * 0.4 + timeScore * 0.2);
+  return { score, tagScore, roleScore, timeScore };
+}
+
+// ──────────────────────────────
 // 팀 빌딩 시뮬레이터
 // ──────────────────────────────
 
