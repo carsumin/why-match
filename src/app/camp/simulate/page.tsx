@@ -75,7 +75,7 @@ function SimulateContent() {
   // 헤더에서 선택한 현재 로그인 유저
   const { currentUser: me } = useCurrentUser();
   const { teams: dbTeams } = useTeamDb();
-  const { sent, sendMessage } = useMessageContext();
+  const { inbox, sent, sendMessage, updateStatus } = useMessageContext();
 
   // 합류자 모드: DB 팀 중 내가 리더가 아닌 팀만 → 시뮬레이션 형태로 변환
   const joinerSimTeams = dbTeams
@@ -125,6 +125,14 @@ function SimulateContent() {
   const [candidateFilter, setCandidateFilter] = useState<'all' | 'match'>('match');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
+  // 현재 팀에 지원한 메시지 맵 userId → message (pending)
+  const applicantMsgMap = new Map(
+    inbox
+      .filter((m) => m.teamCode === (leaderTeam?.id ?? leaderTeamId) && m.status === 'pending')
+      .map((m) => [m.fromUserId, m])
+  );
+  const applicantUserIds = new Set(applicantMsgMap.keys());
+
   // 후보 풀 전체에서 존재하는 태그 목록
   const allCandidatePool = leaderTeam && me
     ? users.filter((u) => u.id !== me.id && !memberIds.includes(u.id))
@@ -141,15 +149,24 @@ function SimulateContent() {
     if (!leaderTeam || !me) return [];
     let filtered = allCandidatePool;
     if (candidateFilter === 'match') {
-      filtered = filtered.filter((u) => u.roles.some((r) => leaderTeam.requiredRoles.includes(r)));
+      // 역할 매칭 필터 — 지원자는 필터와 무관하게 항상 포함
+      filtered = filtered.filter(
+        (u) => applicantUserIds.has(u.id) || u.roles.some((r) => leaderTeam.requiredRoles.includes(r))
+      );
     }
     if (selectedTags.length > 0) {
-      filtered = filtered.filter((u) => selectedTags.every((t) => u.tags.includes(t)));
+      // 태그 필터 — 지원자는 태그 필터도 무시하고 항상 포함
+      filtered = filtered.filter(
+        (u) => applicantUserIds.has(u.id) || selectedTags.every((t) => u.tags.includes(t))
+      );
     }
-    // 적합도 점수 높은 순 정렬
-    return [...filtered].sort((a, b) =>
-      calculateMatchScore(b, leaderTeam).score - calculateMatchScore(a, leaderTeam).score
-    );
+    // 지원자 먼저, 그다음 적합도 점수 높은 순 정렬
+    return [...filtered].sort((a, b) => {
+      const aIsApplicant = applicantUserIds.has(a.id) ? 1 : 0;
+      const bIsApplicant = applicantUserIds.has(b.id) ? 1 : 0;
+      if (bIsApplicant !== aIsApplicant) return bIsApplicant - aIsApplicant;
+      return calculateMatchScore(b, leaderTeam).score - calculateMatchScore(a, leaderTeam).score;
+    });
   })();
 
   function sendContact() {
@@ -460,11 +477,18 @@ function SimulateContent() {
                 const sim = simulateTeamScore(leaderTeam, candidate);
                 const match = calculateMatchScore(candidate, leaderTeam);
                 const alreadySent = sentTo.includes(candidate.id);
+                const isApplicant = applicantUserIds.has(candidate.id);
+                const applicantMsg = applicantMsgMap.get(candidate.id);
                 return (
-                  <Card key={candidate.id}>
+                  <Card key={candidate.id} className={isApplicant ? 'border-[#4f72c4]/40 bg-[#f4f6fd]' : ''}>
                     <div className="flex items-start justify-between gap-3 mb-2">
                       <div className="flex-1">
-                        <p className="font-bold text-gray-900 text-sm">{candidate.name}</p>
+                        <div className="flex items-center gap-2">
+                          <p className="font-bold text-gray-900 text-sm">{candidate.name}</p>
+                          {isApplicant && (
+                            <span className="text-[10px] font-bold text-[#4f72c4] bg-[#dde4f5] px-1.5 py-0.5 rounded-full">지원자</span>
+                          )}
+                        </div>
                         <p className="text-xs text-gray-400">
                           {candidate.roles.map((r) => roleLabel[r] ?? r).join(' · ')}
                           {' · '}{candidate.activeHours}h/day
@@ -488,21 +512,45 @@ function SimulateContent() {
                       <span className="ml-1 text-gray-400">· {match.reason}</span>
                     </div>
 
-                    {/* 연락하기 */}
-                    {alreadySent ? (
-                      <p className="text-xs text-green-700 font-semibold text-center py-1">
-                        ✓ 연락 완료
-                      </p>
+                    {/* 지원자 신청 메시지 + 수락/거절 */}
+                    {isApplicant && applicantMsg ? (
+                      <>
+                        <div className="mb-3 px-3 py-2 rounded-xl bg-white border border-[#dde4f5] text-xs text-gray-600 leading-relaxed">
+                          <span className="font-semibold text-gray-400 block mb-0.5">신청 메시지</span>
+                          {applicantMsg.message}
+                        </div>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => updateStatus(applicantMsg.id, 'rejected')}
+                            className="flex-1 py-2 rounded-xl bg-red-50 text-red-500 text-sm font-bold hover:bg-red-100 transition-colors"
+                          >
+                            거절
+                          </button>
+                          <button
+                            onClick={() => updateStatus(applicantMsg.id, 'accepted')}
+                            className="flex-1 py-2 rounded-xl bg-[#4f72c4] text-white text-sm font-bold hover:bg-[#3a5aa8] transition-colors"
+                          >
+                            수락
+                          </button>
+                        </div>
+                      </>
                     ) : (
-                      <button
-                        onClick={() => {
-                          setContactCandidate(candidate);
-                          setContactMessage('');
-                        }}
-                        className="w-full py-2 rounded-xl bg-[#dde4f5] text-slate-900 text-sm font-bold hover:bg-[#c7d3ee] transition-colors"
-                      >
-                        연락하기
-                      </button>
+                      /* 일반 후보자 — 연락하기 */
+                      alreadySent ? (
+                        <p className="text-xs text-green-700 font-semibold text-center py-1">
+                          ✓ 연락 완료
+                        </p>
+                      ) : (
+                        <button
+                          onClick={() => {
+                            setContactCandidate(candidate);
+                            setContactMessage('');
+                          }}
+                          className="w-full py-2 rounded-xl bg-[#dde4f5] text-slate-900 text-sm font-bold hover:bg-[#c7d3ee] transition-colors"
+                        >
+                          연락하기
+                        </button>
+                      )
                     )}
                   </Card>
                 );
