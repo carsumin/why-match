@@ -47,11 +47,48 @@ export default function HackathonTabs({
   const [infoModal, setInfoModal] = useState<'rules' | 'faq' | null>(null);
   const [submitOpen, setSubmitOpen] = useState(false);
   const [fieldValues, setFieldValues] = useState<Record<string, string>>({});
+  const [fileNames, setFileNames] = useState<Record<string, string>>({});
+  const [formErrors, setFormErrors] = useState<Record<string, boolean>>({});
   const { sections } = detail;
   const now = Date.now();
 
   function handleFieldChange(key: string, value: string) {
     setFieldValues((prev) => ({ ...prev, [key]: value }));
+    setFormErrors((prev) => ({ ...prev, [key]: false }));
+  }
+
+  function handleFileChange(key: string, file: File | undefined) {
+    setFileNames((prev) => ({ ...prev, [key]: file?.name ?? '' }));
+    setFormErrors((prev) => ({ ...prev, [key]: false }));
+  }
+
+  /** 파일 타입 여부 */
+  function isFileFormat(format: string) {
+    return format === 'zip' || format === 'pdf';
+  }
+
+  /** 제출 전 유효성 검사 — 빈 필드 key 반환 */
+  function validate(): string[] {
+    const keys = sections.submit.submissionItems
+      ? sections.submit.submissionItems.map((i) => ({ key: i.key, format: i.format }))
+      : sections.submit.allowedArtifactTypes.map((t) => ({ key: t, format: t }));
+
+    return keys
+      .filter(({ key, format }) =>
+        isFileFormat(format) ? !fileNames[key] : !(fieldValues[key] ?? '').trim()
+      )
+      .map(({ key }) => key);
+  }
+
+  function handleSubmitClick() {
+    const invalid = validate();
+    if (invalid.length > 0) {
+      const errors: Record<string, boolean> = {};
+      invalid.forEach((k) => { errors[k] = true; });
+      setFormErrors(errors);
+      return;
+    }
+    setSubmitOpen(true);
   }
 
   /** 제출 모달에 넘길 항목 목록 조합 */
@@ -61,14 +98,18 @@ export default function HackathonTabs({
         key: item.key,
         title: item.title,
         format: item.format,
-        value: fieldValues[item.key] ?? '',
+        value: isFileFormat(item.format)
+          ? (fileNames[item.key] ?? '')
+          : (fieldValues[item.key] ?? ''),
       }));
     }
     return sections.submit.allowedArtifactTypes.map((type) => ({
       key: type,
       title: type.toUpperCase(),
       format: type,
-      value: fieldValues[type] ?? '',
+      value: isFileFormat(type)
+        ? (fileNames[type] ?? '')
+        : (fieldValues[type] ?? ''),
     }));
   }
 
@@ -389,7 +430,7 @@ export default function HackathonTabs({
             <div className="space-y-3">
               <h3 className="text-sm font-bold text-gray-900 mb-1">제출 항목</h3>
               {sections.submit.submissionItems.map((item, i) => (
-                <div key={item.key} className="p-4 rounded-2xl border border-sky-100 glass">
+                <div key={item.key} className={`p-4 rounded-2xl border glass ${formErrors[item.key] ? 'border-red-300 bg-red-50' : 'border-sky-100'}`}>
                   <p className="text-xs text-gray-400 mb-1">
                     단계 {i + 1} · {item.format.toUpperCase()}
                   </p>
@@ -398,6 +439,7 @@ export default function HackathonTabs({
                     <input
                       type="file"
                       accept=".zip"
+                      onChange={(e) => handleFileChange(item.key, e.target.files?.[0])}
                       className="text-xs text-gray-500 file:mr-3 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-sky-50 file:text-gray-700 hover:file:bg-sky-50"
                     />
                   )}
@@ -411,15 +453,19 @@ export default function HackathonTabs({
                           ? 'PDF URL 또는 구글 드라이브 링크'
                           : 'https://'
                       }
-                      className="w-full px-3 py-2 rounded-lg border border-sky-100 text-sm focus:outline-none focus:border-gray-400"
+                      className={`w-full px-3 py-2 rounded-lg border text-sm focus:outline-none ${formErrors[item.key] ? 'border-red-300 focus:border-red-400' : 'border-sky-100 focus:border-gray-400'}`}
                     />
                   )}
                   {item.format === 'pdf' && (
                     <input
                       type="file"
                       accept=".pdf"
+                      onChange={(e) => handleFileChange(item.key, e.target.files?.[0])}
                       className="text-xs text-gray-500 file:mr-3 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-sky-50 file:text-gray-700 hover:file:bg-sky-50"
                     />
+                  )}
+                  {formErrors[item.key] && (
+                    <p className="text-xs text-red-500 mt-1.5">필수 항목입니다.</p>
                   )}
                 </div>
               ))}
@@ -428,12 +474,13 @@ export default function HackathonTabs({
             /* 단순 제출 폼 */
             <div className="space-y-3">
               {sections.submit.allowedArtifactTypes.map((type) => (
-                <div key={type} className="p-4 rounded-2xl border border-sky-100 glass">
+                <div key={type} className={`p-4 rounded-2xl border glass ${formErrors[type] ? 'border-red-300 bg-red-50' : 'border-sky-100'}`}>
                   <p className="text-xs text-gray-400 mb-2">{type.toUpperCase()} 제출</p>
                   {type === 'zip' && (
                     <input
                       type="file"
                       accept=".zip"
+                      onChange={(e) => handleFileChange(type, e.target.files?.[0])}
                       className="text-xs text-gray-500 file:mr-3 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-sky-50 file:text-gray-700 hover:file:bg-sky-50"
                     />
                   )}
@@ -443,13 +490,14 @@ export default function HackathonTabs({
                       value={fieldValues[type] ?? ''}
                       onChange={(e) => handleFieldChange(type, e.target.value)}
                       placeholder="https://"
-                      className="w-full px-3 py-2 rounded-lg border border-sky-100 text-sm focus:outline-none focus:border-gray-400"
+                      className={`w-full px-3 py-2 rounded-lg border text-sm focus:outline-none ${formErrors[type] ? 'border-red-300 focus:border-red-400' : 'border-sky-100 focus:border-gray-400'}`}
                     />
                   )}
                   {(type === 'pdf' || type === 'pdf_url') && (
                     <input
                       type="file"
                       accept=".pdf"
+                      onChange={(e) => handleFileChange(type, e.target.files?.[0])}
                       className="text-xs text-gray-500 file:mr-3 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-sky-50 file:text-gray-700 hover:file:bg-sky-50"
                     />
                   )}
@@ -459,8 +507,11 @@ export default function HackathonTabs({
                       onChange={(e) => handleFieldChange(type, e.target.value)}
                       placeholder="텍스트 또는 URL 입력"
                       rows={3}
-                      className="w-full px-3 py-2 rounded-lg border border-sky-100 text-sm focus:outline-none focus:border-gray-400 resize-none"
+                      className={`w-full px-3 py-2 rounded-lg border text-sm focus:outline-none resize-none ${formErrors[type] ? 'border-red-300 focus:border-red-400' : 'border-sky-100 focus:border-gray-400'}`}
                     />
+                  )}
+                  {formErrors[type] && (
+                    <p className="text-xs text-red-500 mt-1.5">필수 항목입니다.</p>
                   )}
                 </div>
               ))}
@@ -468,7 +519,7 @@ export default function HackathonTabs({
           )}
 
           <button
-            onClick={() => setSubmitOpen(true)}
+            onClick={handleSubmitClick}
             className="block w-full text-center py-3 rounded-xl bg-sky-200 text-sky-800 font-bold text-sm hover:bg-sky-300 transition-colors"
           >
             제출하기 →
