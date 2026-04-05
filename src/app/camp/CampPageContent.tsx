@@ -1,0 +1,509 @@
+'use client';
+
+// 팀원 모집 실제 콘텐츠 — useSearchParams 사용
+
+import { useState, useMemo } from 'react';
+import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
+import { hackathonList } from '@/data/hackathons';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { useTeamDb } from '@/hooks/useTeamDb';
+import { useMessageContext } from '@/context/MessageContext';
+import type { TeamRecord } from '@/hooks/useTeamDb';
+import ContactModal from '@/components/messages/ContactModal';
+import ChatModal from '@/components/messages/ChatModal';
+import type { MessageDisplay } from '@/data/messages';
+
+const POSITIONS = ['Frontend', 'Backend', 'Designer', 'PM', 'Data', 'ML Engineer', 'DevOps'];
+
+export default function CampPageContent() {
+  const searchParams = useSearchParams();
+  const { currentUser } = useCurrentUser();
+  const { teams: dbTeams, createTeam } = useTeamDb();
+
+  // 렌더 시점에 상태를 재계산해 ongoing 해커톤이 누락되지 않도록 함
+  const activeHackathons = useMemo(
+    () => hackathonList.filter((h) => h.status !== 'ended'),
+    []
+  );
+  const activeSlugSet = useMemo(
+    () => new Set(activeHackathons.map((h) => h.slug)),
+    [activeHackathons]
+  );
+
+  // 초기값: URL 쿼리 파라미터 우선
+  const initialSlug = searchParams.get('hackathon');
+  const [filterSlug, setFilterSlug] = useState<string | null>(initialSlug);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // 새 팀 폼 상태
+  const [form, setForm] = useState({
+    name: '',
+    intro: '',
+    isOpen: true,
+    lookingFor: [] as string[],
+    contactUrl: '',
+    hackathonSlug: filterSlug ?? '',
+  });
+
+  // 필터링 + 내 팀 상단 정렬 (종료된 해커톤 팀 제외)
+  const filtered = useMemo(() => {
+    const active = dbTeams.filter((t) => !t.hackathonSlug || activeSlugSet.has(t.hackathonSlug));
+    const base = filterSlug
+      ? active.filter((t) => t.hackathonSlug === filterSlug)
+      : active;
+    return [...base].sort((a, b) => {
+      const aIsMe = a.leaderId === currentUser?.id ? -1 : 0;
+      const bIsMe = b.leaderId === currentUser?.id ? 1 : 0;
+      return aIsMe + bIsMe;
+    });
+  }, [dbTeams, filterSlug, currentUser]);
+
+  function togglePosition(pos: string) {
+    setForm((prev) => ({
+      ...prev,
+      lookingFor: prev.lookingFor.includes(pos)
+        ? prev.lookingFor.filter((p) => p !== pos)
+        : [...prev.lookingFor, pos],
+    }));
+  }
+
+  function submitForm() {
+    if (!form.name.trim() || !form.intro.trim()) return;
+    createTeam({
+      teamCode: `T-NEW-${Date.now()}`,
+      hackathonSlug: form.hackathonSlug || null,
+      leaderId: currentUser?.id ?? '',
+      name: form.name.trim(),
+      isOpen: form.isOpen,
+      lookingFor: form.lookingFor,
+      intro: form.intro.trim(),
+      contact: { type: 'link', url: form.contactUrl.trim() || '#' },
+      createdAt: new Date().toISOString(),
+    });
+    setIsModalOpen(false);
+    setForm({ name: '', intro: '', isOpen: true, lookingFor: [], contactUrl: '', hackathonSlug: filterSlug ?? '' });
+  }
+
+  return (
+    <div className="max-w-2xl mx-auto px-4 py-8">
+      {/* 헤더 */}
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-2xl font-extrabold text-gray-900">팀원 모집</h1>
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="px-4 py-1.5 rounded-xl bg-[#dde4f5] text-[#3a5aa8] text-sm font-bold hover:bg-[#c7d3ee] transition-colors"
+        >
+          + 팀 등록
+        </button>
+      </div>
+
+      {/* 해커톤 필터 탭 */}
+      <div className="flex gap-2 flex-wrap mb-5">
+        <button
+          onClick={() => setFilterSlug(null)}
+          className={`px-3 py-1.5 rounded-full text-xs font-bold transition-colors ${
+            filterSlug === null
+              ? 'bg-gray-800 text-white'
+              : 'bg-[#eef1fb] text-slate-500 hover:bg-[#dde4f5]'
+          }`}
+        >
+          전체
+        </button>
+        {activeHackathons.map((h) => {
+          const status = h.status;
+          const isActive = filterSlug === h.slug;
+          return (
+            <button
+              key={h.slug}
+              onClick={() => setFilterSlug(h.slug)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-colors ${
+                isActive
+                  ? 'bg-gray-800 text-white'
+                  : 'bg-[#eef1fb] text-slate-500 hover:bg-[#dde4f5]'
+              }`}
+            >
+              <span
+                className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                  status === 'ongoing' ? 'bg-green-400' : 'bg-yellow-400'
+                }`}
+              />
+              {h.title.length > 18 ? h.title.slice(0, 18) + '…' : h.title}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* 팀 카드 목록 */}
+      {filtered.length > 0 ? (
+        <div className="space-y-4">
+          {filtered.map((team) => (
+            <TeamCard
+              key={team.teamCode}
+              team={team}
+              isMyTeam={team.leaderId === currentUser?.id}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="flex flex-col items-center justify-center py-20 text-center text-gray-400">
+          <p className="text-4xl mb-3">📭</p>
+          <p className="text-sm font-semibold text-gray-600 mb-1">등록된 팀이 없습니다</p>
+          <p className="text-sm mb-4">
+            {filterSlug ? '이 해커톤에 아직 팀이 없습니다.' : '아직 팀이 없습니다.'}
+          </p>
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="px-4 py-2 rounded-xl bg-[#dde4f5] text-[#3a5aa8] text-sm font-bold hover:bg-[#c7d3ee] transition-colors"
+          >
+            첫 번째 팀 등록하기
+          </button>
+        </div>
+      )}
+
+      {/* 팀 등록 모달 */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 p-4">
+          <div className="w-full max-w-md glass rounded-2xl shadow-xl p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-bold text-gray-900">팀 모집글 등록</h2>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="text-gray-400 hover:text-gray-600 text-xl"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* 해커톤 선택 */}
+            <div>
+              <label className="text-xs font-semibold text-gray-500 block mb-1">
+                해커톤 <span className="text-red-400">*</span>
+              </label>
+              <select
+                value={form.hackathonSlug}
+                onChange={(e) => setForm((p) => ({ ...p, hackathonSlug: e.target.value }))}
+                className="w-full px-3 py-2 rounded-xl border border-[#dde4f5] text-sm focus:outline-none focus:border-[#4f72c4] bg-white"
+              >
+                <option value="">해커톤을 선택하세요</option>
+                {activeHackathons.map((h) => (
+                  <option key={h.slug} value={h.slug}>
+                    {h.title}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* 팀명 */}
+            <div>
+              <label className="text-xs font-semibold text-gray-500 block mb-1">
+                팀명 <span className="text-red-400">*</span>
+              </label>
+              <input
+                type="text"
+                value={form.name}
+                onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
+                placeholder="예: 404found"
+                className="w-full px-3 py-2 rounded-xl border border-[#dde4f5] text-sm focus:outline-none focus:border-[#4f72c4]"
+              />
+            </div>
+
+            {/* 소개 */}
+            <div>
+              <label className="text-xs font-semibold text-gray-500 block mb-1">
+                소개 <span className="text-red-400">*</span>
+              </label>
+              <textarea
+                value={form.intro}
+                onChange={(e) => setForm((p) => ({ ...p, intro: e.target.value }))}
+                placeholder="팀 소개와 목표를 간략히 적어주세요"
+                rows={3}
+                className="w-full px-3 py-2 rounded-xl border border-[#dde4f5] text-sm focus:outline-none focus:border-[#4f72c4] resize-none"
+              />
+            </div>
+
+            {/* 모집 중 여부 */}
+            <div className="flex items-center gap-3">
+              <label className="text-xs font-semibold text-gray-500">모집 상태</label>
+              <button
+                onClick={() => setForm((p) => ({ ...p, isOpen: !p.isOpen }))}
+                className={`px-3 py-1 rounded-full text-xs font-bold transition-colors ${
+                  form.isOpen
+                    ? 'bg-green-50 text-green-700'
+                    : 'bg-white text-gray-500'
+                }`}
+              >
+                {form.isOpen ? '모집중' : '마감'}
+              </button>
+            </div>
+
+            {/* 모집 포지션 */}
+            <div>
+              <label className="text-xs font-semibold text-gray-500 block mb-2">모집 포지션</label>
+              <div className="flex flex-wrap gap-2">
+                {POSITIONS.map((pos) => (
+                  <button
+                    key={pos}
+                    onClick={() => togglePosition(pos)}
+                    className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                      form.lookingFor.includes(pos)
+                        ? 'bg-[#4f72c4] text-white'
+                        : 'bg-[#eef1fb] text-slate-600 hover:bg-[#dde4f5]'
+                    }`}
+                  >
+                    {pos}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* 연락 링크 */}
+            <div>
+              <label className="text-xs font-semibold text-gray-500 block mb-1">연락 링크</label>
+              <input
+                type="url"
+                value={form.contactUrl}
+                onChange={(e) => setForm((p) => ({ ...p, contactUrl: e.target.value }))}
+                placeholder="카카오톡 오픈채팅 또는 구글폼 URL"
+                className="w-full px-3 py-2 rounded-xl border border-[#dde4f5] text-sm focus:outline-none focus:border-[#4f72c4]"
+              />
+            </div>
+
+            {/* 제출 버튼 */}
+            <button
+              onClick={submitForm}
+              disabled={!form.name.trim() || !form.intro.trim() || !form.hackathonSlug}
+              className="w-full py-3 rounded-xl bg-[#4f72c4] text-white font-bold text-sm hover:bg-[#3a5aa8] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              등록하기
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// 팀 카드 컴포넌트
+function TeamCard({ team, isMyTeam }: { team: TeamRecord; isMyTeam: boolean }) {
+  const hackathon = team.hackathonSlug
+    ? hackathonList.find((h) => h.slug === team.hackathonSlug) ?? null
+    : null;
+
+  const [contactOpen, setContactOpen] = useState(false);
+  const [applicantsOpen, setApplicantsOpen] = useState(false);
+  const [selectedMsg, setSelectedMsg] = useState<MessageDisplay | null>(null);
+  const { sent, inbox, updateStatus, markAsRead } = useMessageContext();
+
+  // 이 팀에 지원한 메시지 목록
+  const applicants = inbox.filter((m) => m.teamCode === team.teamCode);
+
+  // 내가 이 팀에 보낸 메시지 상태
+  const myApplication = sent.find((m) => m.teamCode === team.teamCode);
+  const isApplied = !!myApplication;
+  const isRejected = myApplication?.status === 'rejected';
+  const isAccepted = myApplication?.status === 'accepted';
+
+  return (
+    <div className={`rounded-2xl shadow-sm p-5 space-y-3 ${
+      isMyTeam
+        ? 'bg-[#eef1fb] border-2 border-[#4f72c4]'
+        : 'glass border border-[#dde4f5]'
+    }`}>
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex-1">
+          <div className="flex items-center gap-2 mb-1 flex-wrap">
+            {isMyTeam && (
+              <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-[#4f72c4] text-white">
+                내 팀
+              </span>
+            )}
+            <h2 className="font-bold text-gray-900">{team.name}</h2>
+            <span
+              className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+                team.isOpen ? 'bg-green-50 text-green-700' : 'bg-white text-gray-500'
+              }`}
+            >
+              {team.isOpen ? '모집중' : '마감'}
+            </span>
+          </div>
+          <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+            <p className="text-xs text-gray-400">현재 {team.memberIds.length}명</p>
+            {hackathon && (
+              <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+                hackathon.status === 'ongoing'
+                  ? 'bg-green-50 text-green-700'
+                  : 'bg-yellow-50 text-yellow-700'
+              }`}>
+                {hackathon.title.length > 22 ? hackathon.title.slice(0, 22) + '…' : hackathon.title}
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* 소개 */}
+      <p className="text-sm text-gray-600">{team.intro}</p>
+
+      {/* 모집 포지션 */}
+      {team.lookingFor.length > 0 && (
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-xs text-gray-400">모집:</span>
+          {team.lookingFor.map((pos) => (
+            <span
+              key={pos}
+              className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-[#eef1fb] text-slate-600"
+            >
+              {pos}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {/* 액션 버튼 */}
+      <div className="flex gap-2 pt-1">
+        {isMyTeam ? (
+          /* 내 팀: 시뮬레이션 없음 → 팀장 모드 바로가기 + 지원자 확인 */
+          <>
+            <Link
+              href="/camp/simulate?mode=leader"
+              className="flex-1 text-center py-2 rounded-xl border border-[#4f72c4] text-[#4f72c4] text-sm font-semibold hover:bg-[#eef1fb] transition-colors"
+            >
+              팀장 모드 →
+            </Link>
+            <button
+              onClick={() => setApplicantsOpen(true)}
+              className="relative flex-1 text-center py-2 rounded-xl bg-[#4f72c4] text-white text-sm font-bold hover:bg-[#3a5aa8] transition-colors"
+            >
+              지원자 확인
+              {applicants.filter((m) => !m.isRead).length > 0 && (
+                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-400 text-white text-[10px] flex items-center justify-center font-bold">
+                  {applicants.filter((m) => !m.isRead).length}
+                </span>
+              )}
+            </button>
+          </>
+        ) : (
+          /* 남의 팀: 시뮬레이션 + 신청 상태 */
+          <>
+            <Link
+              href={`/camp/simulate?team=${team.teamCode}`}
+              className="flex-1 text-center py-2 rounded-xl bg-[#eaf7f2] text-[#10b981] text-sm font-bold hover:bg-[#d1f0e5] transition-colors"
+            >
+              내 궁합 보기 ✦
+            </Link>
+            {isAccepted ? (
+              <div className="flex-1 text-center py-2 rounded-xl bg-green-50 text-green-700 text-sm font-bold">
+                ✓ 합류 수락됨
+              </div>
+            ) : isRejected ? (
+              <div className="flex-1 text-center py-2 rounded-xl bg-red-50 text-red-400 text-sm font-semibold">
+                거절된 팀
+              </div>
+            ) : isApplied ? (
+              <div className="flex-1 text-center py-2 rounded-xl bg-[#eef1fb] text-[#4f72c4] text-sm font-semibold">
+                신청 완료 · 대기 중
+              </div>
+            ) : !team.isOpen ? (
+              <button disabled className="flex-1 py-2 rounded-xl glass text-gray-400 text-sm font-semibold cursor-not-allowed">
+                모집 마감
+              </button>
+            ) : (
+              <button
+                onClick={() => setContactOpen(true)}
+                className="flex-1 text-center py-2 rounded-xl bg-[#dde4f5] text-[#3a5aa8] text-sm font-bold hover:bg-[#c7d3ee] transition-colors"
+              >
+                연락하기 →
+              </button>
+            )}
+          </>
+        )}
+      </div>
+
+      {contactOpen && (
+        <ContactModal team={team} onClose={() => setContactOpen(false)} />
+      )}
+
+      {/* 지원자 목록 모달 */}
+      {applicantsOpen && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4">
+          <div className="fixed inset-0 bg-black/30" onClick={() => setApplicantsOpen(false)} />
+          <div className="relative z-10 w-full max-w-md bg-white rounded-3xl shadow-xl overflow-hidden">
+            <div className="px-5 py-4 border-b border-[#dde4f5] flex items-center justify-between">
+              <div>
+                <h2 className="font-bold text-gray-900">{team.name}</h2>
+                <p className="text-xs text-gray-400 mt-0.5">지원자 {applicants.length}명</p>
+              </div>
+              <button onClick={() => setApplicantsOpen(false)} className="text-gray-400 hover:text-gray-600 text-xl leading-none">×</button>
+            </div>
+            <div className="overflow-y-auto max-h-96">
+              {applicants.length === 0 ? (
+                <div className="py-14 text-center text-gray-400">
+                  <p className="text-3xl mb-2">📭</p>
+                  <p className="text-sm">아직 지원자가 없습니다.</p>
+                </div>
+              ) : (
+                <div className="divide-y divide-[#eef1fb]">
+                  {applicants.map((msg) => {
+                    const isUnread = !msg.isRead;
+                    const statusConfig = {
+                      pending: { label: '대기 중', cls: 'bg-yellow-50 text-yellow-600 border border-yellow-200' },
+                      accepted: { label: '수락됨', cls: 'bg-green-50 text-green-700 border border-green-200' },
+                      rejected: { label: '거절됨', cls: 'bg-red-50 text-red-500 border border-red-200' },
+                    } as const;
+                    const { label, cls } = statusConfig[msg.status];
+                    return (
+                      <button
+                        key={msg.id}
+                        onClick={() => {
+                          setSelectedMsg(msg);
+                          if (!msg.isRead) markAsRead(msg.id);
+                        }}
+                        className={`w-full text-left px-5 py-4 hover:bg-[#eef1fb] transition-colors ${isUnread ? 'bg-[#eef1fb]/60' : ''}`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="relative shrink-0">
+                            <div className="w-9 h-9 rounded-full bg-linear-to-br from-[#4f72c4] to-indigo-400 flex items-center justify-center text-white text-sm font-bold">
+                              {msg.fromUserName[0]}
+                            </div>
+                            {isUnread && (
+                              <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-red-400 border-2 border-white" />
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-0.5">
+                              <span className={`text-sm font-semibold text-gray-900 ${isUnread ? 'font-bold' : ''}`}>{msg.fromUserName}</span>
+                              {msg.fromUserRole && (
+                                <span className="text-xs px-2 py-0.5 rounded-full bg-[#dde4f5] text-[#3a5aa8] font-medium">{msg.fromUserRole}</span>
+                              )}
+                              <span className={`text-xs px-2 py-0.5 rounded-full font-medium ml-auto ${cls}`}>{label}</span>
+                            </div>
+                            <p className="text-xs text-gray-500 line-clamp-1">{msg.message}</p>
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 개별 지원자 채팅 모달 */}
+      {selectedMsg && (
+        <ChatModal
+          msg={selectedMsg}
+          isInbox={true}
+          onClose={() => setSelectedMsg(null)}
+          onStatusChange={(id, status) => {
+            updateStatus(id, status);
+            setSelectedMsg((prev) => (prev?.id === id ? { ...prev, status } : prev));
+          }}
+        />
+      )}
+    </div>
+  );
+}

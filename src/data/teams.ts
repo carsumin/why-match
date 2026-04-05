@@ -1,6 +1,6 @@
 // 팀 및 유저 더미 데이터
 
-import type { User, Team } from '@/types';
+import type { User, LegacyTeam, CampTeam } from '@/types';
 
 // ──────────────────────────────
 // 유저 더미 데이터 (10명)
@@ -96,9 +96,9 @@ export const users: User[] = [
 ];
 
 // ──────────────────────────────
-// 팀 더미 데이터 (5팀)
+// 구형 팀 데이터 — simulate / profile 페이지 전용 (export 명 유지)
 // ──────────────────────────────
-export const teams: Team[] = [
+export const teams: LegacyTeam[] = [
   {
     id: 't-001',
     name: '팀 루나틱',
@@ -113,13 +113,13 @@ export const teams: Team[] = [
   },
   {
     id: 't-002',
-    name: '코드버스터즈',
+    name: '404found',
     hackathonId: 'hk-001',
     leaderId: 'u-001',
     members: [users[0], users[2]], // 김지훈, 박민준
     requiredRoles: ['backend', 'pm'],
     tags: ['React', 'Next.js', 'TypeScript', 'Node.js', 'AI'],
-    description: '교육 플랫폼 AI 튜터를 개발합니다. 백엔드와 PM을 찾고 있어요.',
+    description: '명세서 기반으로 기본 기능을 빠르게 완성하고 UX 확장을 노립니다.',
     activeHoursMin: 5,
     activeHoursMax: 8,
   },
@@ -166,7 +166,123 @@ export function getUserById(id: string): User | undefined {
   return users.find((u) => u.id === id);
 }
 
-/** 해커톤 ID로 팀 목록 조회 */
-export function getTeamsByHackathon(hackathonId: string): Team[] {
+/** 해커톤 ID로 구형 팀 목록 조회 */
+export function getTeamsByHackathon(hackathonId: string): LegacyTeam[] {
   return teams.filter((t) => t.hackathonId === hackathonId);
 }
+
+// ──────────────────────────────
+// SPEC.md 기준 팀 데이터 (camp 페이지용)
+// ──────────────────────────────
+export const campTeams: CampTeam[] = [
+  {
+    teamCode: 'T-ALPHA',
+    hackathonSlug: 'aimers-8-model-lite',
+    leaderId: 'u-002',
+    name: 'Team Alpha',
+    isOpen: true,
+    memberCount: 3,
+    lookingFor: ['Backend', 'ML Engineer'],
+    intro: '추론 최적화/경량화 실험을 함께 진행할 팀원을 찾습니다.',
+    contact: { type: 'link', url: 'https://open.kakao.com/o/example1' },
+    createdAt: '2026-02-20T11:00:00+09:00',
+  },
+  {
+    teamCode: 'T-BETA',
+    hackathonSlug: 'monthly-vibe-coding-2026-02',
+    leaderId: 'u-003',
+    name: 'PromptRunners',
+    isOpen: true,
+    memberCount: 1,
+    lookingFor: ['Frontend', 'Designer'],
+    intro: '프롬프트 품질 점수화 + 개선 가이드 UX를 기획합니다.',
+    contact: { type: 'link', url: 'https://forms.gle/example2' },
+    createdAt: '2026-02-18T18:30:00+09:00',
+  },
+  {
+    teamCode: 'T-HANDOVER-01',
+    hackathonSlug: 'daker-handover-2026-03',
+    leaderId: 'u-001',
+    name: '404found',
+    isOpen: true,
+    memberCount: 3,
+    lookingFor: ['Frontend', 'Designer'],
+    intro: '명세서 기반으로 기본 기능을 빠르게 완성하고 UX 확장을 노립니다.',
+    contact: { type: 'link', url: 'https://open.kakao.com/o/example3' },
+    createdAt: '2026-03-04T11:00:00+09:00',
+  },
+  {
+    teamCode: 'T-HANDOVER-02',
+    hackathonSlug: 'daker-handover-2026-03',
+    leaderId: 'u-004',
+    name: 'LGTM',
+    isOpen: false,
+    memberCount: 5,
+    lookingFor: [],
+    intro: '기획서-구현-문서화를 깔끔하게 맞추는 방향으로 진행합니다.',
+    contact: { type: 'link', url: 'https://forms.gle/example4' },
+    createdAt: '2026-03-05T09:20:00+09:00',
+  },
+  // ── 바이브 코딩 추가 팀 ──
+  {
+    teamCode: 'T-VIBE-01',
+    hackathonSlug: 'monthly-vibe-coding-2026-02',
+    leaderId: 'u-006',
+    name: 'DailyFlow',
+    isOpen: true,
+    memberCount: 2,
+    lookingFor: ['Frontend', 'PM'],
+    intro: 'AI로 일일 스탠드업을 자동화하는 슬랙봇 + 대시보드를 만듭니다.',
+    contact: { type: 'link', url: 'https://open.kakao.com/o/example5' },
+    createdAt: '2026-02-19T10:00:00+09:00',
+  },
+  {
+    teamCode: 'T-VIBE-02',
+    hackathonSlug: 'monthly-vibe-coding-2026-02',
+    leaderId: 'u-007',
+    name: 'GenMates',
+    isOpen: true,
+    memberCount: 1,
+    lookingFor: ['Frontend', 'Designer', 'PM'],
+    intro: 'LLM 기반 페어 프로그래밍 어시스턴트를 프로토타이핑합니다.',
+    contact: { type: 'form', url: 'https://forms.gle/example6' },
+    createdAt: '2026-02-20T15:30:00+09:00',
+  },
+  {
+    teamCode: 'T-VIBE-03',
+    hackathonSlug: 'monthly-vibe-coding-2026-02',
+    leaderId: 'u-009',
+    name: 'AIdeate',
+    isOpen: true,
+    memberCount: 2,
+    lookingFor: ['Backend', 'Data'],
+    intro: '개발자의 아이디어 메모를 자동으로 구조화해주는 도구를 만듭니다.',
+    contact: { type: 'link', url: 'https://open.kakao.com/o/example7' },
+    createdAt: '2026-02-22T09:00:00+09:00',
+  },
+  // ── 인수인계 해커톤 추가 팀 ──
+  {
+    teamCode: 'T-HANDOVER-03',
+    hackathonSlug: 'daker-handover-2026-03',
+    leaderId: 'u-005',
+    name: 'SpecSync',
+    isOpen: true,
+    memberCount: 2,
+    lookingFor: ['Backend', 'Designer'],
+    intro: 'SPEC.md를 읽고 실시간 협업 보드와 API를 빠르게 구현하는 팀입니다.',
+    contact: { type: 'link', url: 'https://open.kakao.com/o/example8' },
+    createdAt: '2026-03-06T14:00:00+09:00',
+  },
+  {
+    teamCode: 'T-HANDOVER-04',
+    hackathonSlug: 'daker-handover-2026-03',
+    leaderId: 'u-010',
+    name: 'DeadLine',
+    isOpen: true,
+    memberCount: 1,
+    lookingFor: ['Frontend', 'Backend', 'PM'],
+    intro: '마감 압박 속에서도 깔끔한 코드를 고집합니다. 함께 달릴 분 구합니다.',
+    contact: { type: 'form', url: 'https://forms.gle/example9' },
+    createdAt: '2026-03-07T11:30:00+09:00',
+  },
+];

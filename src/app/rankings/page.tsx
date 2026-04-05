@@ -1,68 +1,157 @@
-// 랭킹 보드 페이지
+'use client';
 
-import { TagBadge } from '@/components/ui/Badge';
+// 랭킹 페이지 — 유저별 프로필 점수 기준 순위 + 점수 세부 내역
 
-// 더미 랭킹 데이터
-const rankings = [
-  { rank: 1, teamName: '팀 루나틱', hackathon: 'AI 이노베이션 해커톤 2025', award: '대상', prize: '2,000만원', tags: ['AI', 'LLM', 'React'] },
-  { rank: 2, teamName: '코드버스터즈', hackathon: 'AI 이노베이션 해커톤 2025', award: '최우수상', prize: '1,000만원', tags: ['React', 'Node.js', 'AI'] },
-  { rank: 3, teamName: '데이터 드리머스', hackathon: 'AI 이노베이션 해커톤 2025', award: '우수상', prize: '500만원', tags: ['Python', 'ML', 'SQL'] },
-  { rank: 4, teamName: '디자인 씽커스', hackathon: 'UX 디자인 스프린트 2025', award: '대상', prize: '500만원', tags: ['Figma', 'UX', 'React'] },
-];
+import { useMemo } from 'react';
+import Link from 'next/link';
+import { users } from '@/data/teams';
+import { calcUserScore } from '@/utils/matching';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 
-const rankEmoji: Record<number, string> = { 1: '🥇', 2: '🥈', 3: '🥉' };
+const TOP3_ROW: Record<number, string> = {
+  1: 'bg-yellow-50 border-yellow-100',
+  2: 'bg-[#eef1fb] border-[#dde4f5]',
+  3: 'bg-orange-50 border-orange-100',
+};
+const TOP3_RANK: Record<number, string> = {
+  1: 'text-yellow-600',
+  2: 'text-gray-400',
+  3: 'text-orange-400',
+};
+const TOP3_EMOJI: Record<number, string> = { 1: '🥇', 2: '🥈', 3: '🥉' };
+
+const roleLabel: Record<string, string> = {
+  frontend: '프론트엔드',
+  backend: '백엔드',
+  designer: '디자이너',
+  pm: 'PM',
+  data: '데이터',
+  devops: 'DevOps',
+};
+
+function ScoreBreakdown({ tagScore, roleScore, timeScore }: { tagScore: number; roleScore: number; timeScore: number }) {
+  return (
+    <p className="text-xs text-gray-400 mt-0.5">
+      기술 <span className="text-gray-600 font-medium">{tagScore}</span>
+      {' · '}역할 <span className="text-gray-600 font-medium">{roleScore}</span>
+      {' · '}활동 <span className="text-gray-600 font-medium">{timeScore}</span>
+    </p>
+  );
+}
+
+function ScoreBar({ label, score, color }: { label: string; score: number; color: string }) {
+  return (
+    <div className="flex items-center gap-1.5">
+      <span className="text-[10px] text-gray-500 w-5 shrink-0">{label}</span>
+      <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+        <div className={`h-full rounded-full ${color}`} style={{ width: `${score}%` }} />
+      </div>
+      <span className="text-[10px] text-gray-500 w-6 text-right shrink-0">{score}</span>
+    </div>
+  );
+}
 
 export default function RankingsPage() {
+  const { currentUser } = useCurrentUser();
+
+  const ranked = useMemo(() =>
+    users
+      .map((u) => ({ user: u, ...calcUserScore(u) }))
+      .sort((a, b) => b.score - a.score)
+      .map((entry, i) => ({ ...entry, rank: i + 1 })),
+  []);
+
+  const myEntry = currentUser ? ranked.find((e) => e.user.id === currentUser.id) : null;
+
   return (
-    <div className="max-w-4xl mx-auto px-4 py-10">
-      <h1 className="text-3xl font-extrabold text-gray-800 mb-2">랭킹 보드</h1>
-      <p className="text-gray-500 mb-8">해커톤 수상팀 기록을 확인하세요.</p>
+    <div className="max-w-2xl mx-auto px-4 py-8">
+      <h1 className="text-2xl font-extrabold text-gray-900 mb-1">유저 랭킹</h1>
+      <p className="text-sm text-gray-500 mb-1">프로필 점수 기준 참가자 순위입니다.</p>
+      <p className="text-xs text-gray-400 mb-6">
+        기술 다양성 <span className="font-semibold">40%</span>
+        {' · '}역할 다양성 <span className="font-semibold">40%</span>
+        {' · '}활동성 <span className="font-semibold">20%</span>
+      </p>
 
-      {/* 필터 (placeholder) */}
-      <div className="flex gap-2 mb-6 flex-wrap">
-        {['전체', '이번 달', '올해'].map((filter) => (
-          <button
-            key={filter}
-            className={`px-4 py-1.5 rounded-full text-sm font-medium border transition-colors ${
-              filter === '전체'
-                ? 'bg-indigo-600 text-white border-indigo-600'
-                : 'bg-white text-gray-600 border-gray-200 hover:border-indigo-300'
-            }`}
-          >
-            {filter}
-          </button>
-        ))}
-      </div>
-
-      <div className="space-y-3">
-        {rankings.map((entry) => (
-          <div
-            key={entry.rank}
-            className="flex items-center gap-4 p-4 bg-white rounded-2xl border border-gray-100"
-          >
-            {/* 순위 */}
-            <div className="w-10 text-center text-xl font-extrabold text-gray-300">
-              {rankEmoji[entry.rank] ?? entry.rank}
-            </div>
-
-            {/* 팀 정보 */}
-            <div className="flex-1 min-w-0">
-              <p className="font-bold text-gray-800">{entry.teamName}</p>
-              <p className="text-xs text-gray-400 truncate">{entry.hackathon}</p>
-              <div className="flex flex-wrap gap-1 mt-1">
-                {entry.tags.map((tag) => (
-                  <TagBadge key={tag} label={tag} />
-                ))}
-              </div>
-            </div>
-
-            {/* 수상 */}
-            <div className="text-right shrink-0">
-              <p className="text-sm font-semibold text-indigo-600">{entry.award}</p>
-              <p className="text-xs text-gray-400">{entry.prize}</p>
-            </div>
+      {/* 내 순위 */}
+      {myEntry && (
+        <div className="mb-6 px-4 py-3 rounded-2xl bg-[#eef1fb] border border-[#dde4f5] flex items-center gap-3">
+          <span className="text-lg font-extrabold text-[#4f72c4]">
+            {TOP3_EMOJI[myEntry.rank] ?? `#${myEntry.rank}`}
+          </span>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-bold text-slate-900">
+              {myEntry.user.name}
+              <span className="ml-1 text-xs font-normal text-[#4f72c4]">(나)</span>
+            </p>
+            <ScoreBreakdown tagScore={myEntry.tagScore} roleScore={myEntry.roleScore} timeScore={myEntry.timeScore} />
           </div>
-        ))}
+          <span className="text-lg font-extrabold text-[#4f72c4]">{myEntry.score}점</span>
+        </div>
+      )}
+
+      {/* TOP 3 카드 */}
+      {ranked.length >= 3 && (
+        <div className="grid grid-cols-3 gap-3 mb-6">
+          {[1, 0, 2].map((idx) => {
+            const e = ranked[idx];
+            if (!e) return null;
+            const isFirst = e.rank === 1;
+            return (
+              <Link
+                key={e.rank}
+                href={`/profile/${e.user.id}`}
+                className={`flex flex-col items-center p-4 rounded-2xl border hover:shadow-lg transition-shadow ${TOP3_ROW[e.rank] ?? 'bg-white border-[#dde4f5]'} ${isFirst ? 'scale-105 shadow-md' : ''}`}
+              >
+                <span className="text-3xl mb-1">{TOP3_EMOJI[e.rank]}</span>
+                <p className="text-sm font-extrabold text-gray-900 truncate w-full text-center mb-0.5">{e.user.name}</p>
+                <p className={`text-lg font-extrabold mb-3 ${TOP3_RANK[e.rank] ?? 'text-gray-600'}`}>{e.score}점</p>
+                <div className="w-full space-y-1.5">
+                  <ScoreBar label="기술" score={e.tagScore} color="bg-[#4f72c4]" />
+                  <ScoreBar label="역할" score={e.roleScore} color="bg-indigo-400" />
+                  <ScoreBar label="활동" score={e.timeScore} color="bg-green-400" />
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      )}
+
+      {/* 전체 랭킹 */}
+      <div className="space-y-2">
+        {ranked.map((entry) => {
+          const isMe = currentUser?.id === entry.user.id;
+          return (
+            <Link
+              key={entry.user.id}
+              href={`/profile/${entry.user.id}`}
+              className={`flex items-center gap-4 px-4 py-3 rounded-2xl border transition-colors ${
+                isMe
+                  ? 'border-[#4f72c4] bg-[#eef1fb]'
+                  : TOP3_ROW[entry.rank] ?? 'bg-white border-[#dde4f5] hover:border-[#4f72c4]'
+              }`}
+            >
+              <div className={`w-8 text-center font-extrabold text-sm shrink-0 ${TOP3_RANK[entry.rank] ?? 'text-gray-400'}`}>
+                {TOP3_EMOJI[entry.rank] ?? `#${entry.rank}`}
+              </div>
+
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-gray-900 text-sm truncate">
+                  {entry.user.name}
+                  {isMe && <span className="ml-1 text-xs text-[#4f72c4] font-normal">(나)</span>}
+                </p>
+                <p className="text-xs text-gray-400 truncate">
+                  {entry.user.roles.map((r) => roleLabel[r] ?? r).join(' · ')}
+                </p>
+                <ScoreBreakdown tagScore={entry.tagScore} roleScore={entry.roleScore} timeScore={entry.timeScore} />
+              </div>
+
+              <div className="text-right shrink-0">
+                <p className="text-sm font-extrabold text-gray-700">{entry.score}점</p>
+              </div>
+            </Link>
+          );
+        })}
       </div>
     </div>
   );

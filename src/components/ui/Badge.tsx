@@ -13,7 +13,7 @@ interface TagBadgeProps {
 export function TagBadge({ label, className = '' }: TagBadgeProps) {
   return (
     <span
-      className={`inline-block px-2.5 py-0.5 text-xs font-medium rounded-full bg-indigo-100 text-indigo-700 ${className}`}
+      className={`inline-block px-2.5 py-0.5 text-xs font-medium rounded-full bg-[#dde4f5] text-[#3a5aa8] ${className}`}
     >
       {label}
     </span>
@@ -24,12 +24,17 @@ export function TagBadge({ label, className = '' }: TagBadgeProps) {
 // D-day 뱃지
 // ──────────────────────────────
 interface DdayBadgeProps {
-  deadline: string; // ISO 8601
+  deadline: string;   // ISO 8601 — 마감일
+  status?: string;    // 'upcoming' | 'ongoing' | 'ended'
+  startAt?: string;   // ISO 8601 — 시작일 (upcoming 전용)
 }
 
-export function DdayBadge({ deadline }: DdayBadgeProps) {
+export function DdayBadge({ deadline, status, startAt }: DdayBadgeProps) {
+  const isUpcoming = status === 'upcoming' && !!startAt;
+  const target = isUpcoming ? startAt! : deadline;
+
   const now = new Date();
-  const end = new Date(deadline);
+  const end = new Date(target);
   const diffMs = end.getTime() - now.getTime();
   const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
 
@@ -37,17 +42,17 @@ export function DdayBadge({ deadline }: DdayBadgeProps) {
   let colorClass: string;
 
   if (diffMs <= 0) {
-    label = '마감';
-    colorClass = 'bg-gray-200 text-gray-500';
+    label = isUpcoming ? '시작' : '마감';
+    colorClass = 'bg-gray-100 text-gray-400';
   } else if (diffDays <= 3) {
-    label = `D-${diffDays}`;
-    colorClass = 'bg-red-100 text-red-600';
+    label = isUpcoming ? `시작 D-${diffDays}` : `D-${diffDays}`;
+    colorClass = 'bg-red-50 text-red-500 border border-red-200';
   } else if (diffDays <= 7) {
-    label = `D-${diffDays}`;
-    colorClass = 'bg-orange-100 text-orange-600';
+    label = isUpcoming ? `시작 D-${diffDays}` : `D-${diffDays}`;
+    colorClass = 'bg-orange-50 text-orange-500 border border-orange-200';
   } else {
-    label = `D-${diffDays}`;
-    colorClass = 'bg-green-100 text-green-600';
+    label = isUpcoming ? `시작 D-${diffDays}` : `D-${diffDays}`;
+    colorClass = 'bg-emerald-50 text-emerald-600 border border-emerald-200';
   }
 
   return (
@@ -66,9 +71,9 @@ interface MatchLevelBadgeProps {
 }
 
 const levelConfig: Record<MatchLevel, { label: string; colorClass: string }> = {
-  high: { label: 'High Match', colorClass: 'bg-green-100 text-green-700' },
-  medium: { label: 'Medium Match', colorClass: 'bg-yellow-100 text-yellow-700' },
-  low: { label: 'Low Match', colorClass: 'bg-gray-100 text-gray-500' },
+  high: { label: 'High Match', colorClass: 'bg-emerald-50 text-emerald-600 border border-emerald-200' },
+  medium: { label: 'Medium Match', colorClass: 'bg-yellow-50 text-yellow-600 border border-yellow-200' },
+  low: { label: 'Low Match', colorClass: 'bg-gray-100 text-gray-400 border border-gray-200' },
 };
 
 export function MatchLevelBadge({ level, score }: MatchLevelBadgeProps) {

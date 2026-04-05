@@ -7,16 +7,15 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantStyles: Record<NonNullable<ButtonProps['variant']>, string> = {
-  primary: 'bg-indigo-600 text-white hover:bg-indigo-700 active:bg-indigo-800',
-  secondary:
-    'bg-white text-indigo-600 border border-indigo-600 hover:bg-indigo-50 active:bg-indigo-100',
-  ghost: 'bg-transparent text-indigo-600 hover:bg-indigo-50 active:bg-indigo-100',
+  primary: 'bg-[#4f72c4] text-white font-semibold shadow-sm hover:bg-[#3a5aa8] active:bg-[#3a5aa8]',
+  secondary: 'bg-white text-[#4f72c4] border border-[#dde4f5] hover:bg-[#eef1fb] active:bg-[#dde4f5]',
+  ghost: 'bg-transparent text-[#4f72c4] hover:bg-[#eef1fb] active:bg-[#dde4f5]',
 };
 
 const sizeStyles: Record<NonNullable<ButtonProps['size']>, string> = {
-  sm: 'px-3 py-1.5 text-sm rounded-md',
-  md: 'px-4 py-2 text-base rounded-lg',
-  lg: 'px-6 py-3 text-lg rounded-xl',
+  sm: 'px-3 py-1.5 text-sm rounded-lg',
+  md: 'px-4 py-2 text-base rounded-xl',
+  lg: 'px-6 py-3 text-lg rounded-2xl',
 };
 
 export default function Button({

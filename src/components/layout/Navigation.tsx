@@ -3,6 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useMessageContext } from '@/context/MessageContext';
 
 const tabs = [
   {
@@ -54,21 +55,28 @@ const tabs = [
 
 export default function Navigation() {
   const pathname = usePathname();
+  const { unreadCount } = useMessageContext();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white border-t border-gray-100">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden glass border-t border-[#dde4f5]">
       <div className="flex items-center justify-around h-16">
         {tabs.map((tab) => {
           const isActive = tab.href === '/' ? pathname === '/' : pathname.startsWith(tab.href);
+          const isMessages = tab.href === '/messages';
           return (
             <Link
               key={tab.href}
               href={tab.href}
-              className={`flex flex-col items-center gap-0.5 flex-1 py-2 transition-colors ${
-                isActive ? 'text-indigo-600' : 'text-gray-400 hover:text-gray-600'
+              className={`relative flex flex-col items-center gap-0.5 flex-1 py-2 transition-colors duration-200 ${
+                isActive ? 'text-[#4f72c4]' : 'text-slate-400 hover:text-slate-700'
               }`}
             >
               {tab.icon}
+              {isMessages && unreadCount > 0 && (
+                <span className="absolute top-1.5 right-[calc(50%-14px)] min-w-4 h-4 px-1 rounded-full bg-red-400 text-white text-[10px] font-bold flex items-center justify-center leading-none">
+                  {unreadCount}
+                </span>
+              )}
               <span className="text-[10px] font-medium">{tab.label}</span>
             </Link>
           );
