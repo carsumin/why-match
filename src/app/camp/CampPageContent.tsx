@@ -16,14 +16,20 @@ import type { MessageDisplay } from '@/data/messages';
 
 const POSITIONS = ['Frontend', 'Backend', 'Designer', 'PM', 'Data', 'ML Engineer', 'DevOps'];
 
-// 모듈 로드 시 1회 계산 (hackathonList.status는 이미 computeHackathonStatus 결과)
-const activeHackathons = hackathonList.filter((h) => h.status !== 'ended');
-const activeSlugSet = new Set(activeHackathons.map((h) => h.slug));
-
 export default function CampPageContent() {
   const searchParams = useSearchParams();
   const { currentUser } = useCurrentUser();
   const { teams: dbTeams, createTeam } = useTeamDb();
+
+  // 렌더 시점에 상태를 재계산해 ongoing 해커톤이 누락되지 않도록 함
+  const activeHackathons = useMemo(
+    () => hackathonList.filter((h) => h.status !== 'ended'),
+    []
+  );
+  const activeSlugSet = useMemo(
+    () => new Set(activeHackathons.map((h) => h.slug)),
+    [activeHackathons]
+  );
 
   // 초기값: URL 쿼리 파라미터 우선
   const initialSlug = searchParams.get('hackathon');
@@ -281,6 +287,10 @@ export default function CampPageContent() {
 
 // 팀 카드 컴포넌트
 function TeamCard({ team, isMyTeam }: { team: TeamRecord; isMyTeam: boolean }) {
+  const hackathon = team.hackathonSlug
+    ? hackathonList.find((h) => h.slug === team.hackathonSlug) ?? null
+    : null;
+
   const [contactOpen, setContactOpen] = useState(false);
   const [applicantsOpen, setApplicantsOpen] = useState(false);
   const [selectedMsg, setSelectedMsg] = useState<MessageDisplay | null>(null);
@@ -318,7 +328,18 @@ function TeamCard({ team, isMyTeam }: { team: TeamRecord; isMyTeam: boolean }) {
               {team.isOpen ? '모집중' : '마감'}
             </span>
           </div>
-          <p className="text-xs text-gray-400">현재 {team.memberIds.length}명</p>
+          <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+            <p className="text-xs text-gray-400">현재 {team.memberIds.length}명</p>
+            {hackathon && (
+              <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+                hackathon.status === 'ongoing'
+                  ? 'bg-green-50 text-green-700'
+                  : 'bg-yellow-50 text-yellow-700'
+              }`}>
+                {hackathon.title.length > 22 ? hackathon.title.slice(0, 22) + '…' : hackathon.title}
+              </span>
+            )}
+          </div>
         </div>
       </div>
 
