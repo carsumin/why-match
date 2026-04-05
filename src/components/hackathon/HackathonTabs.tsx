@@ -5,6 +5,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import CountdownTimer from './CountdownTimer';
+import InfoModal from './InfoModal';
 import { TagBadge } from '@/components/ui/Badge';
 import type { HackathonDetail, HackathonTab, Leaderboard } from '@/types';
 
@@ -42,11 +43,21 @@ export default function HackathonTabs({
   leaderboard,
 }: HackathonTabsProps) {
   const [activeTab, setActiveTab] = useState<HackathonTab>('개요');
+  const [infoModal, setInfoModal] = useState<'rules' | 'faq' | null>(null);
   const { sections } = detail;
   const now = Date.now();
 
   return (
     <div>
+      {infoModal && (
+        <InfoModal
+          type={infoModal}
+          rules={sections.overview.infoLinks.rules}
+          faq={sections.overview.infoLinks.faq}
+          onClose={() => setInfoModal(null)}
+        />
+      )}
+
       {/* 탭 네비게이션 */}
       <div className="flex gap-1 overflow-x-auto border-b border-sky-100 mb-6 pb-0">
         {TABS.map((tab) => (
@@ -113,24 +124,20 @@ export default function HackathonTabs({
             </div>
           )}
 
-          {/* 외부 링크 */}
+          {/* 규정 / FAQ */}
           <div className="flex gap-3">
-            <a
-              href={sections.overview.infoLinks.rules}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              onClick={() => setInfoModal('rules')}
               className="flex-1 text-center py-2.5 rounded-xl border border-sky-100 text-gray-700 text-sm font-semibold hover:bg-sky-50 transition-colors"
             >
               📋 규정 보기
-            </a>
-            <a
-              href={sections.overview.infoLinks.faq}
-              target="_blank"
-              rel="noopener noreferrer"
+            </button>
+            <button
+              onClick={() => setInfoModal('faq')}
               className="flex-1 text-center py-2.5 rounded-xl border border-sky-100 text-gray-700 text-sm font-semibold hover:bg-sky-50 transition-colors"
             >
               ❓ FAQ
-            </a>
+            </button>
           </div>
         </div>
       )}

@@ -103,8 +103,8 @@ export interface HackathonDetail {
       /** 안내 탭 내용을 개요에 포함 */
       notice: string[];
       infoLinks: {
-        rules: string;
-        faq: string;
+        rules: { sections: { title: string; items: string[] }[] };
+        faq: { items: { q: string; a: string }[] };
       };
     };
     eval: {
