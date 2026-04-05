@@ -2,8 +2,9 @@
 
 // 해커톤 상세 탭 컴포넌트 — 7개 탭 (개요·평가·일정·상금·팀·제출·리더보드)
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 import CountdownTimer from './CountdownTimer';
 import InfoModal from './InfoModal';
 import SubmitModal from './SubmitModal';
@@ -44,6 +45,7 @@ export default function HackathonTabs({
   submissionDeadlineAt,
   leaderboard,
 }: HackathonTabsProps) {
+  const { currentUser } = useCurrentUser();
   const [activeTab, setActiveTab] = useState<HackathonTab>('개요');
   const [infoModal, setInfoModal] = useState<'rules' | 'faq' | null>(null);
   const [submitOpen, setSubmitOpen] = useState(false);
@@ -51,8 +53,23 @@ export default function HackathonTabs({
   const [fieldValues, setFieldValues] = useState<Record<string, string>>({});
   const [fileNames, setFileNames] = useState<Record<string, string>>({});
   const [formErrors, setFormErrors] = useState<Record<string, boolean>>({});
+  const [submittedAt, setSubmittedAt] = useState<string | null>(null);
   const { sections } = detail;
   const now = Date.now();
+
+  const storageKey = currentUser ? `whymatch_submission_${detail.slug}_${currentUser.id}` : null;
+
+  // 이미 제출한 기록 로드
+  useEffect(() => {
+    if (!storageKey) return;
+    const saved = localStorage.getItem(storageKey);
+    if (saved) setSubmittedAt(saved);
+  }, [storageKey]);
+
+  function handleSubmitted(at: string) {
+    setSubmittedAt(at);
+    if (storageKey) localStorage.setItem(storageKey, at);
+  }
 
   function handleFieldChange(key: string, value: string) {
     setFieldValues((prev) => ({ ...prev, [key]: value }));
@@ -131,6 +148,7 @@ export default function HackathonTabs({
           hackathonTitle={detail.title}
           items={buildSubmitItems()}
           onClose={() => setSubmitOpen(false)}
+          onSubmitted={handleSubmitted}
         />
       )}
 
@@ -530,12 +548,20 @@ export default function HackathonTabs({
             </div>
           )}
 
-          <button
-            onClick={handleSubmitClick}
-            className="block w-full text-center py-3 rounded-xl bg-sky-200 text-sky-800 font-bold text-sm hover:bg-sky-300 transition-colors"
-          >
-            제출하기 →
-          </button>
+          {submittedAt ? (
+            <div className="flex flex-col items-center gap-1.5 py-3 rounded-xl bg-sky-50 border border-sky-100">
+              <span className="text-base">✅</span>
+              <p className="text-sm font-bold text-gray-900">제출 완료</p>
+              <p className="text-xs text-gray-400">{submittedAt} 제출됨</p>
+            </div>
+          ) : (
+            <button
+              onClick={handleSubmitClick}
+              className="block w-full text-center py-3 rounded-xl bg-sky-200 text-sky-800 font-bold text-sm hover:bg-sky-300 transition-colors"
+            >
+              제출하기 →
+            </button>
+          )}
         </div>
       )}
 

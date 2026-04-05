@@ -15,6 +15,7 @@ interface SubmitModalProps {
   hackathonTitle: string;
   items: SubmitItem[];
   onClose: () => void;
+  onSubmitted: (submittedAt: string) => void;
 }
 
 // 박수 파티클 — 방향(px)·최종 회전(deg)·크기(px)·출발 딜레이(ms)
@@ -39,7 +40,7 @@ const CLAP_PARTICLES: { tx: number; ty: number; r: number; size: number; delay: 
   { tx:   85, ty: -205, r:   8, size: 24, delay: 25 },
 ];
 
-export default function SubmitModal({ hackathonTitle, items, onClose }: SubmitModalProps) {
+export default function SubmitModal({ hackathonTitle, items, onClose, onSubmitted }: SubmitModalProps) {
   const [step, setStep] = useState<'confirm' | 'done'>('confirm');
   const [clapActive, setClapActive] = useState(false);
   const [submittedAt] = useState(() =>
@@ -64,7 +65,10 @@ export default function SubmitModal({ hackathonTitle, items, onClose }: SubmitMo
 
   function handleConfirm() {
     setClapActive(true);
-    setTimeout(() => setStep('done'), 340);
+    setTimeout(() => {
+      setStep('done');
+      onSubmitted(submittedAt);
+    }, 340);
     setTimeout(() => setClapActive(false), 1200);
   }
 
