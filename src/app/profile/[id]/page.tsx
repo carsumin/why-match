@@ -153,7 +153,7 @@ export default function ProfilePage() {
               type="text"
               value={form.name}
               onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
-              className="w-full px-3 py-2 rounded-xl border border-sky-100 text-sm focus:outline-none focus:border-gray-400"
+              className="w-full px-3 py-2 rounded-xl border border-[#dde4f5] text-sm focus:outline-none focus:border-gray-400"
             />
           </div>
 
@@ -165,7 +165,7 @@ export default function ProfilePage() {
               onChange={(e) => setForm((p) => ({ ...p, bio: e.target.value }))}
               rows={2}
               placeholder="간단히 자신을 소개해주세요"
-              className="w-full px-3 py-2 rounded-xl border border-sky-100 text-sm focus:outline-none focus:border-gray-400 resize-none"
+              className="w-full px-3 py-2 rounded-xl border border-[#dde4f5] text-sm focus:outline-none focus:border-gray-400 resize-none"
             />
           </div>
 
@@ -179,8 +179,8 @@ export default function ProfilePage() {
                   onClick={() => toggleRole(role)}
                   className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                     form.roles.includes(role)
-                      ? 'bg-sky-100 text-gray-900'
-                      : 'bg-sky-50 text-gray-600 hover:bg-sky-50'
+                      ? 'bg-[#dde4f5] text-gray-900'
+                      : 'bg-[#eef1fb] text-gray-600 hover:bg-[#eef1fb]'
                   }`}
                 >
                   {roleLabel[role]}
@@ -199,7 +199,7 @@ export default function ProfilePage() {
               value={form.tagInput}
               onChange={(e) => setForm((p) => ({ ...p, tagInput: e.target.value }))}
               placeholder="React, TypeScript, Node.js"
-              className="w-full px-3 py-2 rounded-xl border border-sky-100 text-sm focus:outline-none focus:border-gray-400"
+              className="w-full px-3 py-2 rounded-xl border border-[#dde4f5] text-sm focus:outline-none focus:border-gray-400"
             />
           </div>
 
@@ -214,7 +214,7 @@ export default function ProfilePage() {
               max={24}
               value={form.activeHours}
               onChange={(e) => setForm((p) => ({ ...p, activeHours: Number(e.target.value) }))}
-              className="w-28 px-3 py-2 rounded-xl border border-sky-100 text-sm focus:outline-none focus:border-gray-400"
+              className="w-28 px-3 py-2 rounded-xl border border-[#dde4f5] text-sm focus:outline-none focus:border-gray-400"
             />
           </div>
 
@@ -226,7 +226,7 @@ export default function ProfilePage() {
               value={form.githubUrl}
               onChange={(e) => setForm((p) => ({ ...p, githubUrl: e.target.value }))}
               placeholder="https://github.com/username"
-              className="w-full px-3 py-2 rounded-xl border border-sky-100 text-sm focus:outline-none focus:border-gray-400"
+              className="w-full px-3 py-2 rounded-xl border border-[#dde4f5] text-sm focus:outline-none focus:border-gray-400"
             />
           </div>
 
@@ -238,7 +238,7 @@ export default function ProfilePage() {
               value={form.portfolioUrl}
               onChange={(e) => setForm((p) => ({ ...p, portfolioUrl: e.target.value }))}
               placeholder="https://notion.so/..."
-              className="w-full px-3 py-2 rounded-xl border border-sky-100 text-sm focus:outline-none focus:border-gray-400"
+              className="w-full px-3 py-2 rounded-xl border border-[#dde4f5] text-sm focus:outline-none focus:border-gray-400"
             />
           </div>
 
@@ -266,7 +266,7 @@ export default function ProfilePage() {
             {isMe && (
               <button
                 onClick={startEdit}
-                className="text-xs font-semibold text-gray-700 border border-sky-100 px-2.5 py-1 rounded-full hover:bg-sky-50 transition-colors"
+                className="text-xs font-semibold text-gray-700 border border-[#dde4f5] px-2.5 py-1 rounded-full hover:bg-[#eef1fb] transition-colors"
               >
                 수정
               </button>
@@ -276,7 +276,7 @@ export default function ProfilePage() {
             {user.roles.map((role) => (
               <span
                 key={role}
-                className="text-xs font-medium px-2 py-0.5 rounded-full bg-sky-50 text-gray-600"
+                className="text-xs font-medium px-2 py-0.5 rounded-full bg-[#eef1fb] text-gray-600"
               >
                 {roleLabel[role] ?? role}
               </span>
@@ -299,7 +299,7 @@ export default function ProfilePage() {
       {/* 활동 시간 */}
       <section className="mb-6">
         <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">활동 정보</h2>
-        <div className="p-4 glass rounded-2xl border border-sky-100">
+        <div className="p-4 glass rounded-2xl border border-[#dde4f5]">
           <div className="flex items-center justify-between">
             <span className="text-sm text-gray-600">하루 평균 활동 시간</span>
             <span className="font-bold text-gray-700">{user.activeHours}h/day</span>
@@ -317,7 +317,7 @@ export default function ProfilePage() {
                 href={user.githubUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-4 py-2 rounded-xl border border-sky-100 text-sm font-medium text-gray-900 hover:border-gray-400 transition-colors"
+                className="px-4 py-2 rounded-xl border border-[#dde4f5] text-sm font-medium text-gray-900 hover:border-gray-400 transition-colors"
               >
                 GitHub
               </a>
@@ -327,7 +327,7 @@ export default function ProfilePage() {
                 href={user.portfolioUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-4 py-2 rounded-xl border border-sky-100 text-sm font-medium text-gray-900 hover:border-gray-400 transition-colors"
+                className="px-4 py-2 rounded-xl border border-[#dde4f5] text-sm font-medium text-gray-900 hover:border-gray-400 transition-colors"
               >
                 포트폴리오
               </a>

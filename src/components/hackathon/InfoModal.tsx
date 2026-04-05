@@ -85,7 +85,7 @@ export default function InfoModal({ type, rules, faq, onClose }: InfoModalProps)
             {type === 'faq' && (
               <div className="space-y-4">
                 {faq.items.map((item, i) => (
-                  <div key={i} className="rounded-xl bg-sky-50 p-4">
+                  <div key={i} className="rounded-xl bg-[#eef1fb] p-4">
                     <p className="text-sm font-semibold text-gray-900 mb-1.5">Q. {item.q}</p>
                     <p className="text-sm text-gray-600 leading-relaxed">A. {item.a}</p>
                   </div>

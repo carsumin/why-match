@@ -61,8 +61,8 @@ export default function ContactModal({ team, onClose }: Props) {
           <div className="absolute top-2 left-1/2 -translate-x-1/2 w-10 h-1 rounded-full bg-gray-200 md:hidden" />
 
           {/* 헤더 */}
-          <div className="flex items-center gap-3 px-4 pt-5 pb-3 border-b border-sky-50 shrink-0">
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-pink-300 to-sky-300 flex items-center justify-center text-white text-sm font-bold shrink-0">
+          <div className="flex items-center gap-3 px-4 pt-5 pb-3 border-b border-[#eef1fb] shrink-0">
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#10b981] to-[#4f72c4] flex items-center justify-center text-white text-sm font-bold shrink-0">
               {team.name[0]}
             </div>
             <div className="flex-1 min-w-0">
@@ -88,7 +88,7 @@ export default function ContactModal({ team, onClose }: Props) {
                 <p className="text-sm text-gray-400">메시지함에서 답변을 확인할 수 있어요.</p>
                 <button
                   onClick={onClose}
-                  className="mt-2 px-5 py-2 rounded-xl bg-sky-200 text-sky-800 text-sm font-bold hover:bg-sky-300 transition-colors"
+                  className="mt-2 px-5 py-2 rounded-xl bg-[#dde4f5] text-[#3a5aa8] text-sm font-bold hover:bg-[#c7d3ee] transition-colors"
                 >
                   닫기
                 </button>
@@ -97,11 +97,11 @@ export default function ContactModal({ team, onClose }: Props) {
               <>
                 {/* 모집 포지션 안내 */}
                 {team.lookingFor.length > 0 && (
-                  <div className="mb-4 p-3 rounded-xl bg-sky-50 border border-sky-100">
-                    <p className="text-xs text-gray-400 mb-1.5">이 팀이 찾는 포지션</p>
+                  <div className="mb-4 p-3 rounded-xl bg-[#eef1fb] border border-[#dde4f5]">
+                    <p className="text-xs text-slate-400 mb-1.5">이 팀이 찾는 포지션</p>
                     <div className="flex flex-wrap gap-1.5">
                       {team.lookingFor.map((pos) => (
-                        <span key={pos} className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-white border border-sky-100 text-gray-600">
+                        <span key={pos} className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-white border border-[#dde4f5] text-slate-600">
                           {pos}
                         </span>
                       ))}
@@ -118,7 +118,7 @@ export default function ContactModal({ team, onClose }: Props) {
                   onChange={(e) => setText(e.target.value)}
                   placeholder={`${team.name}에게 자기소개와 합류 이유를 전달해보세요.`}
                   rows={5}
-                  className="w-full px-4 py-3 rounded-xl border border-sky-100 text-sm focus:outline-none focus:border-sky-300 bg-sky-50 placeholder:text-gray-300 resize-none"
+                  className="w-full px-4 py-3 rounded-xl border border-[#dde4f5] text-sm focus:outline-none focus:border-[#4f72c4] bg-[#f7f8ff] placeholder:text-slate-300 resize-none"
                 />
                 {!currentUser && (
                   <p className="mt-2 text-xs text-red-400">로그인 후 메시지를 보낼 수 있습니다.</p>
@@ -133,7 +133,7 @@ export default function ContactModal({ team, onClose }: Props) {
               <button
                 onClick={handleSend}
                 disabled={!text.trim() || !currentUser}
-                className="w-full py-3 rounded-xl bg-sky-500 hover:bg-sky-600 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed text-white text-sm font-bold transition-all"
+                className="w-full py-3 rounded-xl bg-[#4f72c4] hover:bg-[#3a5aa8] active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed text-white text-sm font-bold transition-all"
               >
                 보내기
               </button>

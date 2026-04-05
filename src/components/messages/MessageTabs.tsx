@@ -17,7 +17,7 @@ const STATUS_CONFIG = {
 } as const;
 
 const ROLE_COLOR: Record<string, string> = {
-  Frontend: 'bg-sky-100 text-sky-700',
+  Frontend: 'bg-[#dde4f5] text-sky-700',
   Backend: 'bg-indigo-100 text-indigo-700',
   Designer: 'bg-pink-100 text-pink-700',
   PM: 'bg-purple-100 text-purple-700',
@@ -71,8 +71,8 @@ function MessageCard({ msg, isInbox, onClick }: MessageCardProps) {
       onClick={onClick}
       className={`w-full text-left p-4 rounded-2xl border transition-all ${
         isUnread
-          ? 'border-sky-300 bg-sky-50 hover:border-sky-400 hover:shadow-sm'
-          : 'border-sky-100 bg-white/70 backdrop-blur hover:border-sky-300 hover:shadow-sm'
+          ? 'border-sky-300 bg-[#eef1fb] hover:border-sky-400 hover:shadow-sm'
+          : 'border-[#dde4f5] bg-white/70 backdrop-blur hover:border-sky-300 hover:shadow-sm'
       }`}
     >
       <div className="flex items-start gap-3">
@@ -133,7 +133,7 @@ export default function MessageTabs() {
   return (
     <div>
       {/* 탭 버튼 */}
-      <div className="flex gap-1 mb-6 p-1 bg-sky-50 rounded-xl w-fit">
+      <div className="flex gap-1 mb-6 p-1 bg-[#eef1fb] rounded-xl w-fit">
         <button
           onClick={() => setActiveTab('inbox')}
           className={`relative px-5 py-2 rounded-lg text-sm font-semibold transition-all ${

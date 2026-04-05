@@ -196,8 +196,8 @@ export default function ChatModal({ msg, isInbox, onClose, onStatusChange }: Pro
           <div className="absolute top-2 left-1/2 -translate-x-1/2 w-10 h-1 rounded-full bg-gray-200 md:hidden" />
 
           {/* 헤더 */}
-          <div className="flex items-center gap-3 px-4 pt-5 pb-3 border-b border-sky-50 shrink-0">
-            <div className="w-9 h-9 rounded-full bg-linear-to-br from-sky-300 to-indigo-300 flex items-center justify-center text-white text-sm font-bold shrink-0">
+          <div className="flex items-center gap-3 px-4 pt-5 pb-3 border-b border-[#eef1fb] shrink-0">
+            <div className="w-9 h-9 rounded-full bg-linear-to-br from-[#4f72c4] to-indigo-400 flex items-center justify-center text-white text-sm font-bold shrink-0">
               {counterpart.name[0]}
             </div>
             <div className="flex-1 min-w-0">
@@ -220,7 +220,7 @@ export default function ChatModal({ msg, isInbox, onClose, onStatusChange }: Pro
           </div>
 
           {/* 말풍선 영역 */}
-          <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3 bg-sky-50/30">
+          <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3 bg-[#f7f8ff]">
             {bubbles.map((bubble, i) => {
               const isMe = bubble.fromUserId === currentUserId;
               const prevBubble = bubbles[i - 1];
@@ -238,8 +238,8 @@ export default function ChatModal({ msg, isInbox, onClose, onStatusChange }: Pro
                     <div
                       className={`max-w-[75%] px-4 py-2.5 text-sm leading-relaxed ${
                         isMe
-                          ? 'bg-sky-500 text-white rounded-2xl rounded-tr-sm'
-                          : 'bg-white border border-sky-100 text-gray-800 rounded-2xl rounded-tl-sm shadow-sm'
+                          ? 'bg-[#4f72c4] text-white rounded-2xl rounded-tr-sm'
+                          : 'bg-white border border-[#dde4f5] text-slate-800 rounded-2xl rounded-tl-sm shadow-sm'
                       }`}
                     >
                       {bubble.text}
@@ -262,7 +262,7 @@ export default function ChatModal({ msg, isInbox, onClose, onStatusChange }: Pro
               <div className="flex gap-2 mb-3">
                 <button
                   onClick={handleAccept}
-                  className="flex-1 py-2 rounded-xl bg-sky-500 hover:bg-sky-600 active:scale-95 text-white text-sm font-semibold transition-all"
+                  className="flex-1 py-2 rounded-xl bg-[#4f72c4] hover:bg-[#3a5aa8] active:scale-95 text-white text-sm font-semibold transition-all"
                 >
                   수락
                 </button>
@@ -284,12 +284,12 @@ export default function ChatModal({ msg, isInbox, onClose, onStatusChange }: Pro
                 onKeyDown={handleKeyDown}
                 placeholder={isClosed ? '종료된 대화입니다.' : '메시지를 입력하세요...'}
                 disabled={isClosed}
-                className="flex-1 text-sm px-4 py-2.5 rounded-xl border border-sky-100 focus:outline-none focus:border-sky-300 bg-sky-50 placeholder:text-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 text-sm px-4 py-2.5 rounded-xl border border-[#dde4f5] focus:outline-none focus:border-[#4f72c4] bg-[#f7f8ff] placeholder:text-slate-300 disabled:opacity-50 disabled:cursor-not-allowed"
               />
               <button
                 onClick={sendMessage}
                 disabled={!inputValue.trim() || isClosed}
-                className="p-2.5 rounded-xl bg-sky-500 hover:bg-sky-600 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed text-white transition-all"
+                className="p-2.5 rounded-xl bg-[#4f72c4] hover:bg-[#3a5aa8] active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed text-white transition-all"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />

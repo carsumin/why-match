@@ -189,7 +189,7 @@ function SimulateContent() {
           <p className="text-xs font-semibold text-gray-400">내 프로필</p>
         </div>
         <div className="flex items-center gap-3 mb-2">
-          <div className="w-9 h-9 rounded-full bg-sky-50 flex items-center justify-center text-gray-700 font-bold text-sm shrink-0">
+          <div className="w-9 h-9 rounded-full bg-[#eef1fb] flex items-center justify-center text-[#4f72c4] font-bold text-sm shrink-0">
             {me.name[0]}
           </div>
           <div>
@@ -217,7 +217,7 @@ function SimulateContent() {
               어떤 팀에 합류할까요?
             </label>
             <select
-              className="w-full border border-sky-100 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300"
+              className="w-full border border-[#dde4f5] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#4f72c4]/30"
               value={joinerTeamId || joinerSimTeams[0]?.id}
               onChange={(e) => setJoinerTeamId(e.target.value)}
             >
@@ -242,7 +242,7 @@ function SimulateContent() {
           )}
 
           {joinerTeam && isMemberAlready ? (
-            <Card className="bg-sky-50 border-sky-100">
+            <Card className="bg-[#eef1fb] border-[#dde4f5]">
               <p className="text-xs font-semibold text-gray-500 mb-4">
                 나는 이미 <strong className="text-gray-700">{joinerTeam.name}</strong>의 멤버입니다.
               </p>
@@ -251,7 +251,7 @@ function SimulateContent() {
           ) : joinerResult ? (
             <>
               {/* 결과 카드 */}
-              <Card className="bg-sky-50 border-sky-100">
+              <Card className="bg-[#eef1fb] border-[#dde4f5]">
                 <h2 className="text-xs font-semibold text-gray-500 mb-4">
                   내가 <strong className="text-gray-700">{joinerTeam.name}</strong>에 합류하면?
                 </h2>
@@ -263,7 +263,7 @@ function SimulateContent() {
                 </div>
                 {/* 합류 전 점수 근거 — 현재 팀원 조합 */}
                 <TeamCompositionBreakdown team={joinerTeam} />
-                <div className="border-t border-sky-100 my-3" />
+                <div className="border-t border-[#dde4f5] my-3" />
                 <ReasonBadge user={me} team={joinerTeam} />
               </Card>
 
@@ -282,14 +282,14 @@ function SimulateContent() {
                     </div>
                   );
                   if (myApp) return (
-                    <div className="w-full text-center py-3 rounded-xl bg-sky-50 text-sky-600 text-sm font-semibold">
+                    <div className="w-full text-center py-3 rounded-xl bg-[#eef1fb] text-[#4f72c4] text-sm font-semibold">
                       신청 완료 · 대기 중
                     </div>
                   );
                   return (
                     <button
                       onClick={() => { setJoinMessage(''); setJoinModalOpen(true); }}
-                      className="w-full py-3 rounded-xl bg-sky-200 text-sky-800 font-bold text-sm hover:bg-sky-300 transition-colors"
+                      className="w-full py-3 rounded-xl bg-[#4f72c4] text-white font-bold text-sm hover:bg-[#3a5aa8] transition-colors"
                     >
                       이 팀에 합류 신청하기 →
                     </button>
@@ -321,7 +321,7 @@ function SimulateContent() {
                 </p>
                 <a
                   href="/camp"
-                  className="mt-1 px-4 py-2 rounded-xl bg-sky-100 text-gray-900 text-sm font-bold hover:bg-sky-100 transition-colors"
+                  className="mt-1 px-4 py-2 rounded-xl bg-[#dde4f5] text-slate-900 text-sm font-bold hover:bg-[#c7d3ee] transition-colors"
                 >
                   팀 만들러 가기 →
                 </a>
@@ -334,7 +334,7 @@ function SimulateContent() {
               내 팀 선택
             </label>
             <select
-              className="w-full border border-sky-100 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-200"
+              className="w-full border border-[#dde4f5] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#4f72c4]/30"
               value={leaderTeamId || mySimTeams[0]?.id}
               onChange={(e) => setLeaderTeamId(e.target.value)}
             >
@@ -364,7 +364,7 @@ function SimulateContent() {
                   const isLeader = member.id === leaderTeam.leaderId;
                   return (
                     <div key={member.id} className="flex items-center gap-2">
-                      <div className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs shrink-0 ${isLeader ? 'bg-yellow-100 text-yellow-700' : 'bg-sky-100 text-sky-800'}`}>
+                      <div className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs shrink-0 ${isLeader ? 'bg-yellow-100 text-yellow-700' : 'bg-[#dde4f5] text-[#3a5aa8]'}`}>
                         {member.name[0]}
                       </div>
                       <div className="flex-1 min-w-0">
@@ -392,11 +392,11 @@ function SimulateContent() {
             <p className="text-sm font-semibold text-gray-900">
               후보자 목록 — 합류 시 팀 점수 변화
             </p>
-            <div className="flex gap-1 p-0.5 rounded-lg bg-sky-50 text-xs">
+            <div className="flex gap-1 p-0.5 rounded-lg bg-[#eef1fb] text-xs">
               <button
                 onClick={() => setCandidateFilter('match')}
                 className={`px-2.5 py-1 rounded-md font-semibold transition-colors ${
-                  candidateFilter === 'match' ? 'bg-white text-sky-700 shadow-sm' : 'text-gray-400 hover:text-gray-600'
+                  candidateFilter === 'match' ? 'bg-white text-[#4f72c4] shadow-sm' : 'text-slate-400 hover:text-slate-600'
                 }`}
               >
                 역할 매칭
@@ -404,7 +404,7 @@ function SimulateContent() {
               <button
                 onClick={() => setCandidateFilter('all')}
                 className={`px-2.5 py-1 rounded-md font-semibold transition-colors ${
-                  candidateFilter === 'all' ? 'bg-white text-sky-700 shadow-sm' : 'text-gray-400 hover:text-gray-600'
+                  candidateFilter === 'all' ? 'bg-white text-[#4f72c4] shadow-sm' : 'text-slate-400 hover:text-slate-600'
                 }`}
               >
                 전체
@@ -421,8 +421,8 @@ function SimulateContent() {
                   onClick={() => toggleTag(tag)}
                   className={`px-2.5 py-0.5 rounded-full text-xs font-medium transition-colors ${
                     selectedTags.includes(tag)
-                      ? 'bg-sky-400 text-white'
-                      : 'bg-sky-50 text-gray-500 hover:bg-sky-100'
+                      ? 'bg-[#4f72c4] text-white'
+                      : 'bg-[#eef1fb] text-slate-500 hover:bg-[#dde4f5]'
                   }`}
                 >
                   {tag}
@@ -488,7 +488,7 @@ function SimulateContent() {
                           setContactCandidate(candidate);
                           setContactMessage('');
                         }}
-                        className="w-full py-2 rounded-xl bg-sky-100 text-gray-900 text-sm font-bold hover:bg-sky-100 transition-colors"
+                        className="w-full py-2 rounded-xl bg-[#dde4f5] text-slate-900 text-sm font-bold hover:bg-[#c7d3ee] transition-colors"
                       >
                         연락하기
                       </button>
@@ -513,8 +513,8 @@ function SimulateContent() {
               </h2>
               <button onClick={() => setJoinModalOpen(false)} className="text-gray-400 hover:text-gray-600 text-xl">✕</button>
             </div>
-            <div className="p-3 rounded-xl bg-sky-50 text-xs text-gray-500 space-y-0.5">
-              <p className="font-semibold text-gray-900">{joinerTeam.name}</p>
+            <div className="p-3 rounded-xl bg-[#eef1fb] text-xs text-slate-500 space-y-0.5">
+              <p className="font-semibold text-slate-900">{joinerTeam.name}</p>
               <p>모집 포지션: {joinerTeamRecord?.lookingFor.join(', ') || '미정'}</p>
             </div>
             <div>
@@ -524,7 +524,7 @@ function SimulateContent() {
                 onChange={(e) => setJoinMessage(e.target.value)}
                 placeholder={`안녕하세요! ${joinerTeam.name}에 합류하고 싶습니다. ${me?.roles.map(r => roleLabel[r] ?? r).join(', ')} 포지션으로 지원합니다.`}
                 rows={4}
-                className="w-full px-3 py-2 rounded-xl border border-sky-100 text-sm focus:outline-none focus:border-gray-400 resize-none"
+                className="w-full px-3 py-2 rounded-xl border border-[#dde4f5] text-sm focus:outline-none focus:border-[#4f72c4] resize-none"
               />
             </div>
             <button
@@ -541,7 +541,7 @@ function SimulateContent() {
                 setJoinModalOpen(false);
                 setJoinMessage('');
               }}
-              className="w-full py-3 rounded-xl bg-sky-200 text-sky-800 font-bold text-sm hover:bg-sky-300 transition-colors"
+              className="w-full py-3 rounded-xl bg-[#4f72c4] text-white font-bold text-sm hover:bg-[#3a5aa8] transition-colors"
             >
               신청하기
             </button>
@@ -564,8 +564,8 @@ function SimulateContent() {
                 ✕
               </button>
             </div>
-            <div className="p-3 rounded-xl bg-sky-50 text-xs text-gray-500">
-              <p className="font-semibold text-gray-900 mb-1">{contactCandidate.name}</p>
+            <div className="p-3 rounded-xl bg-[#eef1fb] text-xs text-slate-500">
+              <p className="font-semibold text-slate-900 mb-1">{contactCandidate.name}</p>
               <p>{contactCandidate.roles.map((r) => roleLabel[r] ?? r).join(', ')}</p>
               <div className="flex flex-wrap gap-1 mt-1">
                 {contactCandidate.tags.map((t) => <TagBadge key={t} label={t} />)}
@@ -578,12 +578,12 @@ function SimulateContent() {
                 onChange={(e) => setContactMessage(e.target.value)}
                 placeholder={`안녕하세요! 저희 팀 ${leaderTeam.name}에 합류해주실 수 있으실까요?`}
                 rows={4}
-                className="w-full px-3 py-2 rounded-xl border border-sky-100 text-sm focus:outline-none focus:border-gray-400 resize-none"
+                className="w-full px-3 py-2 rounded-xl border border-[#dde4f5] text-sm focus:outline-none focus:border-[#4f72c4] resize-none"
               />
             </div>
             <button
               onClick={sendContact}
-              className="w-full py-3 rounded-xl bg-sky-100 text-gray-900 font-bold text-sm hover:bg-sky-100 transition-colors"
+              className="w-full py-3 rounded-xl bg-[#dde4f5] text-slate-900 font-bold text-sm hover:bg-[#c7d3ee] transition-colors"
             >
               전송하기
             </button>
@@ -655,7 +655,7 @@ function TeamCompositionBreakdown({ team }: { team: LegacyTeam }) {
           const isLeader = member.id === team.leaderId;
           return (
           <div key={member.id} className="flex items-center gap-2">
-            <div className={`w-6 h-6 rounded-full border flex items-center justify-center font-bold text-xs shrink-0 ${isLeader ? 'bg-yellow-50 border-yellow-200 text-yellow-700' : 'glass border-sky-100 text-gray-600'}`}>
+            <div className={`w-6 h-6 rounded-full border flex items-center justify-center font-bold text-xs shrink-0 ${isLeader ? 'bg-yellow-50 border-yellow-200 text-yellow-700' : 'glass border-[#dde4f5] text-slate-600'}`}>
               {member.name[0]}
             </div>
             <div className="flex-1 min-w-0">

@@ -93,7 +93,7 @@ export default function CampPageContent() {
         <h1 className="text-2xl font-extrabold text-gray-900">팀원 모집</h1>
         <button
           onClick={() => setIsModalOpen(true)}
-          className="px-4 py-1.5 rounded-xl bg-sky-200 text-sky-800 text-sm font-bold hover:bg-sky-300 transition-colors"
+          className="px-4 py-1.5 rounded-xl bg-[#dde4f5] text-[#3a5aa8] text-sm font-bold hover:bg-[#c7d3ee] transition-colors"
         >
           + 팀 등록
         </button>
@@ -106,7 +106,7 @@ export default function CampPageContent() {
           className={`px-3 py-1.5 rounded-full text-xs font-bold transition-colors ${
             filterSlug === null
               ? 'bg-gray-800 text-white'
-              : 'bg-sky-50 text-gray-500 hover:bg-sky-100'
+              : 'bg-[#eef1fb] text-slate-500 hover:bg-[#dde4f5]'
           }`}
         >
           전체
@@ -121,7 +121,7 @@ export default function CampPageContent() {
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-colors ${
                 isActive
                   ? 'bg-gray-800 text-white'
-                  : 'bg-sky-50 text-gray-500 hover:bg-sky-100'
+                  : 'bg-[#eef1fb] text-slate-500 hover:bg-[#dde4f5]'
               }`}
             >
               <span
@@ -155,7 +155,7 @@ export default function CampPageContent() {
           </p>
           <button
             onClick={() => setIsModalOpen(true)}
-            className="px-4 py-2 rounded-xl bg-sky-200 text-sky-800 text-sm font-bold hover:bg-sky-300 transition-colors"
+            className="px-4 py-2 rounded-xl bg-[#dde4f5] text-[#3a5aa8] text-sm font-bold hover:bg-[#c7d3ee] transition-colors"
           >
             첫 번째 팀 등록하기
           </button>
@@ -184,7 +184,7 @@ export default function CampPageContent() {
               <select
                 value={form.hackathonSlug}
                 onChange={(e) => setForm((p) => ({ ...p, hackathonSlug: e.target.value }))}
-                className="w-full px-3 py-2 rounded-xl border border-sky-100 text-sm focus:outline-none focus:border-gray-400 bg-white"
+                className="w-full px-3 py-2 rounded-xl border border-[#dde4f5] text-sm focus:outline-none focus:border-[#4f72c4] bg-white"
               >
                 <option value="">해커톤을 선택하세요</option>
                 {activeHackathons.map((h) => (
@@ -205,7 +205,7 @@ export default function CampPageContent() {
                 value={form.name}
                 onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
                 placeholder="예: 404found"
-                className="w-full px-3 py-2 rounded-xl border border-sky-100 text-sm focus:outline-none focus:border-gray-400"
+                className="w-full px-3 py-2 rounded-xl border border-[#dde4f5] text-sm focus:outline-none focus:border-[#4f72c4]"
               />
             </div>
 
@@ -219,7 +219,7 @@ export default function CampPageContent() {
                 onChange={(e) => setForm((p) => ({ ...p, intro: e.target.value }))}
                 placeholder="팀 소개와 목표를 간략히 적어주세요"
                 rows={3}
-                className="w-full px-3 py-2 rounded-xl border border-sky-100 text-sm focus:outline-none focus:border-gray-400 resize-none"
+                className="w-full px-3 py-2 rounded-xl border border-[#dde4f5] text-sm focus:outline-none focus:border-[#4f72c4] resize-none"
               />
             </div>
 
@@ -248,8 +248,8 @@ export default function CampPageContent() {
                     onClick={() => togglePosition(pos)}
                     className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                       form.lookingFor.includes(pos)
-                        ? 'bg-sky-100 text-gray-900'
-                        : 'bg-sky-50 text-gray-600 hover:bg-sky-50'
+                        ? 'bg-[#4f72c4] text-white'
+                        : 'bg-[#eef1fb] text-slate-600 hover:bg-[#dde4f5]'
                     }`}
                   >
                     {pos}
@@ -266,7 +266,7 @@ export default function CampPageContent() {
                 value={form.contactUrl}
                 onChange={(e) => setForm((p) => ({ ...p, contactUrl: e.target.value }))}
                 placeholder="카카오톡 오픈채팅 또는 구글폼 URL"
-                className="w-full px-3 py-2 rounded-xl border border-sky-100 text-sm focus:outline-none focus:border-gray-400"
+                className="w-full px-3 py-2 rounded-xl border border-[#dde4f5] text-sm focus:outline-none focus:border-[#4f72c4]"
               />
             </div>
 
@@ -274,7 +274,7 @@ export default function CampPageContent() {
             <button
               onClick={submitForm}
               disabled={!form.name.trim() || !form.intro.trim() || !form.hackathonSlug}
-              className="w-full py-3 rounded-xl bg-sky-200 text-sky-800 font-bold text-sm hover:bg-sky-300 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="w-full py-3 rounded-xl bg-[#4f72c4] text-white font-bold text-sm hover:bg-[#3a5aa8] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               등록하기
             </button>
@@ -308,14 +308,14 @@ function TeamCard({ team, isMyTeam }: { team: TeamRecord; isMyTeam: boolean }) {
   return (
     <div className={`rounded-2xl shadow-sm p-5 space-y-3 ${
       isMyTeam
-        ? 'bg-sky-50 border-2 border-sky-300'
-        : 'glass border border-sky-100'
+        ? 'bg-[#eef1fb] border-2 border-[#4f72c4]'
+        : 'glass border border-[#dde4f5]'
     }`}>
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-1 flex-wrap">
             {isMyTeam && (
-              <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-sky-300 text-sky-900">
+              <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-[#4f72c4] text-white">
                 내 팀
               </span>
             )}
@@ -353,7 +353,7 @@ function TeamCard({ team, isMyTeam }: { team: TeamRecord; isMyTeam: boolean }) {
           {team.lookingFor.map((pos) => (
             <span
               key={pos}
-              className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-sky-50 text-gray-600"
+              className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-[#eef1fb] text-slate-600"
             >
               {pos}
             </span>
@@ -368,13 +368,13 @@ function TeamCard({ team, isMyTeam }: { team: TeamRecord; isMyTeam: boolean }) {
           <>
             <Link
               href="/camp/simulate?mode=leader"
-              className="flex-1 text-center py-2 rounded-xl border border-sky-300 text-sky-700 text-sm font-semibold hover:bg-sky-100 transition-colors"
+              className="flex-1 text-center py-2 rounded-xl border border-[#4f72c4] text-[#4f72c4] text-sm font-semibold hover:bg-[#eef1fb] transition-colors"
             >
               팀장 모드 →
             </Link>
             <button
               onClick={() => setApplicantsOpen(true)}
-              className="relative flex-1 text-center py-2 rounded-xl bg-sky-300 text-sky-900 text-sm font-bold hover:bg-sky-400 transition-colors"
+              className="relative flex-1 text-center py-2 rounded-xl bg-[#4f72c4] text-white text-sm font-bold hover:bg-[#3a5aa8] transition-colors"
             >
               지원자 확인
               {applicants.filter((m) => !m.isRead).length > 0 && (
@@ -389,7 +389,7 @@ function TeamCard({ team, isMyTeam }: { team: TeamRecord; isMyTeam: boolean }) {
           <>
             <Link
               href={`/camp/simulate?team=${team.teamCode}`}
-              className="flex-1 text-center py-2 rounded-xl bg-pink-100 text-pink-700 text-sm font-bold hover:bg-pink-200 transition-colors"
+              className="flex-1 text-center py-2 rounded-xl bg-[#eaf7f2] text-[#10b981] text-sm font-bold hover:bg-[#d1f0e5] transition-colors"
             >
               내 궁합 보기 ✦
             </Link>
@@ -402,7 +402,7 @@ function TeamCard({ team, isMyTeam }: { team: TeamRecord; isMyTeam: boolean }) {
                 거절된 팀
               </div>
             ) : isApplied ? (
-              <div className="flex-1 text-center py-2 rounded-xl bg-sky-50 text-sky-600 text-sm font-semibold">
+              <div className="flex-1 text-center py-2 rounded-xl bg-[#eef1fb] text-[#4f72c4] text-sm font-semibold">
                 신청 완료 · 대기 중
               </div>
             ) : !team.isOpen ? (
@@ -412,7 +412,7 @@ function TeamCard({ team, isMyTeam }: { team: TeamRecord; isMyTeam: boolean }) {
             ) : (
               <button
                 onClick={() => setContactOpen(true)}
-                className="flex-1 text-center py-2 rounded-xl bg-sky-200 text-sky-800 text-sm font-bold hover:bg-sky-300 transition-colors"
+                className="flex-1 text-center py-2 rounded-xl bg-[#dde4f5] text-[#3a5aa8] text-sm font-bold hover:bg-[#c7d3ee] transition-colors"
               >
                 연락하기 →
               </button>
@@ -430,7 +430,7 @@ function TeamCard({ team, isMyTeam }: { team: TeamRecord; isMyTeam: boolean }) {
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4">
           <div className="fixed inset-0 bg-black/30" onClick={() => setApplicantsOpen(false)} />
           <div className="relative z-10 w-full max-w-md bg-white rounded-3xl shadow-xl overflow-hidden">
-            <div className="px-5 py-4 border-b border-sky-100 flex items-center justify-between">
+            <div className="px-5 py-4 border-b border-[#dde4f5] flex items-center justify-between">
               <div>
                 <h2 className="font-bold text-gray-900">{team.name}</h2>
                 <p className="text-xs text-gray-400 mt-0.5">지원자 {applicants.length}명</p>
@@ -444,7 +444,7 @@ function TeamCard({ team, isMyTeam }: { team: TeamRecord; isMyTeam: boolean }) {
                   <p className="text-sm">아직 지원자가 없습니다.</p>
                 </div>
               ) : (
-                <div className="divide-y divide-sky-50">
+                <div className="divide-y divide-[#eef1fb]">
                   {applicants.map((msg) => {
                     const isUnread = !msg.isRead;
                     const statusConfig = {
@@ -460,11 +460,11 @@ function TeamCard({ team, isMyTeam }: { team: TeamRecord; isMyTeam: boolean }) {
                           setSelectedMsg(msg);
                           if (!msg.isRead) markAsRead(msg.id);
                         }}
-                        className={`w-full text-left px-5 py-4 hover:bg-sky-50 transition-colors ${isUnread ? 'bg-sky-50/60' : ''}`}
+                        className={`w-full text-left px-5 py-4 hover:bg-[#eef1fb] transition-colors ${isUnread ? 'bg-[#eef1fb]/60' : ''}`}
                       >
                         <div className="flex items-center gap-3">
                           <div className="relative shrink-0">
-                            <div className="w-9 h-9 rounded-full bg-linear-to-br from-sky-300 to-indigo-300 flex items-center justify-center text-white text-sm font-bold">
+                            <div className="w-9 h-9 rounded-full bg-linear-to-br from-[#4f72c4] to-indigo-400 flex items-center justify-center text-white text-sm font-bold">
                               {msg.fromUserName[0]}
                             </div>
                             {isUnread && (
@@ -475,7 +475,7 @@ function TeamCard({ team, isMyTeam }: { team: TeamRecord; isMyTeam: boolean }) {
                             <div className="flex items-center gap-2 mb-0.5">
                               <span className={`text-sm font-semibold text-gray-900 ${isUnread ? 'font-bold' : ''}`}>{msg.fromUserName}</span>
                               {msg.fromUserRole && (
-                                <span className="text-xs px-2 py-0.5 rounded-full bg-sky-100 text-sky-700 font-medium">{msg.fromUserRole}</span>
+                                <span className="text-xs px-2 py-0.5 rounded-full bg-[#dde4f5] text-[#3a5aa8] font-medium">{msg.fromUserRole}</span>
                               )}
                               <span className={`text-xs px-2 py-0.5 rounded-full font-medium ml-auto ${cls}`}>{label}</span>
                             </div>

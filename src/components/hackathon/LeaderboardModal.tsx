@@ -92,7 +92,7 @@ export default function LeaderboardModal({
                             ? 'bg-gray-50 border border-gray-100'
                             : entry.rank === 3
                               ? 'bg-orange-50 border border-orange-100'
-                              : 'bg-white border border-sky-100'
+                              : 'bg-white border border-[#dde4f5]'
                       }`}
                     >
                       {/* 순위 배지 */}
@@ -115,7 +115,7 @@ export default function LeaderboardModal({
                                 href={entry.artifacts.webUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-xs text-sky-600 hover:underline font-medium"
+                                className="text-xs text-[#4f72c4] hover:underline font-medium"
                               >
                                 🔗 데모
                               </a>
@@ -125,7 +125,7 @@ export default function LeaderboardModal({
                                 href={entry.artifacts.pdfUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-xs text-sky-600 hover:underline font-medium"
+                                className="text-xs text-[#4f72c4] hover:underline font-medium"
                               >
                                 📄 {entry.artifacts.planTitle ?? 'PDF'}
                               </a>
@@ -147,14 +147,14 @@ export default function LeaderboardModal({
                 </div>
 
                 {/* 비고 */}
-                <p className="text-xs text-gray-400 pt-2 border-t border-sky-100 leading-relaxed">
+                <p className="text-xs text-gray-400 pt-2 border-t border-[#dde4f5] leading-relaxed">
                   {note}
                 </p>
               </div>
             ) : (
               /* 진행 중 — 아직 결과 없음 */
               <div className="flex flex-col items-center justify-center py-14 text-center gap-4">
-                <div className="w-16 h-16 rounded-full bg-sky-50 flex items-center justify-center text-3xl">
+                <div className="w-16 h-16 rounded-full bg-[#eef1fb] flex items-center justify-center text-3xl">
                   ⏳
                 </div>
                 <div>

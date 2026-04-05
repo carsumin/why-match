@@ -34,12 +34,12 @@ export default function HeroTypewriter() {
   return (
     <h1 className="text-4xl md:text-6xl font-extrabold leading-tight">
       {/* 첫째 줄 — 애니메이션 없이 즉시 표시 */}
-      <span className="block text-sky-300 animate-fade-in-up">이유 있는 매칭</span>
+      <span className="block text-[#4f72c4] animate-fade-in-up">이유 있는 매칭</span>
       {/* 둘째 줄 — 타이핑 애니메이션 */}
-      <span className="block text-pink-300 min-h-[1.2em]">
+      <span className="block text-[#10b981] min-h-[1.2em]">
         {line2}
         <span
-          className={`inline-block w-[3px] h-[0.85em] ml-0.5 align-middle rounded-sm bg-pink-300 ${showCursor ? 'opacity-100' : 'opacity-0'}`}
+          className={`inline-block w-[3px] h-[0.85em] ml-0.5 align-middle rounded-sm bg-[#10b981] ${showCursor ? 'opacity-100' : 'opacity-0'}`}
           style={{ transition: 'opacity 0.1s' }}
         />
       </span>

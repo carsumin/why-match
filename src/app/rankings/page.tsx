@@ -10,7 +10,7 @@ import { useCurrentUser } from '@/hooks/useCurrentUser';
 
 const TOP3_ROW: Record<number, string> = {
   1: 'bg-yellow-50 border-yellow-100',
-  2: 'bg-sky-50 border-sky-100',
+  2: 'bg-[#eef1fb] border-[#dde4f5]',
   3: 'bg-orange-50 border-orange-100',
 };
 const TOP3_RANK: Record<number, string> = {
@@ -75,18 +75,18 @@ export default function RankingsPage() {
 
       {/* 내 순위 */}
       {myEntry && (
-        <div className="mb-6 px-4 py-3 rounded-2xl bg-sky-100 border border-sky-200 flex items-center gap-3">
-          <span className="text-lg font-extrabold text-sky-700">
+        <div className="mb-6 px-4 py-3 rounded-2xl bg-[#eef1fb] border border-[#dde4f5] flex items-center gap-3">
+          <span className="text-lg font-extrabold text-[#4f72c4]">
             {TOP3_EMOJI[myEntry.rank] ?? `#${myEntry.rank}`}
           </span>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold text-gray-900">
+            <p className="text-sm font-bold text-slate-900">
               {myEntry.user.name}
-              <span className="ml-1 text-xs font-normal text-sky-600">(나)</span>
+              <span className="ml-1 text-xs font-normal text-[#4f72c4]">(나)</span>
             </p>
             <ScoreBreakdown tagScore={myEntry.tagScore} roleScore={myEntry.roleScore} timeScore={myEntry.timeScore} />
           </div>
-          <span className="text-lg font-extrabold text-sky-700">{myEntry.score}점</span>
+          <span className="text-lg font-extrabold text-[#4f72c4]">{myEntry.score}점</span>
         </div>
       )}
 
@@ -101,13 +101,13 @@ export default function RankingsPage() {
               <Link
                 key={e.rank}
                 href={`/profile/${e.user.id}`}
-                className={`flex flex-col items-center p-4 rounded-2xl border hover:shadow-lg transition-shadow ${TOP3_ROW[e.rank] ?? 'bg-white border-sky-100'} ${isFirst ? 'scale-105 shadow-md' : ''}`}
+                className={`flex flex-col items-center p-4 rounded-2xl border hover:shadow-lg transition-shadow ${TOP3_ROW[e.rank] ?? 'bg-white border-[#dde4f5]'} ${isFirst ? 'scale-105 shadow-md' : ''}`}
               >
                 <span className="text-3xl mb-1">{TOP3_EMOJI[e.rank]}</span>
                 <p className="text-sm font-extrabold text-gray-900 truncate w-full text-center mb-0.5">{e.user.name}</p>
                 <p className={`text-lg font-extrabold mb-3 ${TOP3_RANK[e.rank] ?? 'text-gray-600'}`}>{e.score}점</p>
                 <div className="w-full space-y-1.5">
-                  <ScoreBar label="기술" score={e.tagScore} color="bg-sky-400" />
+                  <ScoreBar label="기술" score={e.tagScore} color="bg-[#4f72c4]" />
                   <ScoreBar label="역할" score={e.roleScore} color="bg-indigo-400" />
                   <ScoreBar label="활동" score={e.timeScore} color="bg-green-400" />
                 </div>
@@ -127,8 +127,8 @@ export default function RankingsPage() {
               href={`/profile/${entry.user.id}`}
               className={`flex items-center gap-4 px-4 py-3 rounded-2xl border transition-colors ${
                 isMe
-                  ? 'border-sky-300 bg-sky-50'
-                  : TOP3_ROW[entry.rank] ?? 'bg-white border-sky-100 hover:border-sky-300'
+                  ? 'border-[#4f72c4] bg-[#eef1fb]'
+                  : TOP3_ROW[entry.rank] ?? 'bg-white border-[#dde4f5] hover:border-[#4f72c4]'
               }`}
             >
               <div className={`w-8 text-center font-extrabold text-sm shrink-0 ${TOP3_RANK[entry.rank] ?? 'text-gray-400'}`}>
@@ -138,7 +138,7 @@ export default function RankingsPage() {
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-gray-900 text-sm truncate">
                   {entry.user.name}
-                  {isMe && <span className="ml-1 text-xs text-sky-500 font-normal">(나)</span>}
+                  {isMe && <span className="ml-1 text-xs text-[#4f72c4] font-normal">(나)</span>}
                 </p>
                 <p className="text-xs text-gray-400 truncate">
                   {entry.user.roles.map((r) => roleLabel[r] ?? r).join(' · ')}

@@ -39,7 +39,7 @@ export default function CountdownTimer({ deadlineIso }: CountdownTimerProps) {
   }
 
   const pad = (n: number) => String(n).padStart(2, '0');
-  const urgentClass = parts.isUrgent ? 'bg-red-50 border-red-200 animate-pulse' : 'bg-sky-50 border-sky-100';
+  const urgentClass = parts.isUrgent ? 'bg-red-50 border-red-200 animate-pulse' : 'bg-[#eef1fb] border-[#dde4f5]';
   const textClass = parts.isUrgent ? 'text-red-600' : 'text-gray-700';
 
   return (

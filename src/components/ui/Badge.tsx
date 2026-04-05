@@ -13,7 +13,7 @@ interface TagBadgeProps {
 export function TagBadge({ label, className = '' }: TagBadgeProps) {
   return (
     <span
-      className={`inline-block px-2.5 py-0.5 text-xs font-medium rounded-full bg-sky-100 text-sky-700 ${className}`}
+      className={`inline-block px-2.5 py-0.5 text-xs font-medium rounded-full bg-[#dde4f5] text-[#3a5aa8] ${className}`}
     >
       {label}
     </span>

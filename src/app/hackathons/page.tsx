@@ -61,8 +61,8 @@ export default function HackathonsPage() {
             onClick={() => setStatusFilter(s)}
             className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
               statusFilter === s
-                ? 'bg-sky-100 text-gray-900'
-                : 'bg-white text-gray-600 hover:bg-sky-50'
+                ? 'bg-[#dde4f5] text-slate-900'
+                : 'bg-white text-slate-600 hover:bg-[#eef1fb]'
             }`}
           >
             {STATUS_LABELS[s]}
@@ -78,8 +78,8 @@ export default function HackathonsPage() {
             onClick={() => toggleTag(tag)}
             className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
               selectedTags.includes(tag)
-                ? 'bg-sky-100 text-gray-900'
-                : 'bg-sky-50 text-gray-700 hover:bg-sky-50'
+                ? 'bg-[#4f72c4] text-white'
+                : 'bg-[#eef1fb] text-slate-700 hover:bg-[#dde4f5]'
             }`}
           >
             {tag}
@@ -102,10 +102,10 @@ export default function HackathonsPage() {
             <Link
               key={hackathon.slug}
               href={hackathon.links.detail}
-              className="group flex flex-col glass rounded-2xl border border-sky-100 shadow-sm hover:shadow-md hover:border-sky-300 transition-all overflow-hidden"
+              className="group flex flex-col glass rounded-2xl border border-[#dde4f5] shadow-sm hover:shadow-md hover:border-[#4f72c4] transition-all overflow-hidden"
             >
               {/* 썸네일 플레이스홀더 */}
-              <div className="h-32 bg-sky-50 flex items-center justify-center text-4xl select-none">
+              <div className="h-32 bg-[#eef1fb] flex items-center justify-center text-4xl select-none">
                 {hackathon.status === 'ongoing'
                   ? '🔥'
                   : hackathon.status === 'upcoming'
@@ -164,7 +164,7 @@ export default function HackathonsPage() {
               setStatusFilter('all');
               setSelectedTags([]);
             }}
-            className="mt-4 px-4 py-2 rounded-full bg-sky-50 text-gray-700 text-sm font-medium hover:bg-sky-50 transition-colors"
+            className="mt-4 px-4 py-2 rounded-full bg-[#eef1fb] text-slate-700 text-sm font-medium hover:bg-[#dde4f5] transition-colors"
           >
             필터 초기화
           </button>

@@ -199,12 +199,12 @@ export default function SubmitModal({ hackathonTitle, items, onClose, onSubmitte
                   아래 내용으로 최종 제출합니다. 제출 후에는 수정이 불가합니다.
                 </p>
 
-                <div className="rounded-xl bg-sky-50 p-4 space-y-3">
-                  <p className="text-xs text-gray-400 font-semibold uppercase tracking-wide">제출 대상</p>
-                  <p className="text-sm font-bold text-gray-900">{hackathonTitle}</p>
+                <div className="rounded-xl bg-[#eef1fb] p-4 space-y-3">
+                  <p className="text-xs text-slate-400 font-semibold uppercase tracking-wide">제출 대상</p>
+                  <p className="text-sm font-bold text-slate-900">{hackathonTitle}</p>
 
                   {items.length > 0 && (
-                    <div className="pt-2 border-t border-sky-100 space-y-2">
+                    <div className="pt-2 border-t border-[#dde4f5] space-y-2">
                       {items.map((item) => (
                         <div key={item.key}>
                           <p className="text-xs text-gray-400">{item.title}</p>
@@ -231,7 +231,7 @@ export default function SubmitModal({ hackathonTitle, items, onClose, onSubmitte
                 </button>
                 <button
                   onClick={handleConfirm}
-                  className="flex-1 py-3 rounded-xl bg-sky-200 text-sky-800 text-sm font-bold hover:bg-sky-300 transition-colors"
+                  className="flex-1 py-3 rounded-xl bg-[#4f72c4] text-white text-sm font-bold hover:bg-[#3a5aa8] transition-colors"
                 >
                   최종 제출
                 </button>
@@ -244,7 +244,7 @@ export default function SubmitModal({ hackathonTitle, items, onClose, onSubmitte
               style={{ animation: 'done-pop 420ms cubic-bezier(0.34, 1.56, 0.64, 1) both' }}
             >
               <div
-                className="w-20 h-20 rounded-full bg-sky-50 flex items-center justify-center text-4xl select-none"
+                className="w-20 h-20 rounded-full bg-[#eef1fb] flex items-center justify-center text-4xl select-none"
                 style={{ animation: 'icon-clap 700ms cubic-bezier(0.34, 1.56, 0.64, 1) 280ms both' }}
               >
                 👏
@@ -258,7 +258,7 @@ export default function SubmitModal({ hackathonTitle, items, onClose, onSubmitte
               </p>
               <button
                 onClick={onClose}
-                className="mt-3 w-full py-3 rounded-xl bg-sky-200 text-sky-800 text-sm font-bold hover:bg-sky-300 transition-colors"
+                className="mt-3 w-full py-3 rounded-xl bg-[#dde4f5] text-[#3a5aa8] text-sm font-bold hover:bg-[#c7d3ee] transition-colors"
               >
                 확인
               </button>

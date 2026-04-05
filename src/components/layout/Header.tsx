@@ -42,12 +42,12 @@ export default function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-50 glass-md border-b border-sky-100">
+    <header className="sticky top-0 z-50 glass-md border-b border-[#dde4f5]">
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
         {/* 로고 */}
         <Link href="/" className="flex items-center gap-2">
           <span className="text-xl font-extrabold tracking-tight">
-            <span className="text-sky-300">Why</span><span className="text-pink-300">Match</span>
+            <span className="text-[#4f72c4]">Why</span><span className="text-[#10b981]">Match</span>
           </span>
         </Link>
 
@@ -59,8 +59,8 @@ export default function Header() {
               href={item.href}
               className={`text-sm font-medium transition-colors ${
                 pathname.startsWith(item.href)
-                  ? 'text-gray-900 font-semibold'
-                  : 'text-gray-500 hover:text-gray-900'
+                  ? 'text-[#4f72c4] font-semibold'
+                  : 'text-slate-500 hover:text-[#4f72c4]'
               }`}
             >
               {item.label}
@@ -70,7 +70,7 @@ export default function Header() {
 
         {/* 우측 아이콘 */}
         <div className="flex items-center gap-3">
-          <Link href="/messages" className="relative text-gray-500 hover:text-gray-700 transition-colors">
+          <Link href="/messages" className="relative text-slate-400 hover:text-[#4f72c4] transition-colors">
             <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
             </svg>
@@ -85,7 +85,7 @@ export default function Header() {
           <div className="relative">
             <button
               onClick={() => setShowMenu((v) => !v)}
-              className="w-8 h-8 rounded-full bg-sky-300 flex items-center justify-center text-sky-900 text-sm font-bold hover:bg-sky-400 transition-colors"
+              className="w-8 h-8 rounded-full bg-[#4f72c4] flex items-center justify-center text-white text-sm font-bold hover:bg-[#3a5aa8] transition-colors"
             >
               {currentUser ? currentUser.name[0] : '?'}
             </button>
@@ -95,7 +95,7 @@ export default function Header() {
                 <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)} />
                 <div className="absolute right-0 top-10 z-50 w-64 glass-strong rounded-2xl shadow-lg overflow-hidden">
                   {/* 현재 유저 정보 */}
-                  <div className="px-4 py-3 border-b border-sky-100">
+                  <div className="px-4 py-3 border-b border-[#dde4f5]">
                     <p className="text-sm font-bold text-gray-900">{currentUser.name}</p>
                     <p className="text-xs text-gray-400">
                       {currentUser.roles.map((r) => roleLabel[r] ?? r).join(' · ')}
@@ -104,7 +104,7 @@ export default function Header() {
 
                   {/* 내가 만든 팀 */}
                   {myLeadTeams.length > 0 && (
-                    <div className="px-4 py-2 border-b border-sky-100">
+                    <div className="px-4 py-2 border-b border-[#dde4f5]">
                       <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide mb-1.5">내가 만든 팀</p>
                       <div className="space-y-1">
                         {myLeadTeams.map((t) => (
@@ -112,7 +112,7 @@ export default function Header() {
                             key={t.teamCode}
                             href={`/camp/simulate?team=${t.teamCode}&mode=leader`}
                             onClick={() => setShowMenu(false)}
-                            className="flex items-center justify-between text-xs text-gray-700 hover:text-sky-700 py-0.5"
+                            className="flex items-center justify-between text-xs text-gray-700 hover:text-[#4f72c4] py-0.5"
                           >
                             <span className="font-medium truncate">{t.name}</span>
                             <span className="ml-2 text-gray-400 shrink-0">{t.memberIds.length}명</span>
@@ -124,7 +124,7 @@ export default function Header() {
 
                   {/* 내가 합류한 팀 */}
                   {myJoinedTeams.length > 0 && (
-                    <div className="px-4 py-2 border-b border-sky-100">
+                    <div className="px-4 py-2 border-b border-[#dde4f5]">
                       <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide mb-1.5">내가 합류한 팀</p>
                       <div className="space-y-1">
                         {myJoinedTeams.map((t) => (
@@ -132,7 +132,7 @@ export default function Header() {
                             key={t.teamCode}
                             href={`/camp/simulate?team=${t.teamCode}`}
                             onClick={() => setShowMenu(false)}
-                            className="flex items-center justify-between text-xs text-gray-700 hover:text-sky-700 py-0.5"
+                            className="flex items-center justify-between text-xs text-gray-700 hover:text-[#4f72c4] py-0.5"
                           >
                             <span className="font-medium truncate">{t.name}</span>
                             <span className="ml-2 text-gray-400 shrink-0">{t.memberIds.length}명</span>
@@ -147,7 +147,7 @@ export default function Header() {
                     <Link
                       href={`/profile/${currentUser.id}`}
                       onClick={() => setShowMenu(false)}
-                      className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-900 hover:bg-sky-50 transition-colors"
+                      className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-900 hover:bg-[#eef1fb] transition-colors"
                     >
                       <span className="text-base">👤</span>
                       내 정보 보기 / 수정

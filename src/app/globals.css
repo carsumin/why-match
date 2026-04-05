@@ -1,18 +1,18 @@
 @import "tailwindcss";
 
 :root {
-  /* Muted Pastel — Sky + Rose */
-  --color-primary:      #bae6fd;  /* sky-200 — 차분한 하늘 */
-  --color-primary-dark: #7dd3fc;  /* sky-300 */
-  --color-accent:       #fbcfe8;  /* pink-200 — 차분한 핑크 */
-  --color-success:      #6ee7b7;  /* emerald-300 */
-  --color-warning:      #fca5a5;  /* red-300 */
+  /* Calm Blue Community */
+  --color-primary:      #4f72c4;  /* periwinkle — 차분하고 깊은 블루 */
+  --color-primary-dark: #3a5aa8;  /* 호버용 딥 블루 */
+  --color-accent:       #10b981;  /* emerald-500 — 합류/성공 CTA */
+  --color-success:      #34d399;  /* emerald-400 */
+  --color-warning:      #f87171;  /* red-400 */
 
-  --background: #f8fafc;          /* slate-50 — 눈에 편한 배경 */
-  --foreground: #334155;          /* slate-700 */
+  --background: #f7f8ff;          /* 블루 기운 살짝 도는 흰색 */
+  --foreground: #1e293b;          /* slate-800 — 따뜻한 다크 */
   --card:       #ffffff;
-  --border:     #e2e8f0;          /* slate-200 */
-  --muted-fg:   #94a3b8;          /* slate-400 */
+  --border:     #dde4f5;          /* 연한 블루-그레이 */
+  --muted-fg:   #64748b;          /* slate-500 */
 }
 
 @theme inline {
@@ -22,8 +22,8 @@
 }
 
 body {
-  background-color: #f8fafc;
-  color: #334155;
+  background-color: #f7f8ff;
+  color: #1e293b;
   font-family: 'GmarketSans', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
   -webkit-font-smoothing: antialiased;
 }
@@ -31,22 +31,22 @@ body {
 /* ── 카드 유틸리티 ─────── */
 .glass {
   background: #ffffff;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 1px 4px rgba(148, 163, 184, 0.10);
+  border: 1px solid #dde4f5;
+  box-shadow: 0 1px 4px rgba(79, 114, 196, 0.08);
 }
 
 .glass-md {
   background: rgba(255, 255, 255, 0.92);
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 2px 12px rgba(148, 163, 184, 0.12);
+  border: 1px solid #dde4f5;
+  box-shadow: 0 2px 12px rgba(79, 114, 196, 0.10);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 }
 
 .glass-strong {
   background: #ffffff;
-  border: 1px solid #cbd5e1;
-  box-shadow: 0 4px 20px rgba(148, 163, 184, 0.14);
+  border: 1px solid #c7d3ee;
+  box-shadow: 0 4px 20px rgba(79, 114, 196, 0.12);
 }
 
 /* ── 애니메이션 키프레임 ─────────────────────── */

@@ -58,7 +58,7 @@ export default function Navigation() {
   const { unreadCount } = useMessageContext();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden glass border-t border-sky-100">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden glass border-t border-[#dde4f5]">
       <div className="flex items-center justify-around h-16">
         {tabs.map((tab) => {
           const isActive = tab.href === '/' ? pathname === '/' : pathname.startsWith(tab.href);
@@ -68,7 +68,7 @@ export default function Navigation() {
               key={tab.href}
               href={tab.href}
               className={`relative flex flex-col items-center gap-0.5 flex-1 py-2 transition-colors duration-200 ${
-                isActive ? 'text-gray-900' : 'text-gray-400 hover:text-gray-700'
+                isActive ? 'text-[#4f72c4]' : 'text-slate-400 hover:text-slate-700'
               }`}
             >
               {tab.icon}

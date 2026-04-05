@@ -42,18 +42,18 @@ export default function CountdownBanner({ hackathon }: CountdownBannerProps) {
   }, [hackathon.period.submissionDeadlineAt]);
 
   return (
-    <div className="w-full bg-sky-100 text-gray-900 py-3 px-4">
+    <div className="w-full bg-[#dde4f5] text-slate-900 py-3 px-4">
       <div className="max-w-6xl mx-auto flex items-center justify-between gap-2 flex-wrap">
         <p className="text-sm font-medium">
           ⏰ <strong>{hackathon.title}</strong> 팀 모집 마감 임박!
         </p>
         <div className="flex items-center gap-3">
-          <span className="text-sm font-mono font-bold bg-pink-200 text-pink-800 px-3 py-1 rounded-full">
+          <span className="text-sm font-mono font-bold bg-[#4f72c4] text-white px-3 py-1 rounded-full">
             {remaining}
           </span>
           <Link
             href={hackathon.links.detail}
-            className="text-xs font-semibold glass text-gray-700 px-3 py-1 rounded-full hover:bg-sky-50 transition-colors"
+            className="text-xs font-semibold glass text-slate-700 px-3 py-1 rounded-full hover:bg-[#eef1fb] transition-colors"
           >
             지금 참여하기 →
           </Link>
