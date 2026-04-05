@@ -60,6 +60,16 @@ export function updateMessageStatus(id: string, status: 'accepted' | 'rejected')
   saveMessages(getMessages().map((m) => (m.id === id ? { ...m, status } : m)));
 }
 
+export function markAsRead(id: string): void {
+  saveMessages(getMessages().map((m) => (m.id === id ? { ...m, isRead: true } : m)));
+}
+
+/** 해당 메시지의 가장 최근 버블 (저장된 것 기준) */
+export function getLatestBubble(msgId: string): StoredBubble | null {
+  const bubbles = getChatBubbles(msgId);
+  return bubbles.length > 0 ? bubbles[bubbles.length - 1] : null;
+}
+
 // ── 채팅 버블 ──
 
 export function getChatBubbles(msgId: string): StoredBubble[] {

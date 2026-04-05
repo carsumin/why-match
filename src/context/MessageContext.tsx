@@ -23,6 +23,7 @@ interface MessageContextValue {
   pendingCount: number;
   updateStatus: (id: string, status: 'accepted' | 'rejected') => void;
   sendMessage: (params: SendMessageParams) => void;
+  markAsRead: (id: string) => void;
 }
 
 const MessageContext = createContext<MessageContextValue>({
@@ -31,6 +32,7 @@ const MessageContext = createContext<MessageContextValue>({
   pendingCount: 0,
   updateStatus: () => {},
   sendMessage: () => {},
+  markAsRead: () => {},
 });
 
 function filterByUser(userId: string) {
@@ -106,10 +108,15 @@ export function MessageProvider({ children }: { children: React.ReactNode }) {
     reload();
   }
 
+  function markAsRead(id: string) {
+    messageDb.markAsRead(id);
+    reload();
+  }
+
   const pendingCount = inbox.filter((m) => m.status === 'pending').length;
 
   return (
-    <MessageContext.Provider value={{ inbox, sent, pendingCount, updateStatus, sendMessage }}>
+    <MessageContext.Provider value={{ inbox, sent, pendingCount, updateStatus, sendMessage, markAsRead }}>
       {children}
     </MessageContext.Provider>
   );
