@@ -37,7 +37,18 @@ function seed(): TeamRecord[] {
 export function getTeams(): TeamRecord[] {
   try {
     const raw = localStorage.getItem(KEY);
-    if (raw) return JSON.parse(raw);
+    if (raw) {
+      const existing: TeamRecord[] = JSON.parse(raw);
+      // 시드에 새 팀이 추가된 경우 기존 DB에 병합 (additive)
+      const existingCodes = new Set(existing.map((t) => t.teamCode));
+      const newFromSeed = seed().filter((t) => !existingCodes.has(t.teamCode));
+      if (newFromSeed.length > 0) {
+        const merged = [...existing, ...newFromSeed];
+        localStorage.setItem(KEY, JSON.stringify(merged));
+        return merged;
+      }
+      return existing;
+    }
     const initial = seed();
     localStorage.setItem(KEY, JSON.stringify(initial));
     return initial;

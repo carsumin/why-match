@@ -5,7 +5,7 @@
 import { useState, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { hackathonList } from '@/data/hackathons';
+import { hackathonList, computeHackathonStatus } from '@/data/hackathons';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useTeamDb } from '@/hooks/useTeamDb';
 import type { TeamRecord } from '@/hooks/useTeamDb';
@@ -14,9 +14,18 @@ const POSITIONS = ['Frontend', 'Backend', 'Designer', 'PM', 'Data', 'ML Engineer
 
 export default function CampPageContent() {
   const searchParams = useSearchParams();
-  const hackathonSlug = searchParams.get('hackathon');
   const { currentUser } = useCurrentUser();
   const { teams: dbTeams, createTeam } = useTeamDb();
+
+  // 활성 해커톤 (종료되지 않은 것만)
+  const activeHackathons = hackathonList.filter(
+    (h) => computeHackathonStatus(h.period) !== 'ended'
+  );
+  const activeSlugSet = new Set(activeHackathons.map((h) => h.slug));
+
+  // 초기값: URL 쿼리 파라미터 우선
+  const initialSlug = searchParams.get('hackathon');
+  const [filterSlug, setFilterSlug] = useState<string | null>(initialSlug);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -29,22 +38,18 @@ export default function CampPageContent() {
     contactUrl: '',
   });
 
-  // hackathon 쿼리 파라미터로 필터링 + 내 팀 상단 정렬
+  // 필터링 + 내 팀 상단 정렬 (종료된 해커톤 팀 제외)
   const filtered = useMemo(() => {
-    const base = hackathonSlug
-      ? dbTeams.filter((t) => t.hackathonSlug === hackathonSlug)
-      : dbTeams;
+    const active = dbTeams.filter((t) => !t.hackathonSlug || activeSlugSet.has(t.hackathonSlug));
+    const base = filterSlug
+      ? active.filter((t) => t.hackathonSlug === filterSlug)
+      : active;
     return [...base].sort((a, b) => {
       const aIsMe = a.leaderId === currentUser?.id ? -1 : 0;
       const bIsMe = b.leaderId === currentUser?.id ? 1 : 0;
       return aIsMe + bIsMe;
     });
-  }, [dbTeams, hackathonSlug, currentUser]);
-
-  // 현재 필터링 중인 해커톤 정보
-  const currentHackathon = hackathonSlug
-    ? hackathonList.find((h) => h.slug === hackathonSlug)
-    : null;
+  }, [dbTeams, filterSlug, currentUser]);
 
   function togglePosition(pos: string) {
     setForm((prev) => ({
@@ -59,7 +64,7 @@ export default function CampPageContent() {
     if (!form.name.trim() || !form.intro.trim()) return;
     createTeam({
       teamCode: `T-NEW-${Date.now()}`,
-      hackathonSlug: hackathonSlug,
+      hackathonSlug: filterSlug,
       leaderId: currentUser?.id ?? '',
       name: form.name.trim(),
       isOpen: form.isOpen,
@@ -75,31 +80,51 @@ export default function CampPageContent() {
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
       {/* 헤더 */}
-      <div className="flex items-center justify-between mb-2">
+      <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-extrabold text-gray-900">팀원 모집</h1>
-        <div className="flex gap-2">
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="px-4 py-1.5 rounded-xl bg-sky-200 text-sky-800 text-sm font-bold hover:bg-sky-300 transition-colors"
-          >
-            + 팀 등록
-          </button>
-        </div>
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="px-4 py-1.5 rounded-xl bg-sky-200 text-sky-800 text-sm font-bold hover:bg-sky-300 transition-colors"
+        >
+          + 팀 등록
+        </button>
       </div>
 
-      {/* 필터 안내 */}
-      {currentHackathon ? (
-        <div className="flex items-center gap-2 mb-6">
-          <span className="text-sm text-gray-500">
-            <strong className="text-gray-700">{currentHackathon.title}</strong> 참가 팀만 보기
-          </span>
-          <Link href="/camp" className="text-xs text-gray-400 hover:text-gray-600 underline">
-            전체 보기
-          </Link>
-        </div>
-      ) : (
-        <p className="text-gray-500 text-sm mb-6">팀에 합류하거나 새 팀을 등록해보세요.</p>
-      )}
+      {/* 해커톤 필터 탭 */}
+      <div className="flex gap-2 flex-wrap mb-5">
+        <button
+          onClick={() => setFilterSlug(null)}
+          className={`px-3 py-1.5 rounded-full text-xs font-bold transition-colors ${
+            filterSlug === null
+              ? 'bg-gray-800 text-white'
+              : 'bg-sky-50 text-gray-500 hover:bg-sky-100'
+          }`}
+        >
+          전체
+        </button>
+        {activeHackathons.map((h) => {
+          const status = computeHackathonStatus(h.period);
+          const isActive = filterSlug === h.slug;
+          return (
+            <button
+              key={h.slug}
+              onClick={() => setFilterSlug(h.slug)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-colors ${
+                isActive
+                  ? 'bg-gray-800 text-white'
+                  : 'bg-sky-50 text-gray-500 hover:bg-sky-100'
+              }`}
+            >
+              <span
+                className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                  status === 'ongoing' ? 'bg-green-400' : 'bg-yellow-400'
+                }`}
+              />
+              {h.title.length > 18 ? h.title.slice(0, 18) + '…' : h.title}
+            </button>
+          );
+        })}
+      </div>
 
       {/* 팀 카드 목록 */}
       {filtered.length > 0 ? (
@@ -117,7 +142,7 @@ export default function CampPageContent() {
           <p className="text-4xl mb-3">📭</p>
           <p className="text-sm font-semibold text-gray-600 mb-1">등록된 팀이 없습니다</p>
           <p className="text-sm mb-4">
-            {hackathonSlug ? '이 해커톤에 아직 팀이 없습니다.' : '아직 팀이 없습니다.'}
+            {filterSlug ? '이 해커톤에 아직 팀이 없습니다.' : '아직 팀이 없습니다.'}
           </p>
           <button
             onClick={() => setIsModalOpen(true)}
