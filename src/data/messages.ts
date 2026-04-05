@@ -61,7 +61,7 @@ export const sentMessages: MessageDisplay[] = [
   {
     id: 'msg-101',
     fromUserId: 'u-001',
-    fromUserName: '나 (김지훈)',
+    fromUserName: '김지훈',
     fromUserRole: 'Frontend',
     teamCode: 'T-ALPHA',
     teamName: 'Team Alpha',
@@ -75,7 +75,7 @@ export const sentMessages: MessageDisplay[] = [
   {
     id: 'msg-102',
     fromUserId: 'u-001',
-    fromUserName: '나 (김지훈)',
+    fromUserName: '김지훈',
     fromUserRole: 'Frontend',
     teamCode: 'T-BETA',
     teamName: 'PromptRunners',
@@ -88,7 +88,7 @@ export const sentMessages: MessageDisplay[] = [
   {
     id: 'msg-103',
     fromUserId: 'u-001',
-    fromUserName: '나 (김지훈)',
+    fromUserName: '김지훈',
     fromUserRole: 'Frontend',
     teamCode: 'T-HANDOVER-02',
     teamName: 'LGTM',

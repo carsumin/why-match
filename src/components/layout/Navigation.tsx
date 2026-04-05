@@ -55,7 +55,7 @@ const tabs = [
 
 export default function Navigation() {
   const pathname = usePathname();
-  const { pendingCount } = useMessageContext();
+  const { unreadCount } = useMessageContext();
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden glass border-t border-sky-100">
@@ -72,9 +72,9 @@ export default function Navigation() {
               }`}
             >
               {tab.icon}
-              {isMessages && pendingCount > 0 && (
-                <span className="absolute top-1.5 right-[calc(50%-14px)] min-w-[16px] h-4 px-1 rounded-full bg-red-400 text-white text-[10px] font-bold flex items-center justify-center leading-none">
-                  {pendingCount}
+              {isMessages && unreadCount > 0 && (
+                <span className="absolute top-1.5 right-[calc(50%-14px)] min-w-4 h-4 px-1 rounded-full bg-red-400 text-white text-[10px] font-bold flex items-center justify-center leading-none">
+                  {unreadCount}
                 </span>
               )}
               <span className="text-[10px] font-medium">{tab.label}</span>

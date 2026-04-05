@@ -5,6 +5,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import * as messageDb from '@/lib/messageDb';
 import * as teamDb from '@/lib/teamDb';
+import { getUserById } from '@/data/teams';
 import { CURRENT_USER_KEY } from '@/hooks/useCurrentUser';
 import type { MessageDisplay } from '@/data/messages';
 import type { User } from '@/types';
@@ -20,7 +21,7 @@ interface SendMessageParams {
 interface MessageContextValue {
   inbox: MessageDisplay[];
   sent: MessageDisplay[];
-  pendingCount: number;
+  unreadCount: number;
   updateStatus: (id: string, status: 'accepted' | 'rejected') => void;
   sendMessage: (params: SendMessageParams) => void;
   markAsRead: (id: string) => void;
@@ -29,14 +30,20 @@ interface MessageContextValue {
 const MessageContext = createContext<MessageContextValue>({
   inbox: [],
   sent: [],
-  pendingCount: 0,
+  unreadCount: 0,
   updateStatus: () => {},
   sendMessage: () => {},
   markAsRead: () => {},
 });
 
+/** fromUserName을 userId 기준으로 실제 이름으로 보정 */
+function normalizeFromUserName(m: MessageDisplay): MessageDisplay {
+  const user = getUserById(m.fromUserId);
+  return user ? { ...m, fromUserName: user.name } : m;
+}
+
 function filterByUser(userId: string) {
-  const all = messageDb.getMessages();
+  const all = messageDb.getMessages().map(normalizeFromUserName);
 
   // 내 팀 코드 목록 (내가 리더인 팀)
   const myTeamCodes = teamDb.getTeamsByLeader(userId).map((t) => t.teamCode);
@@ -113,10 +120,13 @@ export function MessageProvider({ children }: { children: React.ReactNode }) {
     reload();
   }
 
-  const pendingCount = inbox.filter((m) => m.status === 'pending').length;
+  // 안읽음: 받은 메시지(미읽음) + 보낸 메시지(수락/거절됐는데 미읽음)
+  const unreadCount =
+    inbox.filter((m) => !m.isRead).length +
+    sent.filter((m) => m.status !== 'pending' && !m.isRead).length;
 
   return (
-    <MessageContext.Provider value={{ inbox, sent, pendingCount, updateStatus, sendMessage, markAsRead }}>
+    <MessageContext.Provider value={{ inbox, sent, unreadCount, updateStatus, sendMessage, markAsRead }}>
       {children}
     </MessageContext.Provider>
   );

@@ -49,7 +49,8 @@ interface MessageCardProps {
 
 function MessageCard({ msg, isInbox, onClick }: MessageCardProps) {
   const { label, className } = STATUS_CONFIG[msg.status];
-  const isUnread = isInbox && !msg.isRead;
+  // 받은 메시지: 미읽음 / 보낸 메시지: 수락·거절 결과 미확인
+  const isUnread = isInbox ? !msg.isRead : (msg.status !== 'pending' && !msg.isRead);
 
   // 보낸 메시지: 상대방 = 팀장, 받은 메시지: 상대방 = 지원자
   const counterpart = isInbox
@@ -115,8 +116,9 @@ function MessageCard({ msg, isInbox, onClick }: MessageCardProps) {
 export default function MessageTabs() {
   const [activeTab, setActiveTab] = useState<'inbox' | 'sent'>('inbox');
   const [selectedMsg, setSelectedMsg] = useState<MessageDisplay | null>(null);
-  const { inbox, sent, pendingCount, updateStatus, markAsRead } = useMessageContext();
+  const { inbox, sent, unreadCount, updateStatus, markAsRead } = useMessageContext();
   const messages = activeTab === 'inbox' ? inbox : sent;
+  const sentNewCount = sent.filter((m) => m.status !== 'pending' && !m.isRead).length;
 
   function handleOpen(msg: MessageDisplay) {
     setSelectedMsg(msg);
@@ -141,21 +143,26 @@ export default function MessageTabs() {
           }`}
         >
           받은 메시지
-          {pendingCount > 0 && (
+          {unreadCount > 0 && (
             <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-400 text-white text-[10px] flex items-center justify-center font-bold">
-              {pendingCount}
+              {unreadCount}
             </span>
           )}
         </button>
         <button
           onClick={() => setActiveTab('sent')}
-          className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all ${
+          className={`relative px-5 py-2 rounded-lg text-sm font-semibold transition-all ${
             activeTab === 'sent'
               ? 'bg-white text-sky-700 shadow-sm'
               : 'text-gray-400 hover:text-gray-600'
           }`}
         >
           보낸 메시지
+          {sentNewCount > 0 && (
+            <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-400 text-white text-[10px] flex items-center justify-center font-bold">
+              {sentNewCount}
+            </span>
+          )}
         </button>
       </div>
 
