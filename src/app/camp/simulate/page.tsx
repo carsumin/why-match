@@ -236,8 +236,11 @@ function SimulateContent() {
           )}
 
           {joinerTeam && isMemberAlready ? (
-            <Card>
-              <p className="text-sm text-gray-500 text-center py-2">이미 이 팀의 멤버입니다.</p>
+            <Card className="bg-sky-50 border-sky-100">
+              <p className="text-xs font-semibold text-gray-500 mb-4">
+                나는 이미 <strong className="text-gray-700">{joinerTeam.name}</strong>의 멤버입니다.
+              </p>
+              <TeamCompositionBreakdown team={joinerTeam} />
             </Card>
           ) : joinerResult ? (
             <>
