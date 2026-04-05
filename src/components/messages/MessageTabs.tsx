@@ -50,7 +50,7 @@ interface MessageCardProps {
 function MessageCard({ msg, isInbox, onClick }: MessageCardProps) {
   const { label, className } = STATUS_CONFIG[msg.status];
   // 받은 메시지: 미읽음 / 보낸 메시지: 수락·거절 결과 미확인
-  const isUnread = isInbox ? !msg.isRead : (msg.status !== 'pending' && !msg.isRead);
+  const isUnread = isInbox ? !msg.isRead : (msg.status !== 'pending' && msg.resultRead === false);
 
   // 보낸 메시지: 상대방 = 팀장, 받은 메시지: 상대방 = 지원자
   const counterpart = isInbox
@@ -116,13 +116,18 @@ function MessageCard({ msg, isInbox, onClick }: MessageCardProps) {
 export default function MessageTabs() {
   const [activeTab, setActiveTab] = useState<'inbox' | 'sent'>('inbox');
   const [selectedMsg, setSelectedMsg] = useState<MessageDisplay | null>(null);
-  const { inbox, sent, unreadCount, updateStatus, markAsRead } = useMessageContext();
+  const { inbox, sent, unreadCount, updateStatus, markAsRead, markResultAsRead } = useMessageContext();
   const messages = activeTab === 'inbox' ? inbox : sent;
-  const sentNewCount = sent.filter((m) => m.status !== 'pending' && !m.isRead).length;
+  const inboxUnreadCount = inbox.filter((m) => !m.isRead).length;
+  const sentNewCount = sent.filter((m) => m.status !== 'pending' && m.resultRead === false).length;
 
   function handleOpen(msg: MessageDisplay) {
     setSelectedMsg(msg);
-    if (!msg.isRead) markAsRead(msg.id);
+    if (activeTab === 'inbox') {
+      if (!msg.isRead) markAsRead(msg.id);
+    } else {
+      if (msg.status !== 'pending' && msg.resultRead === false) markResultAsRead(msg.id);
+    }
   }
 
   function handleStatusChange(id: string, status: 'accepted' | 'rejected') {
@@ -143,9 +148,9 @@ export default function MessageTabs() {
           }`}
         >
           받은 메시지
-          {unreadCount > 0 && (
+          {inboxUnreadCount > 0 && (
             <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-400 text-white text-[10px] flex items-center justify-center font-bold">
-              {unreadCount}
+              {inboxUnreadCount}
             </span>
           )}
         </button>

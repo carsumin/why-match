@@ -25,6 +25,7 @@ interface MessageContextValue {
   updateStatus: (id: string, status: 'accepted' | 'rejected') => void;
   sendMessage: (params: SendMessageParams) => void;
   markAsRead: (id: string) => void;
+  markResultAsRead: (id: string) => void;
 }
 
 const MessageContext = createContext<MessageContextValue>({
@@ -34,6 +35,7 @@ const MessageContext = createContext<MessageContextValue>({
   updateStatus: () => {},
   sendMessage: () => {},
   markAsRead: () => {},
+  markResultAsRead: () => {},
 });
 
 /** fromUserName을 userId 기준으로 실제 이름으로 보정 */
@@ -120,13 +122,18 @@ export function MessageProvider({ children }: { children: React.ReactNode }) {
     reload();
   }
 
-  // 안읽음: 받은 메시지(미읽음) + 보낸 메시지(수락/거절됐는데 미읽음)
+  function markResultAsRead(id: string) {
+    messageDb.markResultAsRead(id);
+    reload();
+  }
+
+  // 안읽음: 받은 메시지(미읽음) + 보낸 메시지(수락/거절 결과 미확인)
   const unreadCount =
     inbox.filter((m) => !m.isRead).length +
-    sent.filter((m) => m.status !== 'pending' && !m.isRead).length;
+    sent.filter((m) => m.status !== 'pending' && m.resultRead === false).length;
 
   return (
-    <MessageContext.Provider value={{ inbox, sent, unreadCount, updateStatus, sendMessage, markAsRead }}>
+    <MessageContext.Provider value={{ inbox, sent, unreadCount, updateStatus, sendMessage, markAsRead, markResultAsRead }}>
       {children}
     </MessageContext.Provider>
   );
