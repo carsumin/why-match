@@ -3,7 +3,7 @@
 // - 팀장 모드: 내 팀에 후보자를 넣어보고 → 연락하기
 'use client';
 
-import { useState, Suspense } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { users, getUserById } from '@/data/teams';
 import { simulateTeamScore, calculateMatchScore } from '@/utils/matching';
@@ -88,6 +88,17 @@ function SimulateContent() {
   const myDbTeams = me ? dbTeams.filter((t) => t.leaderId === me.id) : [];
   const mySimTeams = myDbTeams.map(toSimTeam);
   const [leaderTeamId, setLeaderTeamId] = useState<string>(initialTeam);
+
+  // searchParams 변화 감지 → 헤더에서 다른 팀 클릭 시 반영
+  useEffect(() => {
+    const team = searchParams.get('team') ?? '';
+    const modeParam = searchParams.get('mode') === 'leader' ? 'leader' : 'joiner';
+    setMode(modeParam);
+    if (team) {
+      setJoinerTeamId(team);
+      setLeaderTeamId(team);
+    }
+  }, [searchParams]);
   // 합류자 모드: 신청하기 모달
   const [joinModalOpen, setJoinModalOpen] = useState(false);
   const [joinMessage, setJoinMessage] = useState('');
