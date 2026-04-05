@@ -57,7 +57,12 @@ export function addMessage(msg: MessageDisplay): void {
 }
 
 export function updateMessageStatus(id: string, status: 'accepted' | 'rejected'): void {
-  saveMessages(getMessages().map((m) => (m.id === id ? { ...m, status } : m)));
+  // resultRead: false → 지원자에게 결과 알림, isRead는 팀장 읽음 상태라 건드리지 않음
+  saveMessages(getMessages().map((m) => (m.id === id ? { ...m, status, resultRead: false } : m)));
+}
+
+export function markResultAsRead(id: string): void {
+  saveMessages(getMessages().map((m) => (m.id === id ? { ...m, resultRead: true } : m)));
 }
 
 export function markAsRead(id: string): void {

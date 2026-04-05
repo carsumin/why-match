@@ -8,7 +8,8 @@ export interface MessageDisplay extends Message {
   fromUserRole: string;
   teamName: string;
   contactUrl?: string; // accepted 상태일 때 이동할 팀 contact.url
-  isRead: boolean;
+  isRead: boolean;       // 팀장(받은 메시지)이 읽었는지
+  resultRead?: boolean;  // 지원자(보낸 메시지)가 결과를 확인했는지
 }
 
 /** 받은 메시지 — 다른 유저가 내 팀(T-HANDOVER-01)에 지원 */

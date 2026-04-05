@@ -11,6 +11,7 @@ import { TagBadge } from '@/components/ui/Badge';
 import Card from '@/components/ui/Card';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useTeamDb } from '@/hooks/useTeamDb';
+import { useMessageContext } from '@/context/MessageContext';
 import type { User, LegacyTeam, UserRole } from '@/types';
 import type { TeamRecord } from '@/hooks/useTeamDb';
 
@@ -73,8 +74,8 @@ function SimulateContent() {
 
   // 헤더에서 선택한 현재 로그인 유저
   const { currentUser: me } = useCurrentUser();
-  // 팀 DB — 수락된 멤버 포함한 실시간 상태
   const { teams: dbTeams } = useTeamDb();
+  const { sent, sendMessage } = useMessageContext();
 
   // 합류자 모드: DB 팀 중 내가 리더가 아닌 팀만 → 시뮬레이션 형태로 변환
   const joinerSimTeams = dbTeams
@@ -90,7 +91,8 @@ function SimulateContent() {
   // 합류자 모드: 신청하기 모달
   const [joinModalOpen, setJoinModalOpen] = useState(false);
   const [joinMessage, setJoinMessage] = useState('');
-  const [appliedTeams, setAppliedTeams] = useState<string[]>([]);
+  // 이미 신청한 팀 = sent 메시지 기반 (새로고침 후에도 유지)
+  const appliedTeamCodes = new Set(sent.map((m) => m.teamCode));
   // 팀장 모드: 연락하기 모달
   const [contactCandidate, setContactCandidate] = useState<User | null>(null);
   const [contactMessage, setContactMessage] = useState('');
@@ -267,18 +269,32 @@ function SimulateContent() {
 
               {/* 합류 신청하기 */}
               {joinerTeamRecord?.isOpen ? (
-                appliedTeams.includes(joinerTeam.id) ? (
-                  <div className="w-full text-center py-3 rounded-xl bg-green-50 text-green-700 text-sm font-bold">
-                    ✓ 신청 완료
-                  </div>
-                ) : (
-                  <button
-                    onClick={() => { setJoinMessage(''); setJoinModalOpen(true); }}
-                    className="w-full py-3 rounded-xl bg-sky-200 text-sky-800 font-bold text-sm hover:bg-sky-300 transition-colors"
-                  >
-                    이 팀에 합류 신청하기 →
-                  </button>
-                )
+                (() => {
+                  const myApp = sent.find((m) => m.teamCode === joinerTeam.id);
+                  if (myApp?.status === 'rejected') return (
+                    <div className="w-full text-center py-3 rounded-xl bg-red-50 text-red-400 text-sm font-semibold">
+                      거절된 팀입니다
+                    </div>
+                  );
+                  if (myApp?.status === 'accepted') return (
+                    <div className="w-full text-center py-3 rounded-xl bg-green-50 text-green-700 text-sm font-bold">
+                      ✓ 합류 수락됨
+                    </div>
+                  );
+                  if (myApp) return (
+                    <div className="w-full text-center py-3 rounded-xl bg-sky-50 text-sky-600 text-sm font-semibold">
+                      신청 완료 · 대기 중
+                    </div>
+                  );
+                  return (
+                    <button
+                      onClick={() => { setJoinMessage(''); setJoinModalOpen(true); }}
+                      className="w-full py-3 rounded-xl bg-sky-200 text-sky-800 font-bold text-sm hover:bg-sky-300 transition-colors"
+                    >
+                      이 팀에 합류 신청하기 →
+                    </button>
+                  );
+                })()
               ) : (
                 <div className="w-full text-center py-3 rounded-xl bg-gray-100 text-gray-400 text-sm font-bold cursor-not-allowed">
                   모집 종료된 팀입니다
@@ -513,8 +529,17 @@ function SimulateContent() {
             </div>
             <button
               onClick={() => {
-                setAppliedTeams((prev) => [...prev, joinerTeam.id]);
+                if (!me) return;
+                sendMessage({
+                  teamCode: joinerTeam.id,
+                  teamName: joinerTeam.name,
+                  hackathonSlug: joinerTeamRecord?.hackathonSlug ?? null,
+                  message: joinMessage.trim() ||
+                    `안녕하세요! ${joinerTeam.name}에 합류하고 싶습니다. ${me.roles.map(r => roleLabel[r] ?? r).join(', ')} 포지션으로 지원합니다.`,
+                  currentUser: me,
+                });
                 setJoinModalOpen(false);
+                setJoinMessage('');
               }}
               className="w-full py-3 rounded-xl bg-sky-200 text-sky-800 font-bold text-sm hover:bg-sky-300 transition-colors"
             >

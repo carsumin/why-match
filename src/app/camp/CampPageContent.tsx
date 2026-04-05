@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { hackathonList } from '@/data/hackathons';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useTeamDb } from '@/hooks/useTeamDb';
+import { useMessageContext } from '@/context/MessageContext';
 import type { TeamRecord } from '@/hooks/useTeamDb';
 import ContactModal from '@/components/messages/ContactModal';
 
@@ -279,6 +280,14 @@ export default function CampPageContent() {
 // 팀 카드 컴포넌트
 function TeamCard({ team, isMyTeam }: { team: TeamRecord; isMyTeam: boolean }) {
   const [contactOpen, setContactOpen] = useState(false);
+  const { sent } = useMessageContext();
+
+  // 내가 이 팀에 보낸 메시지 상태
+  const myApplication = sent.find((m) => m.teamCode === team.teamCode);
+  const isApplied = !!myApplication;
+  const isRejected = myApplication?.status === 'rejected';
+  const isAccepted = myApplication?.status === 'accepted';
+
   return (
     <div className={`rounded-2xl shadow-sm p-5 space-y-3 ${
       isMyTeam
@@ -343,7 +352,7 @@ function TeamCard({ team, isMyTeam }: { team: TeamRecord; isMyTeam: boolean }) {
             </Link>
           </>
         ) : (
-          /* 남의 팀: 시뮬레이션 + 연락하기 */
+          /* 남의 팀: 시뮬레이션 + 신청 상태 */
           <>
             <Link
               href={`/camp/simulate?team=${team.teamCode}`}
@@ -351,19 +360,28 @@ function TeamCard({ team, isMyTeam }: { team: TeamRecord; isMyTeam: boolean }) {
             >
               내 궁합 보기 ✦
             </Link>
-            {team.isOpen ? (
+            {isAccepted ? (
+              <div className="flex-1 text-center py-2 rounded-xl bg-green-50 text-green-700 text-sm font-bold">
+                ✓ 합류 수락됨
+              </div>
+            ) : isRejected ? (
+              <div className="flex-1 text-center py-2 rounded-xl bg-red-50 text-red-400 text-sm font-semibold">
+                거절된 팀
+              </div>
+            ) : isApplied ? (
+              <div className="flex-1 text-center py-2 rounded-xl bg-sky-50 text-sky-600 text-sm font-semibold">
+                신청 완료 · 대기 중
+              </div>
+            ) : !team.isOpen ? (
+              <button disabled className="flex-1 py-2 rounded-xl glass text-gray-400 text-sm font-semibold cursor-not-allowed">
+                모집 마감
+              </button>
+            ) : (
               <button
                 onClick={() => setContactOpen(true)}
                 className="flex-1 text-center py-2 rounded-xl bg-sky-200 text-sky-800 text-sm font-bold hover:bg-sky-300 transition-colors"
               >
                 연락하기 →
-              </button>
-            ) : (
-              <button
-                disabled
-                className="flex-1 py-2 rounded-xl glass text-gray-400 text-sm font-semibold cursor-not-allowed"
-              >
-                모집 마감
               </button>
             )}
           </>
