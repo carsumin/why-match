@@ -3,6 +3,7 @@
 // 앱 진입 시 미로그인 상태면 사용자 선택 화면을 표시
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { users } from '@/data/teams';
 import { CURRENT_USER_KEY } from '@/hooks/useCurrentUser';
 
@@ -16,6 +17,7 @@ const roleLabel: Record<string, string> = {
 };
 
 export default function LoginGate({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
   const [ready, setReady] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
 
@@ -30,6 +32,7 @@ export default function LoginGate({ children }: { children: React.ReactNode }) {
   function handleSelect(id: string) {
     localStorage.setItem(CURRENT_USER_KEY, id);
     setLoggedIn(true);
+    router.push('/');
   }
 
   // hydration 전 — 빈 화면 (레이아웃 깜빡임 방지)
