@@ -87,7 +87,7 @@ function SimulateContent() {
   // 팀장 모드: DB에서 내 팀 목록 + 시뮬레이션 형태로 변환
   const myDbTeams = me ? dbTeams.filter((t) => t.leaderId === me.id) : [];
   const mySimTeams = myDbTeams.map(toSimTeam);
-  const [leaderTeamId, setLeaderTeamId] = useState<string>('');
+  const [leaderTeamId, setLeaderTeamId] = useState<string>(initialTeam);
   // 합류자 모드: 신청하기 모달
   const [joinModalOpen, setJoinModalOpen] = useState(false);
   const [joinMessage, setJoinMessage] = useState('');
