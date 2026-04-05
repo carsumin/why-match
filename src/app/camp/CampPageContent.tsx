@@ -301,7 +301,7 @@ function TeamCard({ team, isMyTeam }: { team: TeamRecord; isMyTeam: boolean }) {
           /* 남의 팀: 시뮬레이션 + 연락하기 */
           <>
             <Link
-              href="/camp/simulate"
+              href={`/camp/simulate?team=${team.teamCode}`}
               className="flex-1 text-center py-2 rounded-xl bg-pink-100 text-pink-700 text-sm font-bold hover:bg-pink-200 transition-colors"
             >
               내 궁합 보기 ✦

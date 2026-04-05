@@ -68,6 +68,7 @@ export default function SimulatePage() {
 function SimulateContent() {
   const searchParams = useSearchParams();
   const initialMode = searchParams.get('mode') === 'leader' ? 'leader' : 'joiner';
+  const initialTeam = searchParams.get('team') ?? '';
   const [mode, setMode] = useState<Mode>(initialMode);
 
   // 헤더에서 선택한 현재 로그인 유저
@@ -80,7 +81,7 @@ function SimulateContent() {
     .filter((t) => !me || t.leaderId !== me.id)
     .map(toSimTeam);
 
-  const [joinerTeamId, setJoinerTeamId] = useState<string>('');
+  const [joinerTeamId, setJoinerTeamId] = useState<string>(initialTeam);
 
   // 팀장 모드: DB에서 내 팀 목록 + 시뮬레이션 형태로 변환
   const myDbTeams = me ? dbTeams.filter((t) => t.leaderId === me.id) : [];
