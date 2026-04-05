@@ -11,6 +11,8 @@ import { useTeamDb } from '@/hooks/useTeamDb';
 import { useMessageContext } from '@/context/MessageContext';
 import type { TeamRecord } from '@/hooks/useTeamDb';
 import ContactModal from '@/components/messages/ContactModal';
+import ChatModal from '@/components/messages/ChatModal';
+import type { MessageDisplay } from '@/data/messages';
 
 const POSITIONS = ['Frontend', 'Backend', 'Designer', 'PM', 'Data', 'ML Engineer', 'DevOps'];
 
@@ -280,7 +282,12 @@ export default function CampPageContent() {
 // 팀 카드 컴포넌트
 function TeamCard({ team, isMyTeam }: { team: TeamRecord; isMyTeam: boolean }) {
   const [contactOpen, setContactOpen] = useState(false);
-  const { sent } = useMessageContext();
+  const [applicantsOpen, setApplicantsOpen] = useState(false);
+  const [selectedMsg, setSelectedMsg] = useState<MessageDisplay | null>(null);
+  const { sent, inbox, updateStatus, markAsRead } = useMessageContext();
+
+  // 이 팀에 지원한 메시지 목록
+  const applicants = inbox.filter((m) => m.teamCode === team.teamCode);
 
   // 내가 이 팀에 보낸 메시지 상태
   const myApplication = sent.find((m) => m.teamCode === team.teamCode);
@@ -344,12 +351,17 @@ function TeamCard({ team, isMyTeam }: { team: TeamRecord; isMyTeam: boolean }) {
             >
               팀장 모드 →
             </Link>
-            <Link
-              href="/messages"
-              className="flex-1 text-center py-2 rounded-xl bg-sky-300 text-sky-900 text-sm font-bold hover:bg-sky-400 transition-colors"
+            <button
+              onClick={() => setApplicantsOpen(true)}
+              className="relative flex-1 text-center py-2 rounded-xl bg-sky-300 text-sky-900 text-sm font-bold hover:bg-sky-400 transition-colors"
             >
               지원자 확인
-            </Link>
+              {applicants.filter((m) => !m.isRead).length > 0 && (
+                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-400 text-white text-[10px] flex items-center justify-center font-bold">
+                  {applicants.filter((m) => !m.isRead).length}
+                </span>
+              )}
+            </button>
           </>
         ) : (
           /* 남의 팀: 시뮬레이션 + 신청 상태 */
@@ -390,6 +402,86 @@ function TeamCard({ team, isMyTeam }: { team: TeamRecord; isMyTeam: boolean }) {
 
       {contactOpen && (
         <ContactModal team={team} onClose={() => setContactOpen(false)} />
+      )}
+
+      {/* 지원자 목록 모달 */}
+      {applicantsOpen && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4">
+          <div className="fixed inset-0 bg-black/30" onClick={() => setApplicantsOpen(false)} />
+          <div className="relative z-10 w-full max-w-md bg-white rounded-3xl shadow-xl overflow-hidden">
+            <div className="px-5 py-4 border-b border-sky-100 flex items-center justify-between">
+              <div>
+                <h2 className="font-bold text-gray-900">{team.name}</h2>
+                <p className="text-xs text-gray-400 mt-0.5">지원자 {applicants.length}명</p>
+              </div>
+              <button onClick={() => setApplicantsOpen(false)} className="text-gray-400 hover:text-gray-600 text-xl leading-none">×</button>
+            </div>
+            <div className="overflow-y-auto max-h-96">
+              {applicants.length === 0 ? (
+                <div className="py-14 text-center text-gray-400">
+                  <p className="text-3xl mb-2">📭</p>
+                  <p className="text-sm">아직 지원자가 없습니다.</p>
+                </div>
+              ) : (
+                <div className="divide-y divide-sky-50">
+                  {applicants.map((msg) => {
+                    const isUnread = !msg.isRead;
+                    const statusConfig = {
+                      pending: { label: '대기 중', cls: 'bg-yellow-50 text-yellow-600 border border-yellow-200' },
+                      accepted: { label: '수락됨', cls: 'bg-green-50 text-green-700 border border-green-200' },
+                      rejected: { label: '거절됨', cls: 'bg-red-50 text-red-500 border border-red-200' },
+                    } as const;
+                    const { label, cls } = statusConfig[msg.status];
+                    return (
+                      <button
+                        key={msg.id}
+                        onClick={() => {
+                          setSelectedMsg(msg);
+                          if (!msg.isRead) markAsRead(msg.id);
+                        }}
+                        className={`w-full text-left px-5 py-4 hover:bg-sky-50 transition-colors ${isUnread ? 'bg-sky-50/60' : ''}`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="relative shrink-0">
+                            <div className="w-9 h-9 rounded-full bg-linear-to-br from-sky-300 to-indigo-300 flex items-center justify-center text-white text-sm font-bold">
+                              {msg.fromUserName[0]}
+                            </div>
+                            {isUnread && (
+                              <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-red-400 border-2 border-white" />
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-0.5">
+                              <span className={`text-sm font-semibold text-gray-900 ${isUnread ? 'font-bold' : ''}`}>{msg.fromUserName}</span>
+                              {msg.fromUserRole && (
+                                <span className="text-xs px-2 py-0.5 rounded-full bg-sky-100 text-sky-700 font-medium">{msg.fromUserRole}</span>
+                              )}
+                              <span className={`text-xs px-2 py-0.5 rounded-full font-medium ml-auto ${cls}`}>{label}</span>
+                            </div>
+                            <p className="text-xs text-gray-500 line-clamp-1">{msg.message}</p>
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 개별 지원자 채팅 모달 */}
+      {selectedMsg && (
+        <ChatModal
+          msg={selectedMsg}
+          isInbox={true}
+          onClose={() => setSelectedMsg(null)}
+          onStatusChange={(id, status) => {
+            updateStatus(id, status);
+            setSelectedMsg((prev) => (prev?.id === id ? { ...prev, status } : prev));
+          }}
+        />
       )}
     </div>
   );
