@@ -130,7 +130,7 @@ export default function Header() {
                         {myJoinedTeams.map((t) => (
                           <Link
                             key={t.teamCode}
-                            href={`/camp?hackathon=${t.hackathonSlug ?? ''}`}
+                            href={`/camp/simulate?team=${t.teamCode}`}
                             onClick={() => setShowMenu(false)}
                             className="flex items-center justify-between text-xs text-gray-700 hover:text-sky-700 py-0.5"
                           >
