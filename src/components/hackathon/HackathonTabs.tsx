@@ -7,6 +7,7 @@ import Link from 'next/link';
 import CountdownTimer from './CountdownTimer';
 import InfoModal from './InfoModal';
 import SubmitModal from './SubmitModal';
+import LeaderboardModal from './LeaderboardModal';
 import { TagBadge } from '@/components/ui/Badge';
 import type { HackathonDetail, HackathonTab, Leaderboard } from '@/types';
 
@@ -46,6 +47,7 @@ export default function HackathonTabs({
   const [activeTab, setActiveTab] = useState<HackathonTab>('개요');
   const [infoModal, setInfoModal] = useState<'rules' | 'faq' | null>(null);
   const [submitOpen, setSubmitOpen] = useState(false);
+  const [leaderboardOpen, setLeaderboardOpen] = useState(false);
   const [fieldValues, setFieldValues] = useState<Record<string, string>>({});
   const [fileNames, setFileNames] = useState<Record<string, string>>({});
   const [formErrors, setFormErrors] = useState<Record<string, boolean>>({});
@@ -129,6 +131,16 @@ export default function HackathonTabs({
           hackathonTitle={detail.title}
           items={buildSubmitItems()}
           onClose={() => setSubmitOpen(false)}
+        />
+      )}
+
+      {leaderboardOpen && (
+        <LeaderboardModal
+          hackathonTitle={detail.title}
+          submissionDeadlineAt={submissionDeadlineAt}
+          leaderboard={leaderboard}
+          note={sections.leaderboard.note}
+          onClose={() => setLeaderboardOpen(false)}
         />
       )}
 
@@ -568,14 +580,12 @@ export default function HackathonTabs({
                         </td>
                         <td className="py-3">
                           <p className="font-semibold text-gray-900">{entry.teamName}</p>
-                          {/* scoreBreakdown */}
                           {entry.scoreBreakdown && (
                             <p className="text-xs text-gray-400 mt-0.5">
                               참가자 {entry.scoreBreakdown.participant}점 · 심사위원{' '}
                               {entry.scoreBreakdown.judge}점
                             </p>
                           )}
-                          {/* artifacts */}
                           {entry.artifacts && (
                             <div className="flex gap-2 mt-1">
                               {entry.artifacts.webUrl && (
@@ -617,19 +627,23 @@ export default function HackathonTabs({
               <p className="text-xs text-gray-400 border-t border-sky-100 pt-3">
                 {sections.leaderboard.note}
               </p>
+              <button
+                onClick={() => setLeaderboardOpen(true)}
+                className="w-full py-2.5 rounded-xl border border-sky-100 text-gray-600 text-sm font-semibold hover:bg-sky-50 transition-colors"
+              >
+                공개 리더보드 보기 →
+              </button>
             </>
           ) : (
             <div className="flex flex-col items-center justify-center py-16 text-center text-gray-400">
               <p className="text-4xl mb-3">📭</p>
               <p className="text-sm font-semibold text-gray-600">아직 제출된 결과가 없습니다.</p>
-              <a
-                href={sections.leaderboard.publicLeaderboardUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-3 text-sm text-gray-700 hover:underline"
+              <button
+                onClick={() => setLeaderboardOpen(true)}
+                className="mt-3 text-sm font-semibold text-gray-600 hover:underline"
               >
                 공개 리더보드 보기 →
-              </a>
+              </button>
             </div>
           )}
         </div>
