@@ -18,6 +18,8 @@ export interface TeamRecord {
 
 const KEY = 'whymatch_teams_db';
 
+let _cache: TeamRecord[] | null = null;
+
 /** 정적 campTeams 데이터로 DB 초기화 */
 function seed(): TeamRecord[] {
   return campTeams.map((t) => ({
@@ -35,6 +37,7 @@ function seed(): TeamRecord[] {
 }
 
 export function getTeams(): TeamRecord[] {
+  if (_cache) return _cache;
   try {
     const raw = localStorage.getItem(KEY);
     if (raw) {
@@ -45,12 +48,15 @@ export function getTeams(): TeamRecord[] {
       if (newFromSeed.length > 0) {
         const merged = [...existing, ...newFromSeed];
         localStorage.setItem(KEY, JSON.stringify(merged));
+        _cache = merged;
         return merged;
       }
+      _cache = existing;
       return existing;
     }
     const initial = seed();
     localStorage.setItem(KEY, JSON.stringify(initial));
+    _cache = initial;
     return initial;
   } catch {
     return seed();
@@ -58,6 +64,7 @@ export function getTeams(): TeamRecord[] {
 }
 
 export function saveTeams(teams: TeamRecord[]): void {
+  _cache = teams;
   localStorage.setItem(KEY, JSON.stringify(teams));
 }
 

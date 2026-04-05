@@ -5,23 +5,21 @@
 import { useState, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { hackathonList, computeHackathonStatus } from '@/data/hackathons';
+import { hackathonList } from '@/data/hackathons';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useTeamDb } from '@/hooks/useTeamDb';
 import type { TeamRecord } from '@/hooks/useTeamDb';
 
 const POSITIONS = ['Frontend', 'Backend', 'Designer', 'PM', 'Data', 'ML Engineer', 'DevOps'];
 
+// 모듈 로드 시 1회 계산 (hackathonList.status는 이미 computeHackathonStatus 결과)
+const activeHackathons = hackathonList.filter((h) => h.status !== 'ended');
+const activeSlugSet = new Set(activeHackathons.map((h) => h.slug));
+
 export default function CampPageContent() {
   const searchParams = useSearchParams();
   const { currentUser } = useCurrentUser();
   const { teams: dbTeams, createTeam } = useTeamDb();
-
-  // 활성 해커톤 (종료되지 않은 것만)
-  const activeHackathons = hackathonList.filter(
-    (h) => computeHackathonStatus(h.period) !== 'ended'
-  );
-  const activeSlugSet = new Set(activeHackathons.map((h) => h.slug));
 
   // 초기값: URL 쿼리 파라미터 우선
   const initialSlug = searchParams.get('hackathon');
@@ -104,7 +102,7 @@ export default function CampPageContent() {
           전체
         </button>
         {activeHackathons.map((h) => {
-          const status = computeHackathonStatus(h.period);
+          const status = h.status;
           const isActive = filterSlug === h.slug;
           return (
             <button
