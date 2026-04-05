@@ -6,6 +6,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import CountdownTimer from './CountdownTimer';
 import InfoModal from './InfoModal';
+import SubmitModal from './SubmitModal';
 import { TagBadge } from '@/components/ui/Badge';
 import type { HackathonDetail, HackathonTab, Leaderboard } from '@/types';
 
@@ -44,8 +45,32 @@ export default function HackathonTabs({
 }: HackathonTabsProps) {
   const [activeTab, setActiveTab] = useState<HackathonTab>('개요');
   const [infoModal, setInfoModal] = useState<'rules' | 'faq' | null>(null);
+  const [submitOpen, setSubmitOpen] = useState(false);
+  const [fieldValues, setFieldValues] = useState<Record<string, string>>({});
   const { sections } = detail;
   const now = Date.now();
+
+  function handleFieldChange(key: string, value: string) {
+    setFieldValues((prev) => ({ ...prev, [key]: value }));
+  }
+
+  /** 제출 모달에 넘길 항목 목록 조합 */
+  function buildSubmitItems() {
+    if (sections.submit.submissionItems) {
+      return sections.submit.submissionItems.map((item) => ({
+        key: item.key,
+        title: item.title,
+        format: item.format,
+        value: fieldValues[item.key] ?? '',
+      }));
+    }
+    return sections.submit.allowedArtifactTypes.map((type) => ({
+      key: type,
+      title: type.toUpperCase(),
+      format: type,
+      value: fieldValues[type] ?? '',
+    }));
+  }
 
   return (
     <div>
@@ -55,6 +80,14 @@ export default function HackathonTabs({
           rules={sections.overview.infoLinks.rules}
           faq={sections.overview.infoLinks.faq}
           onClose={() => setInfoModal(null)}
+        />
+      )}
+
+      {submitOpen && (
+        <SubmitModal
+          hackathonTitle={detail.title}
+          items={buildSubmitItems()}
+          onClose={() => setSubmitOpen(false)}
         />
       )}
 
@@ -371,6 +404,8 @@ export default function HackathonTabs({
                   {(item.format === 'url' || item.format === 'pdf_url') && (
                     <input
                       type="url"
+                      value={fieldValues[item.key] ?? ''}
+                      onChange={(e) => handleFieldChange(item.key, e.target.value)}
                       placeholder={
                         item.format === 'pdf_url'
                           ? 'PDF URL 또는 구글 드라이브 링크'
@@ -405,6 +440,8 @@ export default function HackathonTabs({
                   {type === 'url' && (
                     <input
                       type="url"
+                      value={fieldValues[type] ?? ''}
+                      onChange={(e) => handleFieldChange(type, e.target.value)}
                       placeholder="https://"
                       className="w-full px-3 py-2 rounded-lg border border-sky-100 text-sm focus:outline-none focus:border-gray-400"
                     />
@@ -418,6 +455,8 @@ export default function HackathonTabs({
                   )}
                   {type === 'text_or_url' && (
                     <textarea
+                      value={fieldValues[type] ?? ''}
+                      onChange={(e) => handleFieldChange(type, e.target.value)}
                       placeholder="텍스트 또는 URL 입력"
                       rows={3}
                       className="w-full px-3 py-2 rounded-lg border border-sky-100 text-sm focus:outline-none focus:border-gray-400 resize-none"
@@ -428,14 +467,12 @@ export default function HackathonTabs({
             </div>
           )}
 
-          <a
-            href={sections.submit.submissionUrl}
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            onClick={() => setSubmitOpen(true)}
             className="block w-full text-center py-3 rounded-xl bg-sky-200 text-sky-800 font-bold text-sm hover:bg-sky-300 transition-colors"
           >
             제출하기 →
-          </a>
+          </button>
         </div>
       )}
 
