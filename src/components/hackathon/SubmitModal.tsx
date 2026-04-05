@@ -17,18 +17,26 @@ interface SubmitModalProps {
   onClose: () => void;
 }
 
-// 박수 파티클 — 방향벡터(px)·회전(deg)·크기·딜레이
-const CLAP_PARTICLES = [
-  { tx: -160, ty: -260, r: -20, size: 28, delay: 0   },
-  { tx:    0, ty: -300, r:   5, size: 32, delay: 40  },
-  { tx:  160, ty: -260, r:  18, size: 26, delay: 20  },
-  { tx: -240, ty: -140, r: -30, size: 24, delay: 60  },
-  { tx:  240, ty: -140, r:  25, size: 30, delay: 80  },
-  { tx:  -90, ty: -320, r: -10, size: 22, delay: 30  },
-  { tx:   90, ty: -320, r:  12, size: 26, delay: 50  },
-  { tx: -200, ty:  -60, r: -40, size: 20, delay: 70  },
-  { tx:  200, ty:  -60, r:  35, size: 20, delay: 90  },
-  { tx:    0, ty: -200, r:  -5, size: 36, delay: 10  },
+// 박수 파티클 — 방향(px)·최종 회전(deg)·크기(px)·출발 딜레이(ms)
+const CLAP_PARTICLES: { tx: number; ty: number; r: number; size: number; delay: number }[] = [
+  // 정상단 클러스터
+  { tx:   0,  ty: -320, r:   0, size: 40, delay:  0 },
+  { tx: -40,  ty: -300, r: -12, size: 30, delay: 20 },
+  { tx:  40,  ty: -300, r:  14, size: 28, delay: 35 },
+  // 좌상
+  { tx: -150, ty: -260, r: -28, size: 32, delay: 50 },
+  { tx: -220, ty: -180, r: -42, size: 24, delay: 70 },
+  { tx: -270, ty:  -80, r: -58, size: 20, delay: 90 },
+  // 우상
+  { tx:  155, ty: -255, r:  26, size: 34, delay: 45 },
+  { tx:  225, ty: -170, r:  44, size: 22, delay: 65 },
+  { tx:  275, ty:  -70, r:  60, size: 20, delay: 85 },
+  // 사선 하단
+  { tx: -190, ty:   70, r: -70, size: 18, delay: 100 },
+  { tx:  195, ty:   75, r:  68, size: 18, delay:  95 },
+  // 중간 보조
+  { tx:  -80, ty: -210, r: -10, size: 26, delay: 15 },
+  { tx:   85, ty: -205, r:   8, size: 24, delay: 25 },
 ];
 
 export default function SubmitModal({ hackathonTitle, items, onClose }: SubmitModalProps) {
@@ -56,49 +64,95 @@ export default function SubmitModal({ hackathonTitle, items, onClose }: SubmitMo
 
   function handleConfirm() {
     setClapActive(true);
-    setTimeout(() => setStep('done'), 320);
-    setTimeout(() => setClapActive(false), 1100);
+    setTimeout(() => setStep('done'), 340);
+    setTimeout(() => setClapActive(false), 1200);
   }
 
   return (
     <>
       <style>{`
-        @keyframes clap-burst {
-          0%   { transform: translate(-50%, -50%) translate(0px, 0px) scale(0.2); opacity: 0; }
-          18%  { opacity: 1; }
-          70%  { opacity: 1; }
-          100% { transform: translate(-50%, -50%) translate(var(--tx), var(--ty)) scale(0.1) rotate(var(--r)); opacity: 0; }
+        /*
+         * clap-fly:
+         *  0%   → 중심에서 scale(0), 불투명도 0
+         *  12%  → 빠르게 scale(1.8)로 spring pop, 이동 10%
+         *  40%  → scale(1.1)로 안정, 이동 55%, 회전 반쯤
+         *  75%  → 이동 88%, 불투명도 유지
+         * 100%  → 목적지 도달, scale(0.2), 페이드 아웃
+         */
+        @keyframes clap-fly {
+          0% {
+            transform: translate(-50%, -50%) translate(0px, 0px) scale(0) rotate(0deg);
+            opacity: 0;
+          }
+          12% {
+            transform: translate(-50%, -50%)
+              translate(calc(var(--tx) * 0.08px), calc(var(--ty) * 0.08px))
+              scale(1.8)
+              rotate(calc(var(--r) * 0.1deg));
+            opacity: 1;
+          }
+          40% {
+            transform: translate(-50%, -50%)
+              translate(calc(var(--tx) * 0.55px), calc(var(--ty) * 0.55px))
+              scale(1.1)
+              rotate(calc(var(--r) * 0.5deg));
+            opacity: 1;
+          }
+          75% {
+            transform: translate(-50%, -50%)
+              translate(calc(var(--tx) * 0.88px), calc(var(--ty) * 0.88px))
+              scale(0.85)
+              rotate(calc(var(--r) * 0.85deg));
+            opacity: 0.9;
+          }
+          100% {
+            transform: translate(-50%, -50%)
+              translate(calc(var(--tx) * 1px), calc(var(--ty) * 1px))
+              scale(0.2)
+              rotate(calc(var(--r) * 1deg));
+            opacity: 0;
+          }
         }
+
+        /* 완료 카드 등장 */
         @keyframes done-pop {
-          0%   { transform: scale(0.7); opacity: 0; }
-          65%  { transform: scale(1.06); opacity: 1; }
-          100% { transform: scale(1); opacity: 1; }
+          0%   { transform: scale(0.72) translateY(12px); opacity: 0; }
+          60%  { transform: scale(1.04) translateY(-2px); opacity: 1; }
+          100% { transform: scale(1) translateY(0);       opacity: 1; }
         }
-        @keyframes icon-bounce {
-          0%, 100% { transform: scale(1); }
-          40%      { transform: scale(1.22) rotate(-6deg); }
-          70%      { transform: scale(0.94) rotate(4deg); }
+
+        /* 완료 아이콘 — 두 번 튀는 박수 모션 */
+        @keyframes icon-clap {
+          0%   { transform: scale(0) rotate(-15deg); }
+          35%  { transform: scale(1.35) rotate(8deg); }
+          55%  { transform: scale(0.88) rotate(-5deg); }
+          72%  { transform: scale(1.12) rotate(4deg); }
+          88%  { transform: scale(0.96) rotate(-2deg); }
+          100% { transform: scale(1) rotate(0deg); }
         }
       `}</style>
 
       {/* 박수 파티클 레이어 */}
       {clapActive && (
-        <div className="fixed inset-0 z-[70] pointer-events-none overflow-hidden">
+        <div className="fixed inset-0 z-[70] pointer-events-none">
           {CLAP_PARTICLES.map((p, i) => (
             <span
               key={i}
               style={{
                 position: 'fixed',
                 left: '50%',
-                top: '55%',
-                fontSize: p.size,
-                '--tx': `${p.tx}px`,
-                '--ty': `${p.ty}px`,
-                '--r': `${p.r}deg`,
-                animation: `clap-burst 900ms cubic-bezier(0.22, 1, 0.36, 1) ${p.delay}ms both`,
+                top: '58%',
+                fontSize: `${p.size}px`,
                 lineHeight: 1,
+                display: 'block',
                 userSelect: 'none',
-              } as React.CSSProperties}
+                willChange: 'transform, opacity',
+                /* CSS custom properties — 정수값 전달, keyframe 안에서 px·deg 붙임 */
+                ['--tx' as string]: p.tx,
+                ['--ty' as string]: p.ty,
+                ['--r'  as string]: p.r,
+                animation: `clap-fly 950ms cubic-bezier(0.22, 1, 0.36, 1) ${p.delay}ms both`,
+              }}
             >
               👏
             </span>
@@ -182,16 +236,16 @@ export default function SubmitModal({ hackathonTitle, items, onClose }: SubmitMo
           ) : (
             /* 완료 화면 */
             <div
-              className="flex flex-col items-center justify-center px-5 py-12 text-center gap-4"
-              style={{ animation: 'done-pop 400ms cubic-bezier(0.34, 1.56, 0.64, 1) both' }}
+              className="flex flex-col items-center justify-center px-5 py-12 text-center gap-3"
+              style={{ animation: 'done-pop 420ms cubic-bezier(0.34, 1.56, 0.64, 1) both' }}
             >
               <div
                 className="w-20 h-20 rounded-full bg-sky-50 flex items-center justify-center text-4xl select-none"
-                style={{ animation: 'icon-bounce 600ms cubic-bezier(0.34, 1.56, 0.64, 1) 300ms both' }}
+                style={{ animation: 'icon-clap 700ms cubic-bezier(0.34, 1.56, 0.64, 1) 280ms both' }}
               >
                 👏
               </div>
-              <div>
+              <div className="mt-1">
                 <p className="text-lg font-bold text-gray-900 mb-1">제출 완료!</p>
                 <p className="text-sm text-gray-400">{submittedAt}</p>
               </div>
@@ -200,7 +254,7 @@ export default function SubmitModal({ hackathonTitle, items, onClose }: SubmitMo
               </p>
               <button
                 onClick={onClose}
-                className="mt-2 w-full py-3 rounded-xl bg-sky-200 text-sky-800 text-sm font-bold hover:bg-sky-300 transition-colors"
+                className="mt-3 w-full py-3 rounded-xl bg-sky-200 text-sky-800 text-sm font-bold hover:bg-sky-300 transition-colors"
               >
                 확인
               </button>
