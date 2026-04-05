@@ -31,8 +31,7 @@ export default function LoginGate({ children }: { children: React.ReactNode }) {
 
   function handleSelect(id: string) {
     localStorage.setItem(CURRENT_USER_KEY, id);
-    setLoggedIn(true);
-    router.push('/');
+    window.location.href = '/';
   }
 
   // hydration 전 — 빈 화면 (레이아웃 깜빡임 방지)

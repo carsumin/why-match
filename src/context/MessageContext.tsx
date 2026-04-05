@@ -3,25 +3,11 @@
 // 메시지 전역 상태 — 현재 로그인 유저 기반 필터링 + localStorage 상태 지속
 
 import { createContext, useContext, useState, useEffect } from 'react';
-import { inboxMessages as baseInbox, sentMessages as baseSent } from '@/data/messages';
+import * as messageDb from '@/lib/messageDb';
 import * as teamDb from '@/lib/teamDb';
 import { CURRENT_USER_KEY } from '@/hooks/useCurrentUser';
 import type { MessageDisplay } from '@/data/messages';
 import type { User } from '@/types';
-
-const STATUS_KEY = 'whymatch_message_statuses';
-type StatusOverride = Record<string, 'pending' | 'accepted' | 'rejected'>;
-
-function loadOverrides(): StatusOverride {
-  try {
-    const raw = localStorage.getItem(STATUS_KEY);
-    return raw ? JSON.parse(raw) : {};
-  } catch { return {}; }
-}
-
-function applyOverrides(messages: MessageDisplay[], overrides: StatusOverride): MessageDisplay[] {
-  return messages.map((m) => overrides[m.id] ? { ...m, status: overrides[m.id] } : m);
-}
 
 interface SendMessageParams {
   teamCode: string;
@@ -37,6 +23,7 @@ interface MessageContextValue {
   pendingCount: number;
   updateStatus: (id: string, status: 'accepted' | 'rejected') => void;
   sendMessage: (params: SendMessageParams) => void;
+  markAsRead: (id: string) => void;
 }
 
 const MessageContext = createContext<MessageContextValue>({
@@ -45,7 +32,25 @@ const MessageContext = createContext<MessageContextValue>({
   pendingCount: 0,
   updateStatus: () => {},
   sendMessage: () => {},
+  markAsRead: () => {},
 });
+
+function filterByUser(userId: string) {
+  const all = messageDb.getMessages();
+
+  // 내 팀 코드 목록 (내가 리더인 팀)
+  const myTeamCodes = teamDb.getTeamsByLeader(userId).map((t) => t.teamCode);
+
+  const inbox = all
+    .filter((m) => myTeamCodes.includes(m.teamCode))
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+  const sent = all
+    .filter((m) => m.fromUserId === userId)
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+  return { inbox, sent };
+}
 
 export function MessageProvider({ children }: { children: React.ReactNode }) {
   const [inbox, setInbox] = useState<MessageDisplay[]>([]);
@@ -53,48 +58,36 @@ export function MessageProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const userId = localStorage.getItem(CURRENT_USER_KEY);
-    const overrides = loadOverrides();
+    if (!userId) return;
 
-    // 내 팀 코드 목록 (내가 리더인 팀) — teamDb 기반
-    const myTeamCodes = teamDb.getTeamsByLeader(userId ?? '')
-      .map((t) => t.teamCode);
+    const { inbox: filteredInbox, sent: filteredSent } = filterByUser(userId);
 
-    // 받은 메시지: 내 팀에 지원한 메시지
-    const filteredInbox = applyOverrides(
-      baseInbox.filter((m) => myTeamCodes.includes(m.teamCode)),
-      overrides
-    );
-
-    // 보낸 메시지: 내가 보낸 메시지
-    const filteredSent = applyOverrides(
-      baseSent.filter((m) => m.fromUserId === userId),
-      overrides
-    );
-
-    // 수락된 sent 메시지 → 팀 DB 자동 동기화 (하드코딩 초기값 포함)
+    // 수락된 sent 메시지 → 팀 DB 자동 동기화
     filteredSent.forEach((m) => {
-      if (m.status === 'accepted') {
-        teamDb.addMember(m.teamCode, m.fromUserId);
-      }
+      if (m.status === 'accepted') teamDb.addMember(m.teamCode, m.fromUserId);
     });
 
     setInbox(filteredInbox);
     setSent(filteredSent);
   }, []);
 
-  function updateStatus(id: string, status: 'accepted' | 'rejected') {
-    const overrides = loadOverrides();
-    overrides[id] = status;
-    localStorage.setItem(STATUS_KEY, JSON.stringify(overrides));
+  function reload() {
+    const userId = localStorage.getItem(CURRENT_USER_KEY);
+    if (!userId) return;
+    const { inbox: i, sent: s } = filterByUser(userId);
+    setInbox(i);
+    setSent(s);
+  }
 
-    // 수락 시 팀 DB에 멤버 추가
+  function updateStatus(id: string, status: 'accepted' | 'rejected') {
+    messageDb.updateMessageStatus(id, status);
+
     if (status === 'accepted') {
-      const msg = inbox.find((m) => m.id === id);
+      const msg = messageDb.getMessages().find((m) => m.id === id);
       if (msg) teamDb.addMember(msg.teamCode, msg.fromUserId);
     }
 
-    setInbox((prev) => prev.map((m) => m.id === id ? { ...m, status } : m));
-    setSent((prev) => prev.map((m) => m.id === id ? { ...m, status } : m));
+    reload();
   }
 
   function sendMessage({ teamCode, teamName, hackathonSlug, message, currentUser }: SendMessageParams) {
@@ -111,13 +104,19 @@ export function MessageProvider({ children }: { children: React.ReactNode }) {
       isRead: false,
       createdAt: new Date().toISOString(),
     };
-    setSent((prev) => [newMsg, ...prev]);
+    messageDb.addMessage(newMsg);
+    reload();
+  }
+
+  function markAsRead(id: string) {
+    messageDb.markAsRead(id);
+    reload();
   }
 
   const pendingCount = inbox.filter((m) => m.status === 'pending').length;
 
   return (
-    <MessageContext.Provider value={{ inbox, sent, pendingCount, updateStatus, sendMessage }}>
+    <MessageContext.Provider value={{ inbox, sent, pendingCount, updateStatus, sendMessage, markAsRead }}>
       {children}
     </MessageContext.Provider>
   );

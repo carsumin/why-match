@@ -6,6 +6,9 @@ import { useState } from 'react';
 import type { MessageDisplay } from '@/data/messages';
 import ChatModal from './ChatModal';
 import { useMessageContext } from '@/context/MessageContext';
+import * as teamDb from '@/lib/teamDb';
+import * as messageDb from '@/lib/messageDb';
+import { getUserById } from '@/data/teams';
 
 const STATUS_CONFIG = {
   pending: { label: '대기 중', className: 'bg-yellow-50 text-yellow-600 border border-yellow-200' },
@@ -46,34 +49,63 @@ interface MessageCardProps {
 
 function MessageCard({ msg, isInbox, onClick }: MessageCardProps) {
   const { label, className } = STATUS_CONFIG[msg.status];
-  const initial = msg.fromUserName[0];
+  const isUnread = isInbox && !msg.isRead;
+
+  // 보낸 메시지: 상대방 = 팀장, 받은 메시지: 상대방 = 지원자
+  const counterpart = isInbox
+    ? { name: msg.fromUserName, role: msg.fromUserRole }
+    : (() => {
+        const team = teamDb.getTeams().find((t) => t.teamCode === msg.teamCode);
+        const leader = team ? getUserById(team.leaderId) : null;
+        return { name: leader?.name ?? msg.teamName, role: leader?.roles[0] ?? '' };
+      })();
+
+  // 최신 버블이 있으면 그걸 미리보기로, 없으면 원본 메시지
+  const latestBubble = messageDb.getLatestBubble(msg.id);
+  const previewText = latestBubble?.text ?? msg.message;
+  const previewDate = latestBubble?.createdAt ?? msg.createdAt;
 
   return (
     <button
       onClick={onClick}
-      className="w-full text-left p-4 rounded-2xl border border-sky-100 bg-white/70 backdrop-blur hover:border-sky-300 hover:shadow-sm transition-all"
+      className={`w-full text-left p-4 rounded-2xl border transition-all ${
+        isUnread
+          ? 'border-sky-300 bg-sky-50 hover:border-sky-400 hover:shadow-sm'
+          : 'border-sky-100 bg-white/70 backdrop-blur hover:border-sky-300 hover:shadow-sm'
+      }`}
     >
       <div className="flex items-start gap-3">
-        {/* 아바타 */}
-        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-sky-300 to-indigo-300 flex items-center justify-center text-white text-sm font-bold shrink-0">
-          {initial}
+        {/* 아바타 + 안읽음 점 */}
+        <div className="relative shrink-0">
+          <div className="w-10 h-10 rounded-full bg-linear-to-br from-sky-300 to-indigo-300 flex items-center justify-center text-white text-sm font-bold">
+            {counterpart.name[0]}
+          </div>
+          {isUnread && (
+            <span className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full bg-red-400 border-2 border-white" />
+          )}
         </div>
 
         {/* 본문 */}
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-center gap-1.5 mb-0.5">
-            <span className="font-semibold text-gray-900 text-sm">{msg.fromUserName}</span>
-            <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${getRoleColor(msg.fromUserRole)}`}>
-              {msg.fromUserRole}
+            <span className={`text-sm ${isUnread ? 'font-bold text-gray-900' : 'font-semibold text-gray-900'}`}>
+              {counterpart.name}
             </span>
+            {counterpart.role && (
+              <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${getRoleColor(counterpart.role)}`}>
+                {counterpart.role}
+              </span>
+            )}
             <span className="text-xs text-gray-400">→</span>
             <span className="text-xs font-medium text-gray-600">{msg.teamName}</span>
             <span className={`text-xs font-medium px-2 py-0.5 rounded-full ml-auto ${className}`}>
               {label}
             </span>
           </div>
-          <p className="text-sm text-gray-500 line-clamp-2 mb-1">{msg.message}</p>
-          <span className="text-xs text-gray-300">{formatDate(msg.createdAt)}</span>
+          <p className={`text-sm line-clamp-1 mb-1 ${isUnread ? 'text-gray-700 font-medium' : 'text-gray-500'}`}>
+            {previewText}
+          </p>
+          <span className="text-xs text-gray-300">{formatDate(previewDate)}</span>
         </div>
       </div>
     </button>
@@ -83,8 +115,13 @@ function MessageCard({ msg, isInbox, onClick }: MessageCardProps) {
 export default function MessageTabs() {
   const [activeTab, setActiveTab] = useState<'inbox' | 'sent'>('inbox');
   const [selectedMsg, setSelectedMsg] = useState<MessageDisplay | null>(null);
-  const { inbox, sent, pendingCount, updateStatus } = useMessageContext();
+  const { inbox, sent, pendingCount, updateStatus, markAsRead } = useMessageContext();
   const messages = activeTab === 'inbox' ? inbox : sent;
+
+  function handleOpen(msg: MessageDisplay) {
+    setSelectedMsg(msg);
+    if (!msg.isRead) markAsRead(msg.id);
+  }
 
   function handleStatusChange(id: string, status: 'accepted' | 'rejected') {
     updateStatus(id, status);
@@ -135,7 +172,7 @@ export default function MessageTabs() {
               key={msg.id}
               msg={msg}
               isInbox={activeTab === 'inbox'}
-              onClick={() => setSelectedMsg(msg)}
+              onClick={() => handleOpen(msg)}
             />
           ))}
         </div>
