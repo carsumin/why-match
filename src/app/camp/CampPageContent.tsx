@@ -36,6 +36,7 @@ export default function CampPageContent() {
     isOpen: true,
     lookingFor: [] as string[],
     contactUrl: '',
+    hackathonSlug: filterSlug ?? '',
   });
 
   // 필터링 + 내 팀 상단 정렬 (종료된 해커톤 팀 제외)
@@ -64,7 +65,7 @@ export default function CampPageContent() {
     if (!form.name.trim() || !form.intro.trim()) return;
     createTeam({
       teamCode: `T-NEW-${Date.now()}`,
-      hackathonSlug: filterSlug,
+      hackathonSlug: form.hackathonSlug || null,
       leaderId: currentUser?.id ?? '',
       name: form.name.trim(),
       isOpen: form.isOpen,
@@ -74,7 +75,7 @@ export default function CampPageContent() {
       createdAt: new Date().toISOString(),
     });
     setIsModalOpen(false);
-    setForm({ name: '', intro: '', isOpen: true, lookingFor: [], contactUrl: '' });
+    setForm({ name: '', intro: '', isOpen: true, lookingFor: [], contactUrl: '', hackathonSlug: filterSlug ?? '' });
   }
 
   return (
@@ -167,6 +168,25 @@ export default function CampPageContent() {
               </button>
             </div>
 
+            {/* 해커톤 선택 */}
+            <div>
+              <label className="text-xs font-semibold text-gray-500 block mb-1">
+                해커톤 <span className="text-red-400">*</span>
+              </label>
+              <select
+                value={form.hackathonSlug}
+                onChange={(e) => setForm((p) => ({ ...p, hackathonSlug: e.target.value }))}
+                className="w-full px-3 py-2 rounded-xl border border-sky-100 text-sm focus:outline-none focus:border-gray-400 bg-white"
+              >
+                <option value="">해커톤을 선택하세요</option>
+                {activeHackathons.map((h) => (
+                  <option key={h.slug} value={h.slug}>
+                    {h.title}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             {/* 팀명 */}
             <div>
               <label className="text-xs font-semibold text-gray-500 block mb-1">
@@ -245,7 +265,7 @@ export default function CampPageContent() {
             {/* 제출 버튼 */}
             <button
               onClick={submitForm}
-              disabled={!form.name.trim() || !form.intro.trim()}
+              disabled={!form.name.trim() || !form.intro.trim() || !form.hackathonSlug}
               className="w-full py-3 rounded-xl bg-sky-200 text-sky-800 font-bold text-sm hover:bg-sky-300 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               등록하기
