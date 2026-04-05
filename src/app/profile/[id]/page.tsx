@@ -49,7 +49,12 @@ export default function ProfilePage() {
   const baseUser = getUserById(id);
   const isMe = currentUser?.id === id;
 
-  const [user, setUser] = useState<User | null>(null);
+  if (!baseUser) {
+    notFound();
+    return null;
+  }
+
+  const [user, setUser] = useState<User>(baseUser);
   const [editing, setEditing] = useState(false);
 
   // 편집 폼 상태
@@ -63,19 +68,12 @@ export default function ProfilePage() {
     portfolioUrl: '',
   });
 
+  // localStorage 오버라이드 패치 (변경분 있을 때만 재렌더)
   useEffect(() => {
-    if (!baseUser) return;
     const override = loadOverride(id);
-    const merged: User = { ...baseUser, ...override };
-    setUser(merged);
-  }, [id, baseUser]);
-
-  if (!baseUser) {
-    notFound();
-    return null;
-  }
-
-  if (!user) return null;
+    if (Object.keys(override).length === 0) return;
+    setUser((prev) => ({ ...prev, ...override }));
+  }, [id]);
 
   function startEdit() {
     if (!user) return;

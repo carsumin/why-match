@@ -4,6 +4,7 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react';
 import type { MessageDisplay } from '@/data/messages';
+import Confetti from '@/components/ui/Confetti';
 
 interface ChatBubble {
   id: string;
@@ -69,6 +70,7 @@ function SystemNotice({ status, contactUrl }: { status: MessageDisplay['status']
 
 export default function ChatModal({ msg, isInbox, onClose, onStatusChange }: Props) {
   const [status, setStatus] = useState(msg.status);
+  const [showConfetti, setShowConfetti] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const [bubbles, setBubbles] = useState<ChatBubble[]>([
     // 최초 지원 메시지: 받은 메시지면 상대방 것(isMe=false), 보낸 메시지면 내 것(isMe=true)
@@ -119,6 +121,7 @@ export default function ChatModal({ msg, isInbox, onClose, onStatusChange }: Pro
   function handleAccept() {
     setStatus('accepted');
     onStatusChange(msg.id, 'accepted');
+    setShowConfetti(true);
   }
 
   function handleReject() {
@@ -130,6 +133,8 @@ export default function ChatModal({ msg, isInbox, onClose, onStatusChange }: Pro
 
   return (
     <>
+      <Confetti active={showConfetti} onDone={() => setShowConfetti(false)} />
+
       {/* 딤 배경 */}
       <div className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm" onClick={onClose} />
 
