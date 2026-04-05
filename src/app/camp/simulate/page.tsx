@@ -94,6 +94,8 @@ function SimulateContent() {
 
   // me가 아직 결정되지 않은 경우 계산 스킵
   const joinerTeam = (joinerSimTeams.find((t) => t.id === joinerTeamId) ?? joinerSimTeams[0]) ?? null;
+  // 합류자 모드용 원본 DB 레코드 (isOpen, contact.url 접근)
+  const joinerTeamRecord = dbTeams.find((t) => t.teamCode === joinerTeam?.id) ?? null;
   const isMemberAlready = me && joinerTeam ? joinerTeam.members.some((m) => m.id === me.id) : false;
   const joinerResult = me && joinerTeam && !isMemberAlready ? simulateTeamScore(joinerTeam, me) : null;
 
@@ -256,14 +258,21 @@ function SimulateContent() {
                 <ReasonBadge user={me} team={joinerTeam} />
               </Card>
 
-              {/* 연락하기 */}
-              <a
-                href="#"
-                onClick={(e) => { e.preventDefault(); }}
-                className="block w-full text-center py-3 rounded-xl bg-sky-200 text-sky-800 font-bold text-sm hover:bg-sky-300 transition-colors"
-              >
-                이 팀에 합류 신청하기 →
-              </a>
+              {/* 합류 신청하기 */}
+              {joinerTeamRecord?.isOpen ? (
+                <a
+                  href={joinerTeamRecord.contact.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block w-full text-center py-3 rounded-xl bg-sky-200 text-sky-800 font-bold text-sm hover:bg-sky-300 transition-colors"
+                >
+                  이 팀에 합류 신청하기 →
+                </a>
+              ) : (
+                <div className="w-full text-center py-3 rounded-xl bg-gray-100 text-gray-400 text-sm font-bold cursor-not-allowed">
+                  모집 종료된 팀입니다
+                </div>
+              )}
             </>
           ) : null}
         </div>
@@ -325,13 +334,17 @@ function SimulateContent() {
               <div className="space-y-2">
                 {leaderTeam.members.map((member) => {
                   const match = calculateMatchScore(member, leaderTeam);
+                  const isLeader = member.id === leaderTeam.leaderId;
                   return (
                     <div key={member.id} className="flex items-center gap-2">
-                      <div className="w-7 h-7 rounded-full bg-sky-100 flex items-center justify-center text-sky-800 font-bold text-xs shrink-0">
+                      <div className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs shrink-0 ${isLeader ? 'bg-yellow-100 text-yellow-700' : 'bg-sky-100 text-sky-800'}`}>
                         {member.name[0]}
                       </div>
                       <div className="flex-1 min-w-0">
                         <span className="text-sm font-semibold text-gray-800">{member.name}</span>
+                        {isLeader && (
+                          <span className="ml-1.5 text-[10px] font-bold text-yellow-600 bg-yellow-50 px-1.5 py-0.5 rounded-full">팀장</span>
+                        )}
                         <span className="text-xs text-gray-400 ml-1.5">
                           {member.roles.map((r) => roleLabel[r] ?? r).join(' · ')}
                         </span>
