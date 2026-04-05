@@ -578,13 +578,18 @@ function TeamCompositionBreakdown({ team }: { team: LegacyTeam }) {
         현재 팀원 구성 ({team.members.length}명 평균)
       </p>
       <div className="space-y-1.5">
-        {memberScores.map(({ member, match }) => (
+        {memberScores.map(({ member, match }) => {
+          const isLeader = member.id === team.leaderId;
+          return (
           <div key={member.id} className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-full glass border border-sky-100 flex items-center justify-center text-gray-600 font-bold text-xs shrink-0">
+            <div className={`w-6 h-6 rounded-full border flex items-center justify-center font-bold text-xs shrink-0 ${isLeader ? 'bg-yellow-50 border-yellow-200 text-yellow-700' : 'glass border-sky-100 text-gray-600'}`}>
               {member.name[0]}
             </div>
             <div className="flex-1 min-w-0">
               <span className="text-xs font-semibold text-gray-900">{member.name}</span>
+              {isLeader && (
+                <span className="ml-1 text-[10px] font-bold text-yellow-600 bg-yellow-50 px-1.5 py-0.5 rounded-full">팀장</span>
+              )}
               <span className="text-xs text-gray-400 ml-1">
                 {member.roles.map((r) => roleLabel[r] ?? r).join('/')}
               </span>
@@ -598,7 +603,8 @@ function TeamCompositionBreakdown({ team }: { team: LegacyTeam }) {
               {match.reason}
             </span>
           </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
