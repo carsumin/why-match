@@ -122,7 +122,7 @@ export default function HackathonsPage() {
                     {STATUS_LABELS[hackathon.status]}
                   </span>
                   {hackathon.status !== 'ended' && (
-                    <DdayBadge deadline={hackathon.period.submissionDeadlineAt} />
+                    <DdayBadge deadline={hackathon.period.submissionDeadlineAt} status={hackathon.status} startAt={hackathon.period.startAt} />
                   )}
                 </div>
 

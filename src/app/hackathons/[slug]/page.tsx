@@ -43,7 +43,7 @@ export default async function HackathonDetailPage({ params }: Props) {
             {statusLabel[listItem.status]}
           </span>
           {listItem.status !== 'ended' && (
-            <DdayBadge deadline={listItem.period.submissionDeadlineAt} />
+            <DdayBadge deadline={listItem.period.submissionDeadlineAt} status={listItem.status} startAt={listItem.period.startAt} />
           )}
         </div>
 
