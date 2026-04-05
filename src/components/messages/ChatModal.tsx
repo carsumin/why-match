@@ -30,6 +30,16 @@ function formatTime(d: Date) {
   return d.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
 }
 
+function formatDateLabel(d: Date) {
+  return d.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
+}
+
+function isSameDay(a: Date, b: Date) {
+  return a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate();
+}
+
 function SystemNotice({ status, contactUrl }: { status: MessageDisplay['status']; contactUrl?: string }) {
   if (status === 'accepted') {
     return (
@@ -174,20 +184,33 @@ export default function ChatModal({ msg, isInbox, onClose, onStatusChange }: Pro
 
           {/* 말풍선 영역 */}
           <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3 bg-sky-50/30">
-            {bubbles.map((bubble) => (
-              <div key={bubble.id} className={`flex flex-col ${bubble.isMe ? 'items-end' : 'items-start'}`}>
-                <div
-                  className={`max-w-[75%] px-4 py-2.5 text-sm leading-relaxed ${
-                    bubble.isMe
-                      ? 'bg-sky-500 text-white rounded-2xl rounded-tr-sm'
-                      : 'bg-white border border-sky-100 text-gray-800 rounded-2xl rounded-tl-sm shadow-sm'
-                  }`}
-                >
-                  {bubble.text}
+            {bubbles.map((bubble, i) => {
+              const prevBubble = bubbles[i - 1];
+              const showDateLabel = !prevBubble || !isSameDay(prevBubble.time, bubble.time);
+              return (
+                <div key={bubble.id}>
+                  {showDateLabel && (
+                    <div className="flex items-center justify-center my-2">
+                      <span className="text-[11px] text-gray-400 bg-gray-100 px-3 py-1 rounded-full">
+                        {formatDateLabel(bubble.time)}
+                      </span>
+                    </div>
+                  )}
+                  <div className={`flex flex-col ${bubble.isMe ? 'items-end' : 'items-start'}`}>
+                    <div
+                      className={`max-w-[75%] px-4 py-2.5 text-sm leading-relaxed ${
+                        bubble.isMe
+                          ? 'bg-sky-500 text-white rounded-2xl rounded-tr-sm'
+                          : 'bg-white border border-sky-100 text-gray-800 rounded-2xl rounded-tl-sm shadow-sm'
+                      }`}
+                    >
+                      {bubble.text}
+                    </div>
+                    <span className="text-[10px] text-gray-300 mt-1 px-1">{formatTime(bubble.time)}</span>
+                  </div>
                 </div>
-                <span className="text-[10px] text-gray-300 mt-1 px-1">{formatTime(bubble.time)}</span>
-              </div>
-            ))}
+              );
+            })}
 
             {/* 상태 시스템 안내 */}
             <SystemNotice status={status} contactUrl={msg.contactUrl} />
