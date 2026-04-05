@@ -6,6 +6,8 @@ import { useState } from 'react';
 import type { MessageDisplay } from '@/data/messages';
 import ChatModal from './ChatModal';
 import { useMessageContext } from '@/context/MessageContext';
+import * as teamDb from '@/lib/teamDb';
+import { getUserById } from '@/data/teams';
 
 const STATUS_CONFIG = {
   pending: { label: '대기 중', className: 'bg-yellow-50 text-yellow-600 border border-yellow-200' },
@@ -46,7 +48,15 @@ interface MessageCardProps {
 
 function MessageCard({ msg, isInbox, onClick }: MessageCardProps) {
   const { label, className } = STATUS_CONFIG[msg.status];
-  const initial = msg.fromUserName[0];
+
+  // 보낸 메시지: 상대방 = 팀장, 받은 메시지: 상대방 = 지원자
+  const counterpart = isInbox
+    ? { name: msg.fromUserName, role: msg.fromUserRole }
+    : (() => {
+        const team = teamDb.getTeams().find((t) => t.teamCode === msg.teamCode);
+        const leader = team ? getUserById(team.leaderId) : null;
+        return { name: leader?.name ?? msg.teamName, role: leader?.roles[0] ?? '' };
+      })();
 
   return (
     <button
@@ -55,17 +65,19 @@ function MessageCard({ msg, isInbox, onClick }: MessageCardProps) {
     >
       <div className="flex items-start gap-3">
         {/* 아바타 */}
-        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-sky-300 to-indigo-300 flex items-center justify-center text-white text-sm font-bold shrink-0">
-          {initial}
+        <div className="w-10 h-10 rounded-full bg-linear-to-br from-sky-300 to-indigo-300 flex items-center justify-center text-white text-sm font-bold shrink-0">
+          {counterpart.name[0]}
         </div>
 
         {/* 본문 */}
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-center gap-1.5 mb-0.5">
-            <span className="font-semibold text-gray-900 text-sm">{msg.fromUserName}</span>
-            <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${getRoleColor(msg.fromUserRole)}`}>
-              {msg.fromUserRole}
-            </span>
+            <span className="font-semibold text-gray-900 text-sm">{counterpart.name}</span>
+            {counterpart.role && (
+              <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${getRoleColor(counterpart.role)}`}>
+                {counterpart.role}
+              </span>
+            )}
             <span className="text-xs text-gray-400">→</span>
             <span className="text-xs font-medium text-gray-600">{msg.teamName}</span>
             <span className={`text-xs font-medium px-2 py-0.5 rounded-full ml-auto ${className}`}>

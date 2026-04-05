@@ -5,6 +5,8 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import type { MessageDisplay } from '@/data/messages';
 import * as messageDb from '@/lib/messageDb';
+import * as teamDb from '@/lib/teamDb';
+import { getUserById } from '@/data/teams';
 import { CURRENT_USER_KEY } from '@/hooks/useCurrentUser';
 import Confetti from '@/components/ui/Confetti';
 
@@ -84,6 +86,15 @@ export default function ChatModal({ msg, isInbox, onClose, onStatusChange }: Pro
   const currentUserId = typeof window !== 'undefined'
     ? localStorage.getItem(CURRENT_USER_KEY) ?? ''
     : '';
+
+  // 헤더에 표시할 상대방: 받은 메시지 → 지원자, 보낸 메시지 → 팀장
+  const counterpart = isInbox
+    ? { name: msg.fromUserName, role: msg.fromUserRole }
+    : (() => {
+        const team = teamDb.getTeams().find((t) => t.teamCode === msg.teamCode);
+        const leader = team ? getUserById(team.leaderId) : null;
+        return { name: leader?.name ?? msg.teamName, role: leader?.roles[0] ?? '' };
+      })();
 
   const [status, setStatus] = useState(msg.status);
   const [showConfetti, setShowConfetti] = useState(false);
@@ -187,7 +198,7 @@ export default function ChatModal({ msg, isInbox, onClose, onStatusChange }: Pro
           {/* 헤더 */}
           <div className="flex items-center gap-3 px-4 pt-5 pb-3 border-b border-sky-50 shrink-0">
             <div className="w-9 h-9 rounded-full bg-linear-to-br from-sky-300 to-indigo-300 flex items-center justify-center text-white text-sm font-bold shrink-0">
-              {msg.fromUserName[0]}
+              {counterpart.name[0]}
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
@@ -196,7 +207,7 @@ export default function ChatModal({ msg, isInbox, onClose, onStatusChange }: Pro
                   {label}
                 </span>
               </div>
-              <p className="text-xs text-gray-400 truncate">{msg.fromUserName} · {msg.fromUserRole}</p>
+              <p className="text-xs text-gray-400 truncate">{counterpart.name}{counterpart.role ? ` · ${counterpart.role}` : ''}</p>
             </div>
             <button
               onClick={onClose}
