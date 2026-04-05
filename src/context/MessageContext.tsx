@@ -7,6 +7,7 @@ import { inboxMessages as baseInbox, sentMessages as baseSent } from '@/data/mes
 import * as teamDb from '@/lib/teamDb';
 import { CURRENT_USER_KEY } from '@/hooks/useCurrentUser';
 import type { MessageDisplay } from '@/data/messages';
+import type { User } from '@/types';
 
 const STATUS_KEY = 'whymatch_message_statuses';
 type StatusOverride = Record<string, 'pending' | 'accepted' | 'rejected'>;
@@ -22,11 +23,20 @@ function applyOverrides(messages: MessageDisplay[], overrides: StatusOverride): 
   return messages.map((m) => overrides[m.id] ? { ...m, status: overrides[m.id] } : m);
 }
 
+interface SendMessageParams {
+  teamCode: string;
+  teamName: string;
+  hackathonSlug: string | null;
+  message: string;
+  currentUser: User;
+}
+
 interface MessageContextValue {
   inbox: MessageDisplay[];
   sent: MessageDisplay[];
   pendingCount: number;
   updateStatus: (id: string, status: 'accepted' | 'rejected') => void;
+  sendMessage: (params: SendMessageParams) => void;
 }
 
 const MessageContext = createContext<MessageContextValue>({
@@ -34,6 +44,7 @@ const MessageContext = createContext<MessageContextValue>({
   sent: [],
   pendingCount: 0,
   updateStatus: () => {},
+  sendMessage: () => {},
 });
 
 export function MessageProvider({ children }: { children: React.ReactNode }) {
@@ -86,10 +97,27 @@ export function MessageProvider({ children }: { children: React.ReactNode }) {
     setSent((prev) => prev.map((m) => m.id === id ? { ...m, status } : m));
   }
 
+  function sendMessage({ teamCode, teamName, hackathonSlug, message, currentUser }: SendMessageParams) {
+    const newMsg: MessageDisplay = {
+      id: `msg-${Date.now()}`,
+      fromUserId: currentUser.id,
+      fromUserName: currentUser.name,
+      fromUserRole: currentUser.roles[0] ?? '',
+      teamCode,
+      teamName,
+      hackathonSlug,
+      message,
+      status: 'pending',
+      isRead: false,
+      createdAt: new Date().toISOString(),
+    };
+    setSent((prev) => [newMsg, ...prev]);
+  }
+
   const pendingCount = inbox.filter((m) => m.status === 'pending').length;
 
   return (
-    <MessageContext.Provider value={{ inbox, sent, pendingCount, updateStatus }}>
+    <MessageContext.Provider value={{ inbox, sent, pendingCount, updateStatus, sendMessage }}>
       {children}
     </MessageContext.Provider>
   );

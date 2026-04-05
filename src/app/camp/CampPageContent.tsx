@@ -9,6 +9,7 @@ import { hackathonList } from '@/data/hackathons';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useTeamDb } from '@/hooks/useTeamDb';
 import type { TeamRecord } from '@/hooks/useTeamDb';
+import ContactModal from '@/components/messages/ContactModal';
 
 const POSITIONS = ['Frontend', 'Backend', 'Designer', 'PM', 'Data', 'ML Engineer', 'DevOps'];
 
@@ -277,6 +278,7 @@ export default function CampPageContent() {
 
 // 팀 카드 컴포넌트
 function TeamCard({ team, isMyTeam }: { team: TeamRecord; isMyTeam: boolean }) {
+  const [contactOpen, setContactOpen] = useState(false);
   return (
     <div className={`rounded-2xl shadow-sm p-5 space-y-3 ${
       isMyTeam
@@ -350,14 +352,12 @@ function TeamCard({ team, isMyTeam }: { team: TeamRecord; isMyTeam: boolean }) {
               내 궁합 보기 ✦
             </Link>
             {team.isOpen ? (
-              <a
-                href={team.contact.url}
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                onClick={() => setContactOpen(true)}
                 className="flex-1 text-center py-2 rounded-xl bg-sky-200 text-sky-800 text-sm font-bold hover:bg-sky-300 transition-colors"
               >
                 연락하기 →
-              </a>
+              </button>
             ) : (
               <button
                 disabled
@@ -369,6 +369,10 @@ function TeamCard({ team, isMyTeam }: { team: TeamRecord; isMyTeam: boolean }) {
           </>
         )}
       </div>
+
+      {contactOpen && (
+        <ContactModal team={team} onClose={() => setContactOpen(false)} />
+      )}
     </div>
   );
 }
