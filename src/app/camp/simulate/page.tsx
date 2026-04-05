@@ -87,6 +87,10 @@ function SimulateContent() {
   const myDbTeams = me ? dbTeams.filter((t) => t.leaderId === me.id) : [];
   const mySimTeams = myDbTeams.map(toSimTeam);
   const [leaderTeamId, setLeaderTeamId] = useState<string>('');
+  // 합류자 모드: 신청하기 모달
+  const [joinModalOpen, setJoinModalOpen] = useState(false);
+  const [joinMessage, setJoinMessage] = useState('');
+  const [appliedTeams, setAppliedTeams] = useState<string[]>([]);
   // 팀장 모드: 연락하기 모달
   const [contactCandidate, setContactCandidate] = useState<User | null>(null);
   const [contactMessage, setContactMessage] = useState('');
@@ -263,14 +267,18 @@ function SimulateContent() {
 
               {/* 합류 신청하기 */}
               {joinerTeamRecord?.isOpen ? (
-                <a
-                  href={joinerTeamRecord.contact.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block w-full text-center py-3 rounded-xl bg-sky-200 text-sky-800 font-bold text-sm hover:bg-sky-300 transition-colors"
-                >
-                  이 팀에 합류 신청하기 →
-                </a>
+                appliedTeams.includes(joinerTeam.id) ? (
+                  <div className="w-full text-center py-3 rounded-xl bg-green-50 text-green-700 text-sm font-bold">
+                    ✓ 신청 완료
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => { setJoinMessage(''); setJoinModalOpen(true); }}
+                    className="w-full py-3 rounded-xl bg-sky-200 text-sky-800 font-bold text-sm hover:bg-sky-300 transition-colors"
+                  >
+                    이 팀에 합류 신청하기 →
+                  </button>
+                )
               ) : (
                 <div className="w-full text-center py-3 rounded-xl bg-gray-100 text-gray-400 text-sm font-bold cursor-not-allowed">
                   모집 종료된 팀입니다
@@ -476,6 +484,43 @@ function SimulateContent() {
           )}
             </>
           )}
+        </div>
+      )}
+
+      {/* 합류 신청 모달 (합류자 모드) */}
+      {joinModalOpen && joinerTeam && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 p-4">
+          <div className="w-full max-w-md glass rounded-2xl shadow-xl p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-base font-bold text-gray-900">
+                {joinerTeam.name}에 합류 신청
+              </h2>
+              <button onClick={() => setJoinModalOpen(false)} className="text-gray-400 hover:text-gray-600 text-xl">✕</button>
+            </div>
+            <div className="p-3 rounded-xl bg-sky-50 text-xs text-gray-500 space-y-0.5">
+              <p className="font-semibold text-gray-900">{joinerTeam.name}</p>
+              <p>모집 포지션: {joinerTeamRecord?.lookingFor.join(', ') || '미정'}</p>
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-gray-500 block mb-1">신청 메시지</label>
+              <textarea
+                value={joinMessage}
+                onChange={(e) => setJoinMessage(e.target.value)}
+                placeholder={`안녕하세요! ${joinerTeam.name}에 합류하고 싶습니다. ${me?.roles.map(r => roleLabel[r] ?? r).join(', ')} 포지션으로 지원합니다.`}
+                rows={4}
+                className="w-full px-3 py-2 rounded-xl border border-sky-100 text-sm focus:outline-none focus:border-gray-400 resize-none"
+              />
+            </div>
+            <button
+              onClick={() => {
+                setAppliedTeams((prev) => [...prev, joinerTeam.id]);
+                setJoinModalOpen(false);
+              }}
+              className="w-full py-3 rounded-xl bg-sky-200 text-sky-800 font-bold text-sm hover:bg-sky-300 transition-colors"
+            >
+              신청하기
+            </button>
+          </div>
         </div>
       )}
 
