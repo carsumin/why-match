@@ -32,7 +32,7 @@ WhyMatch는 그 불편함을 해결하기 위해 만들어졌습니다.
 ---
 
 ## ⚙️ 기술 스택
-
+  
 | 영역 | 기술 |
 |------|------|
 | Framework | Next.js 14 (App Router) |
@@ -45,15 +45,11 @@ WhyMatch는 그 불편함을 해결하기 위해 만들어졌습니다.
 
 ## 👥 팀원 소개
 
-<div align="center">
-
 | <img src="https://github.com/carsumin.png" width="80" style="border-radius:50%"/> | <img src="https://github.com/ShinWonjung.png" width="80" style="border-radius:50%"/> |
 |:---:|:---:|
 | **차수민** | **신원정** |
 | Full Stack Developer | 기획 · Front-End Developer |
 | [@carsumin](https://github.com/carsumin) | [@ShinWonjung](https://github.com/ShinWonjung) |
-
-</div>
 
 ---
 
