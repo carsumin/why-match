@@ -57,21 +57,11 @@ WhyMatch는 그 불편함을 해결하기 위해 만들어졌습니다.
 
 ---
 
-## 🚀 로컬 실행
+## 🌐 배포
 
-```bash
-# 저장소 클론
-git clone https://github.com/carsumin/why-match.git
-cd why-match
+[![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://why-match.vercel.app)
 
-# 패키지 설치
-npm install
-
-# 개발 서버 실행
-npm run dev
-```
-
-`http://localhost:3000` 에서 확인하세요.
+👉 **[why-match.vercel.app](https://why-match.vercel.app)**
 
 ---
 
